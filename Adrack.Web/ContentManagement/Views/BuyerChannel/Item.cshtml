@@ -1,0 +1,2493 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.BuyerChannelModel
+
+@using Adrack.Service.Helpers
+@using System
+
+@{
+    Html.AddPageTitle("Buyer Channel Item");
+    Html.AddPageMetaDescription("Shows selected Buyer Channel");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/ContentManagement/Scripts/common.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/core.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/effects.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/uniform.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/ContentManagement/Scripts/plugins/duallistbox.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switchery.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_all.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_childcounter.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/loaders/blockui.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/selects/bootstrap_multiselect.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    //Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/json2.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/ContentManagement/Scripts/plugins/notifications/pnotify.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, "~/Scripts/plugins/form.min.js".ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, "~/Scripts/plugins/form.wizard.min.js".ToLowerInvariant());
+
+    var currentUser = this.AppContext.AppUser;
+}
+
+@helper RenderXml(System.Xml.XmlNode xmlNode, int level)
+{
+    for (int i = 1; i <= level; i++)
+    {
+        <span>&nbsp;</span>
+    }
+    if (xmlNode.NodeType == System.Xml.XmlNodeType.Element)
+    {
+        <b>@xmlNode.Name</b>
+        <br />
+
+    }
+    else
+    {
+        <input type="text" value="@xmlNode.InnerText">
+        <br />
+    }
+
+    foreach (System.Xml.XmlNode child in xmlNode.ChildNodes)
+    {
+        @RenderXml(child, level + 1)
+    }
+}
+
+<style>
+    .subitem-ico {
+        float: left;
+        margin: 10px 10px 0 0;
+    }
+
+    .forsubselect {
+        float: right;
+        width: 365px !important;
+    }
+
+    .invalid-filter-value {
+        color: red;
+    }
+</style>
+
+<script>
+    var selectedNode = null;
+    var editMode = false;
+    var xmlTpl = '@Html.Raw(Model.BuyerChannelId > 0 ? Model.XmlTemplate.Replace("\r", "").Replace("\n", "") : "")';
+    var fieldsSelect = [];
+    var buyerChannelId = @Model.BuyerChannelId;
+    var campaignFields = [];
+    var filterRowNum = 0;
+    var allowedAffiliateChannels = [
+
+        @Html.Raw(Model.AllowedAffiliateChannels)
+
+    ];
+
+    function onScheduleRowClone(row) {
+        var $tableBody = $('#schedule').find("tbody"),
+        $trLast = $tableBody.find("tr:last"),
+        $trNew = row.clone();
+
+        $trNew.find('.daysofweek').val(row.find('.daysofweek').val());
+        $trNew.find('.fromhours').val(row.find('.fromhours').val());
+        $trNew.find('.fromminutes').val(row.find('.fromminutes').val());
+        $trNew.find('.tohours').val(row.find('.tohours').val());
+        $trNew.find('.tominutes').val(row.find('.tominutes').val());
+        
+
+        $trLast.after($trNew);
+    }
+
+    var canClone = false;
+
+    function campaignTemplateChange(e) {
+       var defaultValue = $(e).data('curvalue');
+
+        for (var i = 0; i < fieldsSelect.length; i++) {
+            if (fieldsSelect[i].id == $(e).val()) {
+
+                var obj = fieldsSelect[i].filterSettings;
+
+                try {
+                    if (obj !== undefined && obj !== null && obj.constructor != Object) {
+                        obj = $.parseJSON(fieldsSelect[i].filterSettings);
+                    }
+
+                    if (obj.filterType == 1) {
+                        $(e).parent().parent().children('td').eq(2).html('<textarea class="first-value form-control" style="resize: none; height: 36px;" data-validatorvalue="' + fieldsSelect[i].validatorValue + '" data-validator="' + fieldsSelect[i].validator + '">' + obj.filterTypeValue + '</textarea>');
+                    }
+                    else {
+                        var res = obj.filterTypeValue.split(',');
+                        var html = '<select  class="first-value multiselect" style="resize: none; height: 36px;" multiple="multiple" data-validatorvalue="" data-validator="0">';
+                        var values = defaultValue.split(",");
+
+                        for (var j = 0; j < res.length; j++) {
+                            var selected = '';
+                            for (var i = 0; i < values.length; i++) {
+                                if (values[i].trim()  == res[j].trim() ) {
+                                    selected = 'selected="selected"';
+                                }
+                            }
+
+                            html += '<option ' + selected + ' value="' + res[j].trim() + '">' + res[j].trim() + "</option>";
+                        }
+
+                        html += '</select>';
+                        $(e).parent().parent().children('td').eq(2).html(html);
+                    }
+                }
+                catch (ex) {
+                    $(e).parent().parent().children('td').eq(2).html('<textarea class="first-value form-control" style="resize: none; height: 36px;" data-validatorvalue="' + fieldsSelect[i].validatorValue + '" data-validator="' + fieldsSelect[i].validator + '">' + defaultValue + '</textarea>');
+                }
+
+                break;
+            }
+        }
+        
+        $(e).parent().parent().children('td').eq(2).children(".multiselect").multiselect("destroy");
+        $(e).parent().parent().children('td').eq(2).children(".multiselect").multiselect({ buttonWidth: '100%' });
+    }
+
+    function allowedChanged(e)
+    {
+        for(var i = 0; i < allowedAffiliateChannels.length; i++)
+        {
+            if (allowedAffiliateChannels[i][0] == $(e).data('id'))
+            {
+                allowedAffiliateChannels[i][1] = $(e).is(':checked');
+                return;
+            }
+        }
+
+        allowedAffiliateChannels.push([ $(e).data('id'), $(e).is(':checked') ]);
+    }
+
+    function addFilterRow(field, condition, value, value2, operator, parentid = 0, existing = false) {
+
+        var addChildBtn = '';
+        var subIcon = '';
+        var forsubselect = '';
+
+        if (parentid == 0) {
+            filterRowNum++;
+            addChildBtn = '<div class="add_child_btn" data-id="' + filterRowNum + '"><i class="glyphicon glyphicon-plus-sign green"></i></div>';
+        } else {
+            subIcon = '<div class="subitem-ico"><i class="glyphicon glyphicon-chevron-right"></i></div>';
+            forsubselect = 'forsubselect';
+        }
+
+        var html = '<tr class="row_' + filterRowNum + '">';
+        html += '<td>';
+        html += subIcon;
+
+        html += '<select class="fields form-control ' + forsubselect + '" data-id="' + filterRowNum + '" data-parent-id="' + parentid + '" data-curvalue="' + value + '" style="width: 400px" onchange="campaignTemplateChange(this)">';
+
+        var selected = '';
+        if (fieldsSelect.length == 0)
+        {
+            @foreach(var t in Model.CampaignTemplate)
+            {
+                @Html.Raw("selected = ''; if (field == " + t.Id.ToString() + ") selected = 'selected';");
+                @Html.Raw("html += '<option value=\"" + t.Id.ToString() + "\" ' + selected +'>" + t.TemplateField + "</option>';");
+
+                @Html.Raw("fieldsSelect.push({ id: " + t.Id.ToString() + ", name: '" + t.TemplateField + "', filterSettings: '" + (!string.IsNullOrEmpty(t.FieldFilterSettings) ? t.FieldFilterSettings.Replace("\r", "").Replace("\n", "").Replace("\t", "") : "") + "', validatorValue:'" + (!string.IsNullOrEmpty(t.ValidatorValue) ? t.ValidatorValue : "") + "', validator: '" + t.Validator.ToString() + "' });");
+            }
+        }
+        else
+        {
+            $.each(fieldsSelect, function (id, option) {
+                selected = '';
+                if (option.id == field) selected = 'selected';
+                html += '<option value="' + option.id + '" ' + selected +'>' + option.name + "</option>";
+            });
+        }
+
+        html += '</select>';
+
+        html += '</td>';
+        html += '<td>';
+        html += '<select class="form-control">';
+        html += '<option value="1" ' + (condition == '1' ? ' selected' : '') + '>CONTAINS</option>';
+        html += '<option value="2" ' + (condition == '2' ? ' selected' : '') + '>DOES NOT CONTAIN</option>';
+        html += '<option value="3" ' + (condition == '3' ? ' selected' : '') + '>STARTS WITH</option>';
+        html += '<option value="4" ' + (condition == '4' ? ' selected' : '') + '>ENDS WITH</option>';
+        html += '<option value="5" ' + (condition == '5' ? ' selected' : '') + '>EQUAL</option>';
+        html += '<option value="6" ' + (condition == '6' ? ' selected' : '') + '>NOT EQUAL</option>';
+        html += '<option value="7" ' + (condition == '7' ? ' selected' : '') + '>GREATER</option>';
+        html += '<option value="8" ' + (condition == '8' ? ' selected' : '') + '>GREATER EQUAL</option>';
+        html += '<option value="9" ' + (condition == '9' ? ' selected' : '') + '>LESS</option>';
+        html += '<option value="10" ' + (condition == '10' ? ' selected' : '') + '>LESS EQUAL</option>';
+        html += '<option value="11" ' + (condition == '11' ? ' selected' : '') + '>RANGE</option>';
+        html += '<option value="12" ' + (condition == '12' ? ' selected' : '') + '>NO SAME DIGITS</option>';
+        html += '</select>';
+        html += '</td>';
+
+        html += '<td>';
+        html += '<textarea class="first-value form-control" style="resize: none; height: 36px;">' + value + '</textarea>';
+        html += '</td>';
+
+        html += '<td><div class="filter_remove"><i class="glyphicon glyphicon-remove red"></i></div></td>';
+        html += '<td>' + addChildBtn + '</td>';
+        html += '</tr>';
+
+
+        if (parentid == 0) {
+            $('#conditions tbody').append(html);
+        } else
+        {
+            if (!existing)
+                $(html).insertAfter($(".row_" + parentid).last());
+            else
+                $(html).insertAfter($(".row_" + filterRowNum).last());
+        }
+
+        $('.filter_remove').off('click').on('click', function () {
+            $(this).parent().parent().remove();
+        });
+    }
+
+    function editRow()
+    {
+        if (selectedNode == null)
+        {
+            alert('Please select the node');
+            return;
+        }
+
+        editMode = true;
+
+        $('#node_name').val(selectedNode.title);
+
+        $('#modal_add_node').modal('show');
+    }
+
+    function deleteRow()
+    {
+        if (selectedNode == null)
+        {
+            alert('Please select the node');
+            return;
+        }
+
+        selectedNode.remove();
+    }
+
+    function loadTree(source)
+    {
+        var tree = $('.tree-table').fancytree('getTree');
+        tree.reload(source);
+
+        $(".fancytree-container tr td:first-child").hide();
+        $(".fancytree-container tr th:first-child").hide();
+    }
+
+    var currentMatchingButton = null;
+
+    function loadMatchingValues(e)
+    {
+        currentMatchingButton = $(e);
+
+        var m = $(currentMatchingButton).data('matchings');
+
+        $("#matching_values").find('tbody').html('');
+
+        for(var i = 0; i < m.length; i++)
+        {
+            matchingsFound = true;
+            $("#matching_values").find('tbody').append($("<tr><td><input type='text' class='form-control' value='" + m[i].input + "' /></td><td><input type='text' class='form-control' value='" + m[i].output + "' /></td><td><button onclick='deleteMathingRow(this)' style='height:36px'>Delete</button></td></tr>"));
+        }
+
+         $.ajax({
+            cache: false,
+            async: false,
+            type: "POST",
+            url: "@(Url.RouteUrl("GetBuyerChannelTemplateMatchings"))",
+            data: {  },
+            success: function (data) {
+                //setTimeout(function () { $('#modal_default').hide(); }, 500);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+
+    function deleteMathingRow(e)
+    {
+        $(e).parent().parent().remove();
+    }
+
+    function initTree()
+    {
+        $(".tree-table").fancytree({
+            extensions: ["table", "dnd"],
+            checkbox: true,
+            keyboard: false,
+            table: {
+                indentation: 20,      // indent 20px per node level
+                nodeColumnIdx: 1,     // render the node title into the 2nd column
+                checkboxColumnIdx: 0  // render the checkboxes into the 1st column
+            },
+            source: [],
+            lazyLoad: function (event, data) {
+                data.result = { url: "ajax-sub2.json" }
+            },
+            renderColumns: function (event, data) {
+                var node = data.node,
+                $tdList = $(node.tr).find(">td");
+
+                $(node.tr).data('folder', node.folder);
+
+                $tdList.eq(0).data('name', "n");
+                $tdList.eq(1).data('name', "campaign field");
+                $tdList.eq(2).data('name', "template field");
+                $tdList.eq(3).data('name', "default value");
+                $tdList.eq(4).data('name', "matchings");
+
+                if (!node.folder)
+                {
+                    var sel = '';
+
+                    var templateField = '<select class="cmp form-control" style="width: 150px">';
+
+                    @foreach (var item in Model.ListCampaignField)
+                    {
+                        @Html.Raw("if (node.data.CampaignTemplateId == " + item.Value + ") { sel = 'selected'; } else { sel = ''; }");
+                        @Html.Raw("templateField += '<option value=\"" + item.Value + "\" ' + sel + '>" + item.Text + "</option>';")
+                    }
+
+                    templateField += '</select>';
+
+                    $tdList.eq(2).addClass('text-center').html(templateField);
+
+                    var dataList = '<datalist id="' + node.data.TemplateField + '_list">' +
+                                        '<option value="[DATE GUID]">Date GUID</option>'+
+                                        '<option value="[CUR DATE]">Current date</option>' +
+                                        '<option value="[OPTIONAL]">Optional</option>' +
+                                        '<option value="[REQUIRED]">Required</option>' +
+                                    '</datalist>';
+                    $tdList.eq(3).addClass('text-center').html("<input type='text' class='form-control' name='default_value' maxlength='150' value='" + node.data.DefaultValue + "' list='" + node.data.TemplateField + "_list'>" + dataList);
+
+                    var btn = $("<button data-field='" + node.data.TemplateField + "' type='button' class='btn btn-default btn-sm' data-toggle='modal' data-target='#matching_values_modal' onclick='loadMatchingValues(this)' data-matchings=''>Matching value</button>");
+
+                    MatchingsObj = $.parseJSON(node.data.Matchings);
+                    MatchingsStr = '';
+                    str = '';
+
+                    if (MatchingsObj.length > 0) {
+                        str = '<table class=\'table\'>';
+                        str += '<tr><td><b>Input</b></td><td><b>Output</b></td></tr>';
+
+                        for (i = 0; i < MatchingsObj.length; i++) {
+                            str += '<tr><td>' + MatchingsObj[i].input + '</td><td>' + MatchingsObj[i].output + '</td></tr>';
+                        }
+                        str += '</table>';
+
+                        MatchingsStr = '<span id="' + node.data.TemplateField + '_matching_span" class="show-matchings text-blue" data-info="' + str + '"><i class="icon-arrow-resize7"></i></span>';
+                    }
+                    else {
+                        MatchingsStr = '<span id="' + node.data.TemplateField + '_matching_span" class="show-matchings text-blue" data-info=""></span>';
+                    }
+
+                    $tdList.eq(4).append($(btn));
+                    $tdList.eq(4).append(MatchingsStr);
+
+                    try{
+                        $(btn).data('matchings', JSON.parse(node.data.Matchings));
+                    }
+                    catch(err)
+                    {
+
+                    }
+
+                    // Style checkboxes
+                    $(node.tr).find(".styled").uniform({ radioClass: 'choice' });
+
+                    FillCampaignDropdown($(node.tr).find(".cmp"), node.data.CampaignTemplateId);
+
+                    //$(node.tr).find(".select-search").select2();
+                }
+                //$(".select-search").off("select2:select").on("select2:select", function (e) { $(this).parent().data('value', e.params.data.id); console.log(e); });
+            },
+            activate: function(event, data) {
+                selectedNode = data.node;
+            },
+            select: function(event, data) {
+                console.log(data);
+                // Display list of selected nodes
+                //var s = data.tree.getSelectedNodes().join(", ");
+                //$("#echoSelection1").text(s);
+            },
+            dnd: {
+                preventVoidMoves: true, // Prevent dropping nodes 'before self', etc.
+                preventRecursiveMoves: true, // Prevent dropping nodes on own descendants
+                autoExpandMS: 400,
+                draggable: {
+                    //zIndex: 1000,
+                    // appendTo: "body",
+                    // helper: "clone",
+                    scroll: false,
+                    revert: "invalid"
+                },
+                dragStart: function (node, data) {
+                    if (data.originalEvent.shiftKey) {
+                        console.log("dragStart with SHIFT");
+                    }
+                    // allow dragging `node`:
+                    return true;
+                },
+                dragEnter: function (node, data) {
+                    // Prevent dropping a parent below another parent (only sort
+                    // nodes under the same parent)
+                    /* 					if(node.parent !== data.otherNode.parent){
+                                            return false;
+                                        }
+                                        // Don't allow dropping *over* a node (would create a child)
+                                        return ["before", "after"];
+                    */
+                    return true;
+                },
+                dragDrop: function (node, data) {
+                    if (!data.otherNode) {
+                        // It's a non-tree draggable
+                        var title = $(data.draggable.element).text() + " (" + (count)++ + ")";
+                        node.addNode({ title: title }, data.hitMode);
+
+                        return;
+                    }
+                    data.otherNode.moveTo(node, data.hitMode);
+                    $(node.tr).data('folder', true);
+                }
+            }
+        });
+    }
+
+    function LoadBChannelTemplate(bchannelid)
+    {
+        $.ajax({
+            cache: false,
+            async: false,
+            type: "POST",
+            url: "@(Url.RouteUrl("GetBuyerChannelInfo"))",
+            data: { id: bchannelid, xml: $('#xml_template').val() },
+            success: function (data) {
+                loadTree(data.items);
+                //setTimeout(function () { $('#modal_default').hide(); }, 500);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+
+    function LoadCampaignTemplate(campaignid)
+    {
+        $.ajax({
+            cache: false,
+            async: false,
+            type: "POST",
+            url: "@(Url.RouteUrl("loadcampaigntemplatelist"))",
+            data: { campaignid: campaignid },
+            success: function (data) {
+                campaignFields = [];
+                $.each(data, function (id, option) {
+                    campaignFields.push({ id: option.id, name: option.name});
+                });
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+
+    function FillCampaignDropdown(e, campaigntemplateid)
+    {
+        $(e).html('');
+        $(e).append($('<option></option>').val(0).html("NONE").attr('selected', true));
+        $.each(campaignFields, function (id, option) {
+            if (option.id != campaigntemplateid)
+                $(e).append($('<option></option>').val(option.id).html(option.name));
+            else
+            {
+                $(e).find('option').removeAttr('selected');
+                $(e).append($('<option></option>').attr('selected', true).val(option.id).html(option.name));
+            }
+        });
+    }
+
+    function getNodes(tree, parent, parentName, ar)
+    {
+        if (parent.children != null)
+        {
+            if (parent.children.length > 0 && parent.title != parentName)
+            {
+                ar.push([]);
+
+                ar[ar.length - 1].push(parent.title);
+                ar[ar.length - 1].push("0");
+                ar[ar.length - 1].push("");
+                ar[ar.length - 1].push('');
+                ar[ar.length - 1].push(parentName);
+            }
+
+            for(var i = 0; i < parent.children.length; i++)
+            {
+                if (parent.children[i].children == null || parent.children[i].children.length == 0)
+                {
+                    ar.push([]);
+
+                    $(parent.children[i].tr).children('td').each(function () {
+                        var value = null;
+
+                        if ($(this).data('name') == "campaign field") {
+                            value = $(this).find(".fancytree-title").text();
+                        }
+                        else
+                            if ($(this).data('name') == "template field") {
+                                value = $(this).find("select").val();
+                            }
+                            else
+                                if ($(this).data('name') == "default value") {
+                                    value = $(this).find("input").val();
+                                }
+                                else
+                                    if ($(this).data('name') == "matchings") {
+                                        value = $(this).find("button").data('matchings');
+                                    }
+
+                        if (value != null)
+                            ar[ar.length - 1].push(value);
+                    });
+
+                    ar[ar.length - 1].push(parent.title);
+                }
+                else
+                    ar = getNodes(tree, parent.children[i], parent.title, ar);
+            }
+        }
+
+        return ar;
+    }
+
+    function addNodeDialog()
+    {
+        editMode = false;
+        $('#modal_add_node').modal('show');
+    }
+
+    function LoadCampaignXml(selectedItem)
+    {
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "@(Url.RouteUrl("LoadFromCampaignXml2"))",
+            data: { campaignid: selectedItem },
+            success: function (data) {
+                xmlTpl = data.xml;
+                LoadCampaignTemplate(selectedItem);
+                console.log(data.items);
+                loadTree(data.items);
+
+                $('.cmp').each(function ()
+                {
+                    var text = $(this).parent().parent().find('.fancytree-title').text();
+                    $(this).find('option:contains(' + text + ')').each(function(){
+                        if ($(this).text() == text) {
+                            $(this).attr('selected', 'selected');
+                            return false;
+                        }
+                        return true;
+                    });
+                    $(this).change();
+                });
+
+                $('.modal-body').unblock();
+                $('#modal_default').modal('hide');
+                //setTimeout(function () { $('#modal_default').hide(); }, 500);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+
+    function LoadBuyerChannels(campaignid) {
+        var ddlBuyerChannels = $("#BuyerChannelTemplateId");
+        var child_channels = $("#child_channels");
+
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "@(Url.RouteUrl("GetBuyerChannels"))",
+            data: { "bid": '', mode: 1, Params: campaignid },
+            success: function (data) {
+                ddlBuyerChannels.html('');
+                ddlBuyerChannels.append($('<option></option>').val(0).html('Select buyer channel'));
+                child_channels.html('');
+                $.each(data.data, function (id, option) {
+                    ddlBuyerChannels.append($('<option></option>').val(option[0]).html(option[1]));
+                    child_channels.append($('<option></option>').val(option[0]).html(option[1]));
+                });
+                $('#child_channels').bootstrapDualListbox('refresh', true);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+
+    function LoadFromBuyerChannelXml(xml, buyerchannelid) {
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "@(Url.RouteUrl("LoadFromBuyerChannelXml"))",
+            data: { xml: xml, buyerchannelid: buyerchannelid },
+            success: function (data) {
+                LoadCampaignTemplate($("#@Html.FieldIdFor(x => x.CampaignId)").val());
+                loadTree(data.items);
+
+                xmlTpl = data.xml;
+
+                if (buyerchannelid == null) {
+                    $('.modal-body').unblock();
+                    $('#modal_default').modal('hide');
+                }
+                //setTimeout(function () { $('#modal_default').hide(); }, 500);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+
+    function LoadFromBuyerChannelInfo(buyerchannelid) {
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "@(Url.RouteUrl("GetBuyerChannelInfo"))",
+            data: { id: buyerchannelid },
+            success: function (data) {
+                $('#AcceptedField').val(data.AcceptedField);
+                $('#AcceptedValue').val(data.AcceptedValue);
+                $('#AcceptedFrom').val(data.AcceptedFrom);
+                $('#ErrorField').val(data.ErrorField);
+                $('#ErrorValue').val(data.ErrorValue);
+                $('#ErrorFrom').val(data.ErrorFrom);
+                $('#RejectedField').val(data.RejectedField);
+                $('#RejectedValue').val(data.RejectedValue);
+                $('#RejectedFrom').val(data.RejectedFrom);
+                $('#TestField').val(data.TestField);
+                $('#TestValue').val(data.TestValue);
+                $('#TestFrom').val(data.TestFrom);
+
+                $('#RedirectField').val(data.RedirectField);
+                $('#MessageField').val(data.MessageField);
+                $('#PriceField').val(data.PriceField);
+
+                $('#PostingUrl').val(data.PostingUrl);
+                $('#PostingHeaders').val(data.PostingHeaders);
+                $('#DataFormat').val(data.DataFormat);
+
+                $('#ResponseFormat').val(data.ResponseFormat);
+                $('#WinResponseUrl').val(data.WinResponseUrl);
+                $('#WinResponsePostMethod').val(data.WinResponsePostMethod);
+                $('#PriceRejectWinResponse').val(data.PriceRejectWinResponse);
+                $('#LeadIdField').val(data.LeadIdField);
+
+                $('#AccountIdField').val(data.AccountIdField);
+                $('#PriceRejectValue').val(data.PriceRejectValue);
+                $('#PriceRejectField').val(data.PriceRejectField);
+                $('#Delimeter').val(data.Delimeter);
+                $('#EnableCustomPriceReject').prop('checked', data.EnableCustomPriceReject);
+                $('#FieldAppendEnabled').prop('checked', data.FieldAppendEnabled);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+
+    var canRedirect = false;
+
+    $(document).ready(function () {
+
+        $("#btn-clone").click(function () {
+            /*$.post("/Management/BuyerChannel/Clone", 'id=' + $(this).data('id')).done(function (retData) {
+            });*/
+            if ($('#buyer-channel-clone-name').val() != '') {
+                canClone = true;
+                canRedirect = true;
+                $("#@Html.FieldIdFor(x => x.Name)").val($('#buyer-channel-clone-name').val());
+                $('#item-form').submit();
+            }
+        });
+
+        $('#allowed_from').bootstrapDualListbox({
+            preserveSelectionOnMove: 'moved',
+            moveOnSelect: false,
+            nonSelectedListLabel: 'Excluded',
+            selectedListLabel: 'Included',
+            showFilterInputs: true
+        });
+
+        $('#child_channels').bootstrapDualListbox({
+            preserveSelectionOnMove: 'moved',
+            moveOnSelect: false,
+            nonSelectedListLabel: 'Excluded',
+            selectedListLabel: 'Included',
+            showFilterInputs: true
+        });
+
+        $('#holidays').bootstrapDualListbox({
+            preserveSelectionOnMove: 'moved',
+            moveOnSelect: false,
+            nonSelectedListLabel: 'Non-selected',
+            selectedListLabel: 'Selected',
+            showFilterInputs: true
+        });
+
+        $('#add_user').click(function () {
+            window.location = '/Management/User/Store/@Model.BuyerChannelId';
+        });
+
+        $('#matchingModalSave').on('click', function () {
+            var matchings = [];
+
+            $("#matching_values tbody tr").each(function () {
+                var inputValue = $(this).children('td').eq(0).children('input').val();
+                var outputValue = $(this).children('td').eq(1).children('input').val();
+
+                matchings.push({ input: inputValue, output: outputValue });
+            });
+
+            currentMatchingButton.data('matchings', matchings);
+
+            if (currentMatchingButton != null && matchings.length > 0) {
+                var field = $(currentMatchingButton).data('field');
+                $('#' + field + '_matching_span').html('<i class="icon-arrow-resize7"></i>');
+            }
+            else
+                $('#' + field + '_matching_span').html('');
+        });
+
+        $('#addMatchingBtn').on('click', function () {
+            $("#matching_values").find('tbody').append($("<tr><td><input type='text' class='form-control' value='" + $('#inputValue').val() + "' /></td><td><input type='text' class='form-control' value='" + $('#outputValue').val() + "' /></td><td><button onclick='deleteMathingRow(this)'  style='height:36px'>Delete</button></td></tr>"));
+            $('#inputValue').val('');
+            $('#outputValue').val('');
+        });
+
+        $('#filter_templates').on('change', function (e) {
+            var selectedItem = $(this).val();
+            if (selectedItem == 0) return;
+
+            if (!confirm('Are you sure you want to apply the filter template?')) {
+                e.preventDefault();
+                return;
+            }
+
+            if (selectedItem == null || selectedItem == 0) return;
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "/getfilterconditions",
+                data: { filterid: selectedItem },
+                success: function (data) {
+                    //$('#conditions tbody').html('');
+                    $.each(data, function (id, option) {
+                        addFilterRow(option.field, option.condition, option.value, option.value2, option.op, option.parent, true);
+                    });
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Failed to retrieve user email.');
+                }
+            });
+        });
+
+        $('#filter_add').click(function () {
+            addFilterRow(0, 0, '', '', 0, 0);
+            campaignTemplateChange($(".fields").last().get(0));
+            /*$( ".fields" ).each(function( index ) {
+                campaignTemplateChange($(this).get(0));
+            });*/
+        });
+
+        $("#@Html.FieldIdFor(x => x.AffiliatePriceOption)").change(function () {
+            var selectedItem = $(this).val();
+
+            if (selectedItem == 0) {
+                $('#AffiliatePriceMessage').hide();
+                //$("#@Html.FieldIdFor(x => x.AffiliatePrice)").attr('readonly', false);
+                $('#AffiliatePriceOptionLabel').text($('#AffiliatePriceOptionLabel').data('value'));
+                //$("#@Html.FieldIdFor(x => x.AffiliatePrice)").val($("#@Html.FieldIdFor(x => x.AffiliatePrice)").data('value'));
+            }
+            else
+                if (selectedItem == 1 || selectedItem == 1) {
+                    $('#AffiliatePriceMessage').show();
+                    //$("#@Html.FieldIdFor(x => x.AffiliatePrice)").attr('readonly', true);
+                    $('#AffiliatePriceOptionLabel').data('value', $('#AffiliatePriceOptionLabel').text());
+                    $('#AffiliatePriceOptionLabel').text('Share (%)');
+                    //$("#@Html.FieldIdFor(x => x.AffiliatePrice)").data('value', $("#@Html.FieldIdFor(x => x.AffiliatePrice)").val());
+                    //$("#@Html.FieldIdFor(x => x.AffiliatePrice)").val('0');
+                }
+        });
+
+        $("#@Html.FieldIdFor(x => x.BuyerPriceOption)").change(function () {
+            var selectedItem = $(this).val();
+
+            if (selectedItem == 0) {
+                // $("#@Html.FieldIdFor(x => x.BuyerPrice)").attr('readonly', false);
+                //$("#@Html.FieldIdFor(x => x.BuyerPrice)").val($("#@Html.FieldIdFor(x => x.BuyerPrice)").data('value'));
+            }
+            else
+                if (selectedItem == 1) {
+                    // $("#@Html.FieldIdFor(x => x.BuyerPrice)").attr('readonly', true);
+                    //$("#@Html.FieldIdFor(x => x.BuyerPrice)").data('value', $("#@Html.FieldIdFor(x => x.BuyerPrice)").val());
+                    //$("#@Html.FieldIdFor(x => x.BuyerPrice)").val('0');
+                }
+        });
+
+        $("#@Html.FieldIdFor(x => x.AlwaysSoldOption)").change(function () {
+
+            var selectedItem = $(this).val();
+
+            var ddlBuyerPriceOption = $("#@Html.FieldIdFor(x => x.BuyerPriceOption)");
+
+            ddlBuyerPriceOption.html('');
+
+            if (selectedItem == 0) {
+                ddlBuyerPriceOption.append($('<option></option>').val(0).html('Fixed'));
+                ddlBuyerPriceOption.append($('<option></option>').val(1).html('Dynamic'));
+            }
+            else {
+                ddlBuyerPriceOption.append($('<option></option>').val(0).html('Fixed'));
+            }
+        });
+
+        $("#@Html.FieldIdFor(x => x.BuyerId)").change(function () {
+            var selectedItem = $(this).val();
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "/management/user/getbuyerfirstuser",
+                data: { buyerId: selectedItem },
+                success: function (data) {
+                    $("#@Html.FieldIdFor(x => x.NotificationEmail)").val(data.email);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Failed to retrieve user email.');
+                }
+            });
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "/management/buyer/getbuyerinfo",
+                data: { buyerId: selectedItem },
+                success: function (data) {
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+        });
+
+        $("#@Html.FieldIdFor(x => x.CampaignId)").change(function () {
+            var selectedItem = $(this).val();
+            if (selectedItem > 0) {
+                var tree = $(".tree-table").fancytree("getTree");
+                LoadCampaignXml(selectedItem);
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "/GetFiltersByCampaignId",
+                    data: { campaignid: selectedItem },
+                    success: function (data) {
+                        $('#filter_templates').html('');
+                        $('#filter_templates').append($('<option></option>').val(0).html('Select a set'));
+                        $.each(data, function (id, option) {
+                            $('#filter_templates').append($('<option></option>').val(option.id).html(option.name));
+                        });
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert('Failed to retrieve user email.');
+                    }
+                });
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "/GetCampaignFields",
+                    data: { campaignid: selectedItem },
+                    success: function (data) {
+                        var html = '<select class="fields form-control">';
+                        fieldsSelect = [];
+                        $.each(data, function (id, option) {
+                            fieldsSelect.push({ id: option.id, name: option.name, filterSettings: option.filterSettings, validatorValue: option.validatorValue, validator: option.validator });
+                            html += '<option value="' + option.id + '">' + option.name + "</option>";
+                        });
+                        html += '</select>';
+                        $('#conditions tbody tr').children('td').eq(0).html(html);
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert('Failed to retrieve user email.');
+                    }
+                });
+
+                LoadBuyerChannels(selectedItem);
+            }
+        });
+
+        $('.select').select2();
+
+        $('#btnSubmitClose').on('click', function () {
+            $('#tab-main').trigger('click');
+            canRedirect = true;
+            return true;
+        });
+
+        $('#btnSubmit').on('click', function () {
+            $('#tab-main').trigger('click');
+        });
+
+        $("#BuyerChannelTemplateId").change(function () {
+            var selectedItem = $(this).val();
+
+            if (selectedItem == 0) return;
+
+            LoadFromBuyerChannelXml(null, selectedItem);
+            LoadFromBuyerChannelInfo(selectedItem);
+        });
+
+        /*AdrackCommon.formValidation('#item-form', {
+                NotificationEmail: {
+                    email: true
+                },
+                Name: {
+                    required: true
+                },
+                CampaignId: {
+                    required: true
+                },
+                AffiliatePrice: {
+                    required: true
+                },
+                BuyerPrice: {
+                    required: true
+                },
+                PostingUrl: {
+                    required: true
+                },
+                MaxDuplicateDays: {
+                    required: true
+                },
+                Timeout: {
+                    required: true
+                },
+                AcceptedField: {
+                    required: true
+                },
+                ErrorField: {
+                    required: true
+                },
+                RejectedField: {
+                    required: true
+                },
+                TestField: {
+                    required: true
+                },
+                AcceptedValue: {
+                    required: true
+                },
+                ErrorValue: {
+                    required: true
+                },
+                RejectedValue: {
+                    required: true
+                },
+                TestValue: {
+                    required: true
+                },
+                RedirectField: {
+                    required: true
+                },
+                MessageField: {
+                    required: true
+                },
+                PriceField: {
+                    required: true
+                }
+            });*/
+
+        $('#item-form').on('submit', function (e) {
+
+            e.preventDefault();
+
+            $('#tab-main').trigger('click');
+
+            var disabledElements = $(this).find(':disabled');
+            disabledElements.removeAttr('disabled');
+
+            var form = $(this);
+
+            var submitBtn = form.find(':submit');
+            submitBtn.attr('disabled', 'disabled');
+
+            var btn = $(":input[type=submit]:focus");
+
+            var schedule = [];
+
+            var sn = null;
+            var lastsn = "";
+            var canContinue = true;
+
+            $('#schedule tbody tr').each(function () {
+                var day = $(this).children('td').eq(0).find('select').val();
+                var fromhour = $(this).children('td').eq(1).find('select').eq(0).val();
+                var fromminute = $(this).children('td').eq(1).find('select').eq(1).val();
+
+                var tohour = $(this).children('td').eq(2).find('select').eq(0).val();
+                var tominute = $(this).children('td').eq(2).find('select').eq(1).val();
+
+                var qty = $(this).children('td').eq(3).children('input').val();
+                var pwait = $(this).children('td').eq(4).children('input').val();
+                var swait = $(this).children('td').eq(5).children('input').val();
+                var hmax = $(this).children('td').eq(6).children('input').val();
+
+                var price = $(this).children('td').eq(7).children('input').val();
+                var status = $(this).children('td').eq(8).find('select').val();
+
+                schedule.push({ day: day, fromHour: fromhour, fromMinute: fromminute, toHour: tohour, toMinute: tominute, quantity: qty, pwait: pwait, swait: swait, hmax: hmax, price: price, status: status });
+            });
+
+            var schjson = JSON.stringify(schedule);
+            var allowedjson = JSON.stringify(allowedAffiliateChannels);
+            var conditions = [];
+
+            $('#conditions tbody tr').each(function () {
+                var field = $(this).children('td').eq(0).children('select').val();
+                var condition = $(this).children('td').eq(1).children('select').val();
+                var value = $(this).children('td').eq(2).children('.first-value').val();
+                var validator = $(this).children('td').eq(2).children('.first-value').data('validator');
+                var validatorValue = $(this).children('td').eq(2).children('.first-value').data('validatorvalue');
+                var parent = $(this).children('td').eq(0).children('select').data('parent-id');
+                var operator = 0;
+
+                var us = new RegExp("^\\d{5}(-{0,1}\\d{4})?$");
+                var ca = new RegExp(/([ABCEGHJKLMNPRSTVXY]\d)([ABCEGHJKLMNPRSTVWXYZ]\d){2}/i);
+                $(this).children('td').eq(2).children('.invalid-filter-value').remove();
+
+                if (Array.isArray(value)) {
+                    var val = '';
+                    for (var i = 0; i < value.length; i++) {
+                        val += value[i];
+                        if (validator == 7) {
+                            if (validatorValue == 'us' && !us.test(value[i].trim()) || validatorValue == 'ca' && !ca.test(value[i].trim())) {
+                                $(this).children('td').eq(2).append('<span class="invalid-filter-value"><b>Invalid zip code</b></span>');
+                                canContinue = false;
+                                break;
+                            }
+                        }
+                        if (i < value.length - 1)
+                            val += ",";
+                    }
+                    value = val;
+                }
+                else if (value != null && value != undefined) {
+                    value = value.replace(/\n/g, ",");
+                    var values = value.split(",");
+                    for (var i = 0; i < values.length; i++) {
+                        if (validator == 7) {
+                            if (validatorValue == 'us' && !us.test(values[i].trim()) || validatorValue == 'ca' && !ca.test(values[i].trim())) {
+                                $(this).children('td').eq(2).append('<span class="invalid-filter-value"><b>Invalid zip code</b></span>');
+                                canContinue = false;
+                                break;
+                            }
+                        }
+                    }
+                    $(this).children('td').eq(2).children('.first-value').val(value);
+                }
+
+                conditions.push({ field: field, condition: condition, value: value, operator: operator, parent: parent });
+            });
+
+            if (!canContinue) {
+                submitBtn.removeAttr('disabled');
+
+                if (curTabLink != null) {
+                    curTabLink.trigger('click');
+                }
+                return;
+            }
+
+            var conditionsjson = JSON.stringify(conditions);
+
+            var clickPrices = [];
+            $('#clickPrices tbody tr').each(function () {
+                var type = $(this).children('td').eq(0).children('input').val();
+                var price = $(this).children('td').eq(1).children('input').val();
+
+                clickPrices.push({ type: type, price: price });
+            });
+            var pricesJson = JSON.stringify(clickPrices);
+
+            tpl = [];
+
+            var tree = $(".tree-table").fancytree("getTree");
+            tpl = getNodes(tree, tree.rootNode, "root", tpl);
+
+            if (tpl.length == 0) {
+                alert('Buyer channel template is not defined');
+                return;
+            }
+
+            var tpljson = JSON.stringify(tpl);
+
+            v = $('#holidays').val();
+
+            var holidays = '';
+
+            if (v != undefined) {
+                for (var i = 0; i < v.length; i++) {
+                    holidays += v[i];
+                    if (i < v.length - 1)
+                        holidays += ',';
+                }
+            }
+
+            a = $('#allowed_from').val();
+
+            var allowed = '';
+
+            if (a != undefined) {
+                for (var i = 0; i < a.length; i++) {
+                    allowed += a[i];
+                    if (i < a.length - 1)
+                        allowed += ',';
+                }
+            }
+
+            a = $('#child_channels').val();
+
+            var child_channels = '';
+
+            if (a != undefined) {
+                for (var i = 0; i < a.length; i++) {
+                    child_channels += a[i];
+                    if (i < a.length - 1)
+                        child_channels += ',';
+                }
+            }
+
+            try {
+                ShowLoader();
+            } catch (e) {
+
+            }
+
+            var formData = new FormData($("#item-form")[0]);
+            formData.append('json', tpljson);
+            formData.append('xml', xmlTpl);
+            formData.append('schedule', schjson);
+            formData.append('conditions', conditionsjson);
+            formData.append('allowed', allowed);
+            formData.append('childchannels', child_channels);
+            formData.append('prices', pricesJson);
+            formData.append('holidays', holidays);
+            formData.append('canclone', canClone);
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: "POST",
+                data: formData,//$(this).serialize() + '&json=' + tpljson + '&xml=' + xmlTpl + '&schedule=' + schjson + '&conditions=' + conditionsjson + '&allowed=' + allowed + '&prices=' + pricesJson + '&holidays=' + holidays + '&redirecturl=' + $('.redirecturl').val(),
+                async: true,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    try {
+                        HideLoader();
+                        if (!canClone)
+                            NotificationPopup('Success', 'Buyer channel successfully saved');
+                        else
+                            NotificationPopup('Success', 'Buyer channel successfully cloned');
+                    }
+                    catch (e) { }
+
+                    if (data.error != undefined) {
+                        submitBtn.removeAttr('disabled');
+                    }
+                    else {
+                        buyerChannelId = data.id;
+                        $('#BuyerChannelId').val(data.id);
+                        //$('.panel-title').text(data.id + "-" + data.name);
+
+                        if (canRedirect) {
+                            if ('true' == '@Model.ReturnToLocalList.ToString().ToLower()') {
+                                window.location = '/Management/Buyer/Channels/@Model.BuyerId';
+                            }
+                            else
+                                window.location = '/management/buyerchannel/list';
+                        }
+                        else
+                            submitBtn.removeAttr('disabled');
+                    }
+
+                    canRedirect = false;
+                    canClone = false;
+                    disabledElements.attr('disabled', 'disabled');
+
+                    if (curTabLink != null) {
+                        curTabLink.trigger('click');
+                    }
+                },
+                error: function (jXHR, textStatus, errorThrown) {
+                    if (curTabLink != null)
+                        curTabLink.trigger('click');
+
+                    canClone = false;
+                    disabledElements.attr('disabled', 'disabled');
+                    alert("Error while saving buyer channel");
+                }
+            });
+
+            return false;
+        });
+
+        LoadCampaignTemplate(@Model.CampaignId);
+        initTree();
+
+        if (@Model.BuyerChannelId > 0) {
+            setTimeout(function () { LoadBChannelTemplate(@Model.BuyerChannelId); }, 100);
+        }
+
+        $('#load_template_btn').click(function () {
+
+            $('.modal-body').block({
+                message: '<i class="icon-spinner2 spinner"></i>',
+                overlayCSS: {
+                    backgroundColor: '#1B2024',
+                    opacity: 0.85,
+                    cursor: 'wait'
+                },
+                css: {
+                    border: 0,
+                    padding: 0,
+                    backgroundColor: 'none',
+                    color: '#fff'
+                }
+            });
+
+            xmlTpl = $('#xml_template').val();
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@(Url.RouteUrl("LoadFromBuyerChannelXml"))",
+                data: { xml: $('#xml_template').val() },
+                success: function (data) {
+                    LoadCampaignTemplate($("#@Html.FieldIdFor(x => x.CampaignId)").val());
+                    loadTree(data.items);
+
+                    xmlTpl = data.xml;
+
+                    $('.modal-body').unblock();
+                    $('#modal_default').modal('hide');
+                    //setTimeout(function () { $('#modal_default').hide(); }, 500);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Error loading template');
+                    $('.modal-body').unblock();
+                    $('#modal_default').modal('hide');
+                }
+            });
+        });
+
+        $('#saveas').click(function (e) {
+            e.preventDefault();
+
+            var name = $("#@Html.FieldIdFor(x => x.Name)").val();
+
+            if ($(this).data('name') == name) {
+                alert('Please enter a different name for the new channel');
+                return;
+            }
+
+            $(this).attr('disabled', 'disabled');
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@(Url.RouteUrl("CloneBuyerChannel"))",
+                data: { id: @Model.BuyerChannelId, name: name },
+                success: function (data) {
+                    window.location = "/Management/BuyerChannel/Item/" + data.id;
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+            return false;
+        });
+
+        @foreach (var si in Model.FilterConditions)
+        {
+            @: addFilterRow(@si.CampaignTemplateId.ToString(), @si.Condition.ToString(), '@si.Value', '@si.Value', @si.ConditionOperator.ToString(), @Html.Raw(si.ParentId.HasValue ? si.ParentId.ToString() : "0"), true);
+        }
+
+        @if (Model.FilterConditions.Count > 0)
+        {
+            @: $(".fields").each(function (index) {
+              @: campaignTemplateChange($(this).get(0));
+            @: });
+        }
+
+    }).on("click", ".show-matchings", function () {
+        $(".matchings-window").css("top", $(this).offset().top - 20);
+
+        $(".matchings-window").html($(this).data("info"));
+        $(".matchings-window").show();
+        return false;
+    }).on("click", "body", function () {
+        $(".matchings-window").hide();
+    }).on("click", ".add_child_btn", function () {
+        addFilterRow(0, '0', '', '', '0', $(this).data('id'));
+        $(".fields").each(function (index) {
+            campaignTemplateChange($(this).get(0));
+        });
+    }).on('click', '.schedule_remove', function () {
+        $(this).parent().parent().remove();
+    }).on('click', '.clone-schedule-row', function (e) {
+        e.preventDefault();
+        onScheduleRowClone($(this).closest('tr'));
+    });
+</script>
+
+<div class="panel panel-flat panel-body">
+    <div class="panel-heading">
+        <h5 class="panel-title">@Html.Raw(@Model.Name + " / " + @Model.BuyerChannelId.ToString())  &mdash; <a href="/Management/Campaign/Item/@Model.CampaignId" class="text-blue">@ViewBag.CampaignName</a> &mdash; <a href="/Management/Buyer/Item/@Model.BuyerId" class="text-blue">@ViewBag.BuyerName</a> - <a href="/Management/Buyer/Channels/@Model.BuyerId" class="text-blue">All buyer channels of the buyer</a>  </h5>
+    </div>
+
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-validation", id = "item-form", enctype = "multipart/form-data" }))
+    {
+        <div class="panel-body">
+
+            <div class="tabbable">
+                <ul class="nav nav-tabs nav-tabs-highlight">
+                    <li class="active"><a id="tab-main" href="#general-tab" data-toggle="tab" class="tab-link">General</a></li>
+                    <li><a href="#integration-tab" data-toggle="tab" class="tab-link">Integration</a></li>
+                    <li><a href="#schedule-tab" data-toggle="tab" class="tab-link">Schedule settings</a></li>
+                    <li><a href="#holidays-tab" data-toggle="tab" class="tab-link">Holidays settings</a></li>
+                    <li><a href="#filter-tab" data-toggle="tab" class="tab-link">Filters</a></li>
+                    <li><a href="#allowedfrom-tab" data-toggle="tab" class="tab-link">Affiliate Channels</a></li>
+                    <li><a href="#childchannels-tab" data-toggle="tab" class="tab-link">Super Tier / Represent Tier </a></li>
+                    <li><a href="#test-tab" data-toggle="tab" class="tab-link">Test request</a></li>
+                    <li><a href="#history-tab" data-toggle="tab" class="tab-link">History</a></li>
+                    @if (Model.AlwaysSoldOption == 0 || Model.AlwaysSoldOption == 2)
+                    {
+                        <li><a href="#advanced-tab" data-toggle="tab" class="tab-link">Advanced Settings</a></li>
+                    }
+                    <li><a href="#subidwhitelist-tab" data-toggle="tab" class="tab-link">Sub id white list</a></li>
+                    <li><a href="#note-tab" data-toggle="tab" class="tab-link">Note</a></li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane panel-body active" id="general-tab">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    @Html.LabelFor(x => x.Name)
+                                    @Html.TextBoxFor(x => x.Name, new { @class = "form-control", tabindex = 1, placeholder = "Buyer channel name", required = "required", maxlength = "50" })
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    @Html.Label("Status")<br />
+                                    @Html.DropDownList("Status", Model.ListStatus, new { @class = "select", required = "required" })
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    @Html.Label("Time zone")<br />
+                                    @Html.DropDownList("SelectedTimeZone", Model.TimeZones, new { @class = "form-control", required = "required" })
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    @Html.Label("Multi Buyer Handling - channel mapping unique identifier key")
+                                    @Html.TextBoxFor(x => x.ChannelMappingUniqueId, new { @class = "form-control", tabindex = 1, maxlength = "50" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    @Html.Label("Campaign")<br />
+                                    @Html.DropDownList("CampaignId", Model.ListCampaign, new { @class = "select", required = "required", style = "width: 150px" })
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    @Html.Label("Buyer")<br />
+                                    @if ((currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId) && Model.BuyerChannelId == 0)
+                                    {
+                                        @Html.DropDownList("BuyerId", Model.ListBuyer, new { @class = "select", required = "required", style = "width: 150px" })
+                                    }
+                                    else
+                                    {
+                                        @Html.DropDownList("BuyerId", Model.ListBuyer, new { @class = "select", required = "required", style = "width: 150px", disabled = "disabled" })
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    @Html.LabelFor(x => x.NotificationEmail)
+                                    @Html.TextBoxFor(x => x.NotificationEmail, new { @class = "form-control", tabindex = 1, placeholder = "Notification email", required = "required" })
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (Model.CampaignType == 0)
+                        {
+                            <div class="lead-campaign-fields">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            @Html.Label("Affiliate price method")<br />
+                                            @Html.DropDownList("AffiliatePriceOption", Model.ListAffiliatePriceOption, new { @class = "select", style = "width: 100px" })
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            @Html.LabelFor(x => x.AffiliatePrice, new { id = "AffiliatePriceOptionLabel", data_value = "Affiliate price" })
+                                            @Html.TextBoxFor(x => x.AffiliatePrice, new { @class = "form-control", type = "number", tabindex = 1, placeholder = "Affiliate price", required = "required", step = "0.01", data_value = Model.AffiliatePrice })
+                                            <div>
+                                                <span id="AffiliatePriceMessage" style="color: red; font-size: 10px; @Html.Raw((Model.AffiliatePriceOption == 0 ? "display: none" : "")) ">The system will check rev-share % value from affiliates</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            @Html.Label("Buyer price method")<br />
+                                            @Html.DropDownList("BuyerPriceOption", Model.ListBuyerPriceOption, new { @class = "select", style = "width: 100px" })
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            @Html.LabelFor(x => x.BuyerPrice)
+                                            @Html.TextBoxFor(x => x.BuyerPrice, new { @class = "form-control", type = "number", tabindex = 1, placeholder = "Buyer price", required = "required", step = "0.01", data_value = Model.BuyerPrice })
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            @Html.CheckBoxFor(x => x.CapReachedNotification, new { tabindex = 1 })  &nbsp;
+                                            @Html.LabelFor(x => x.CapReachedNotification)
+                                        </div>
+                                    </div>
+
+                                    @if (Model.AlwaysSoldOption == 0)
+                                    {
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                @Html.CheckBoxFor(x => x.TimeoutNotification, new { tabindex = 1 }) &nbsp;
+                                                @Html.LabelFor(x => x.TimeoutNotification)
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="tab-pane panel-body" id="integration-tab">
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    @Html.Label("Clone from buyer channel")<br />
+                                    @Html.DropDownList("BuyerChannelTemplateId", Model.ListBuyerChannels, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            @if (Model.AlwaysSoldOption == 0 || Model.AlwaysSoldOption == 2)
+                            {
+                                <div class="col-md-5">
+                                    <div class="form-group">
+                                        @Html.Label("Url to post / EMail (for email buyers)")<br />
+                                        @Html.TextBoxFor(x => x.PostingUrl, new { @class = "form-control", tabindex = 1, placeholder = "Posting url", maxlength = "300" })
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        @Html.Label("Data format")<br />
+                                        @Html.DropDownList("DataFormat", Model.ListDataFormat, new { @class = "form-control", style = "width: 250px" })
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        @Html.Label("Response format")<br />
+                                        @Html.DropDownList("ResponseFormat", Model.ListResponseFormats, new { @class = "form-control", required = "required", style = "width: 250px" })
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        @Html.LabelFor(x => x.PostingUrl)
+                                        @Html.TextBoxFor(x => x.PostingUrl, new { @class = "form-control", tabindex = 1, placeholder = "Posting url", maxlength = "300" })
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    @Html.LabelFor(x => x.MaxDuplicateDays)
+                                    @Html.TextBoxFor(x => x.MaxDuplicateDays, new { @class = "form-control", @type = "number", tabindex = 1, placeholder = "Max leads per day" })
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="form-group">
+                                    @Html.LabelFor(x => x.Timeout)
+                                    @Html.TextBoxFor(x => x.Timeout, new { @class = "form-control", @type = "number", tabindex = 1, placeholder = "Timeout" })
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    @Html.Label("Pause after timeouts")
+                                    @Html.TextBoxFor(x => x.ChangeStatusAfterCount, new { @class = "form-control", type = "number", tabindex = 1, placeholder = "", required = "" })
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="form-group">
+                                    @Html.Label("Pause for (min)")
+                                    @Html.TextBoxFor(x => x.StatusChangeMinutes, new { @class = "form-control", type = "number", tabindex = 1, placeholder = "", required = "" })
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="form-group">
+                                    @Html.Label("Pause the channel")<br />
+                                    @Html.CheckBoxFor(x => x.StatusAutoChange, new { tabindex = 1 })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(x => x.RedirectUrl)
+                                    @Html.TextBoxFor(x => x.RedirectUrl, new { @class = "form-control", type = "text", tabindex = 1, placeholder = "Redirect url" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#modal_default">Load template<i class="icon-play3 position-right"></i></button>
+
+                            <div class="row">
+                                <div class="col-lg-12">
+
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered tree-table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 46px;">#</th>
+                                                    <th style="width: 80px;">Template field</th>
+                                                    <th style="width: 80px;">Campaign field</th>
+                                                    <th style="width: 80px;">Default value</th>
+                                                    <th style="width: 80px;">Mathing</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        @if (Model.AlwaysSoldOption == 0 || Model.AlwaysSoldOption == 2)
+                        {
+                            <div class="panel panel-flat panel-collapsed">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Response settings</h3>
+                                    <div class="heading-elements">
+                                        <ul class="icons-list">
+                                            <li><a data-action="collapse"></a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                @Html.Label("Enable custom price reject")
+                                                @Html.CheckBoxFor(x => x.EnableCustomPriceReject)
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                @Html.Label("Enable dynamic values append")
+                                                @Html.CheckBoxFor(x => x.FieldAppendEnabled)<br />
+                                                (Dynamic values are parsed by # symbol, for example #CHANNELID# or #IPADDRESS#)<br />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group has-feedback">
+                                                @Html.Label("Win response url")<br />
+                                                @Html.TextBoxFor(x => x.WinResponseUrl, new { @class = "form-control", tabindex = 1, maxlength = "500" })
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <div class="form-group has-feedback">
+                                                @Html.Label("Win response post method")<br />
+                                                @Html.DropDownList("WinResponsePostMethod", Model.ListWinResponsePostMethod, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <div class="form-group has-feedback">
+                                                @Html.Label("Lead Id field")<br />
+                                                @Html.TextBoxFor(x => x.LeadIdField, new { @class = "form-control", tabindex = 1, maxlength = "50" })
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="form-group has-feedback">
+                                                Price reject win response. Use {leadid}, {price} labels for Lead ID and PRICE dynamic replacement.<br />
+                                                @Html.TextAreaFor(x => x.PriceRejectWinResponse, new { @class = "form-control", tabindex = 1 })
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(x => x.AcceptedField)
+                                                        @Html.TextBoxFor(x => x.AcceptedField, new { @class = "form-control", tabindex = 1, placeholder = "Accepted field", maxlength = "50" })
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(x => x.AcceptedValue)
+                                                        @Html.TextBoxFor(x => x.AcceptedValue, new { @class = "form-control", tabindex = 1, placeholder = "Accepted value", maxlength = "50" })
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(x => x.AcceptedFromField)
+                                                        @Html.DropDownList("AcceptedFromField", Model.ListFromFieldType, new { @class = "select", style = "width: 100px" })
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(x => x.ErrorField)
+                                                        @Html.TextBoxFor(x => x.ErrorField, new { @class = "form-control", tabindex = 1, placeholder = "Error field", maxlength = "50" })
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(x => x.ErrorValue)
+                                                        @Html.TextBoxFor(x => x.ErrorValue, new { @class = "form-control", tabindex = 1, placeholder = "Error value", maxlength = "50" })
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(x => x.ErrorFromField)
+                                                        @Html.DropDownList("ErrorFromField", Model.ListFromFieldType, new { @class = "select", style = "width: 100px" })
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(x => x.RejectedField)
+                                                        @Html.TextBoxFor(x => x.RejectedField, new { @class = "form-control", tabindex = 1, placeholder = "Rejected field", maxlength = "50" })
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(x => x.RejectedValue)
+                                                        @Html.TextBoxFor(x => x.RejectedValue, new { @class = "form-control", tabindex = 1, placeholder = "Rejected value", maxlength = "50" })
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(x => x.RejectedFromField)
+                                                        @Html.DropDownList("RejectedFromField", Model.ListFromFieldType, new { @class = "select", style = "width: 100px" })
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(x => x.TestField)
+                                                        @Html.TextBoxFor(x => x.TestField, new { @class = "form-control", tabindex = 1, placeholder = "Test field", maxlength = "50" })
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(x => x.TestValue)
+                                                        @Html.TextBoxFor(x => x.TestValue, new { @class = "form-control", tabindex = 1, placeholder = "Test value", maxlength = "50" })
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(x => x.TestFromField)
+                                                        @Html.DropDownList("TestFromField", Model.ListFromFieldType, new { @class = "select", style = "width: 100px" })
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        @Html.Label("Price reject field")
+                                                        @Html.TextBoxFor(x => x.PriceRejectField, new { @class = "form-control", tabindex = 1, placeholder = "Price reject field", maxlength = "50" })
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        @Html.Label("Price reject value")
+                                                        @Html.TextBoxFor(x => x.PriceRejectValue, new { @class = "form-control", tabindex = 1, placeholder = "Price reject value", maxlength = "50" })
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        @Html.Label("Delimeter")
+                                                        @Html.TextBoxFor(x => x.Delimeter, new { @class = "form-control", tabindex = 1, placeholder = "Delimeter", maxlength = "50" })
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(x => x.RedirectField)
+                                                        @Html.TextBoxFor(x => x.RedirectField, new { @class = "form-control", tabindex = 1, placeholder = "Redirect field", maxlength = "50" })
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-3">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(x => x.MessageField)
+                                                        @Html.TextBoxFor(x => x.MessageField, new { @class = "form-control", tabindex = 1, placeholder = "Message field", maxlength = "50" })
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-3">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(x => x.PriceField)
+                                                        @Html.TextBoxFor(x => x.PriceField, new { @class = "form-control", tabindex = 1, placeholder = "Price field", maxlength = "50" })
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-3">
+                                                    <div class="form-group">
+                                                        @Html.Label("Field for AccountID")
+                                                        @Html.TextBoxFor(x => x.AccountIdField, new { @class = "form-control", tabindex = 1, placeholder = "AccountID field" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        }
+
+
+                    </div>
+
+                    @{
+                        string campaignXmlTpl = ViewBag.XmlTemplate;
+                        campaignXmlTpl = campaignXmlTpl.Replace("\r\n", "").Replace("&lt;", "<").Replace("&gt;", ">");
+                    }
+
+                    <script>
+                        var curTabLink = null;
+
+                        $(document).ready(function () {
+                            $('.tab-link').click(function (e) {
+                                if ($(this).attr('id') != 'tab-main')
+                                    curTabLink = $(this);
+                            });
+                            $('#test_btn').on('click', function (e) {
+                                e.preventDefault();
+
+                                $.ajax({
+                                        type: "POST",
+                                                        url: "@(Url.RouteUrl("TestImport", new { id = 0 }))?buyerchannelid=@Model.BuyerChannelId",
+                                                        data: { channelid: '', password: '', xml: $('#test_xml').val() },
+                                                        success: function (data) {
+                                                            $('#test_response').val(data.response);
+                                        },
+                                        error: function (xhr, ajaxOptions, thrownError) {
+                                    }
+                                });
+
+                                return false;
+                            });
+
+                            $('#test_btn2').on('click', function (e) {
+                                e.preventDefault();
+
+                                var xmlDoc = $.parseXML( '@Html.Raw(campaignXmlTpl)' );
+                                $xml = $( xmlDoc );
+
+                                $("#tbl_PissbleValuesList tbody tr").each(function() {
+                                    var field = $(this).children('td').eq(0).text();
+                                    var value = $(this).children('td').eq(1).children('input').val();
+
+                                    $xml.find(field).each(function(){
+                                        $(this).text(value);
+                                    });
+                                });
+
+                                var str = (new XMLSerializer()).serializeToString(xmlDoc);
+
+                                $('#test_xml').val(str);
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: "@(Url.RouteUrl("TestImport", new { id = 0 }))?buyerchannelid=@Model.BuyerChannelId",
+                                    data: { channelid: $('#channel_id_field').text(), password: $('#password_field').text(), xml: $('#test_xml').val() },
+                                    success: function (data) {
+                                        $('#test_response').val(data.response);
+                                    },
+                                    error: function (xhr, ajaxOptions, thrownError) {
+                                    }
+                                });
+
+                                return false;
+                            });
+
+                            $('.filter_remove').click(function() {
+                                $(this).parent().parent().remove();
+                            });
+
+                            $('#schedule_add').click(function () {
+
+                                var day = $('#schedule_day').val();
+
+                                var fromhour = 0;
+                                var fromminute = 0;
+
+                                var tohour = 24;
+                                var tominute = 0;
+
+                                var html = '<tr>';
+                                html += '<td>';
+                                html += '<div class="custom-dropdown width-100-percent"><select class="width-100-percent daysofweek">';
+                                html += '<option' + (day == 'Sunday' ? ' selected': '') + '>Sunday</option>';
+                                html += '<option' + (day == 'Monday' ? ' selected': '') + '>Monday</option>';
+                                html += '<option' + (day == 'Tuseday' ? ' selected': '') + '>Tuseday</option>';
+                                html += '<option' + (day == 'Wednesday' ? ' selected': '') + '>Wednesday</option>';
+                                html += '<option' + (day == 'Thursday' ? ' selected': '') + '>Thursday</option>';
+                                html += '<option' + (day == 'Friday' ? ' selected': '') + '>Friday</option>';
+                                html += '<option' + (day == 'Saturday' ? ' selected': '') + '>Saturday</option>';
+                                html += '</select></div> ';
+                                html += '</td>';
+
+                                html += '<td>';
+                                html += '<div class="custom-dropdown display-inline-block"><select class="fromhours">';
+                                for(var i = 0; i <= 24; i++)
+                                {
+                                    var selected = '';
+                                    if (i == fromhour) selected = ' selected';
+                                    if (i < 10)
+                                        html += '<option' + selected + '>0' + i + '</option>';
+                                    else
+                                        html += '<option' + selected + '>' + i + '</option>';
+                                }
+                                html += '</select></div>';
+                                html += '<div class="custom-dropdown display-inline-block"><select class="fromminutes">';
+                                for(var i = 0; i <= 59; i++)
+                                {
+                                    var selected = '';
+                                    if (i == fromminute) selected = ' selected';
+                                    if (i < 10)
+                                        html += '<option' + selected + '>0' + i + '</option>';
+                                    else
+                                        html += '<option' + selected + '>' + i + '</option>';
+                                }
+                                html += '</select></div> ';
+                                html += '</td>';
+
+                                html += '<td>';
+                                html += '<div class="custom-dropdown display-inline-block"><select class="tohours">';
+                                for(var i = 0; i <= 24; i++)
+                                {
+                                    var selected = '';
+                                    if (i == tohour) selected = ' selected';
+                                    if (i < 10)
+                                        html += '<option' + selected + '>0' + i + '</option>';
+                                    else
+                                        html += '<option' + selected + '>' + i + '</option>';
+                                }
+                                html += '</select></div>';
+                                html += '<div class="custom-dropdown display-inline-block"><select class="tominutes">';
+                                for(var i = 0; i <= 59; i++)
+                                {
+                                    var selected = '';
+                                    if (i == fromminute) selected = ' selected';
+                                    if (i < 10)
+                                        html += '<option' + selected + '>0' + i + '</option>';
+                                    else
+                                        html += '<option' + selected + '>' + i + '</option>';
+                                }
+                                html += '</select></div>';
+                                html += '</td>';
+
+                                html += '<td>';
+                                html += '<input type="text" class="form-control" value="0">';
+                                html += '</td>';
+
+                                html += '<td>';
+                                html += '<input type="text" class="form-control" value="0">';
+                                html += '</td>';
+
+                                html += '<td>';
+                                html += '<input type="text" class="form-control" value="0">';
+                                html += '</td>';
+
+                                html += '<td>';
+                                html += '<input type="text" class="form-control" value="0">';
+                                html += '</td>';
+
+                                html += '<td>';
+                                html += '<input type="text" class="form-control" value="0">';
+                                html += '</td>';
+
+                                html += '<td>';
+                                html += '<select class="form-control"><option value="0">All</option><option value="1">Sold</option><option value="3">Rejected</option></select>';
+                                html += '</td>';
+
+                                html += '<td><div class="schedule_remove"><i class="glyphicon glyphicon-remove red"></i></div></td>';
+
+                                html += '</tr>';
+
+                                $('#schedule tbody').append(html);
+
+                                /*$('.schedule_remove').off('click').on('click', function() {
+                                    $(this).parent().parent().remove();
+                                });*/
+
+                            });
+                        });
+                    </script>
+
+                    <div class="tab-pane panel-body" id="schedule-tab">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <button id="schedule_add" type="button" class="btn btn-success">Add New Record</button>
+                                <hr />
+                                <br />
+                                <b>Please note</b>: <br />If <b>schedule price</b> is higher than 0, it will always override affiliate price within the selected date range.
+                                <br />
+                                To ignore <b>CAP for the given period</b>, set Quantity to -1 (MINUS ONE)
+                                <br />
+                                To ignore <b>max hourly CAP</b> set the value to -1 (MINUS ONE)
+                            </div>
+
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    @Html.Label("Daily cap")<br />
+                                    @Html.TextBoxFor(x => x.DailyCap, new { @class = "form-control", tabindex = 1, placeholder = "Daily cap" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table id="schedule" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 220px">Day</th>
+                                        <th style="width: 170px">Start</th>
+                                        <th style="width: 170px">Finish</th>
+                                        <th>Cap</th>
+                                        <th>Wait after post</th>
+                                        <th>Wait after sold</th>
+                                        <th>Max hourly cap</th>
+                                        <th>Price</th>
+                                        <th>Lead status</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var si in Model.ScheduleItems)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="custom-dropdown width-100-percent">
+                                                    <select class="width-100-percent daysofweek">
+                                                        <option>NONE</option>
+                                                        <option @Html.Raw(si.Day == "Sunday" ? "selected" : "")>Sunday</option>
+                                                        <option @Html.Raw(si.Day == "Monday" ? "selected" : "")>Monday</option>
+                                                        <option @Html.Raw(si.Day == "Tuseday" ? "selected" : "")>Tuseday</option>
+                                                        <option @Html.Raw(si.Day == "Wednesday" ? "selected" : "")>Wednesday</option>
+                                                        <option @Html.Raw(si.Day == "Thursday" ? "selected" : "")>Thursday</option>
+                                                        <option @Html.Raw(si.Day == "Friday" ? "selected" : "")>Friday</option>
+                                                        <option @Html.Raw(si.Day == "Saturday" ? "selected" : "")>Saturday</option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="custom-dropdown display-inline-block">
+                                                    <select class="hours-list fromhours">
+                                                        @for (int i = 0; i <= 24; i++)
+                                                        {
+                                                            <option @Html.Raw((i.ToString().Length == 1 ? "0" + i.ToString() : i.ToString()) == si.FromHour ? " selected" : "")>
+                                                                @Html.Raw(i.ToString().Length == 1 ? "0" + i.ToString() : i.ToString())
+                                                            </option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div class="custom-dropdown display-inline-block">
+                                                    <select class="hours-list fromminutes">
+                                                        @for (int i = 0; i <= 59; i++)
+                                                        {
+                                                            <option @Html.Raw((i.ToString().Length == 1 ? "0" + i.ToString() : i.ToString()) == si.FromMinute ? " selected" : "")>
+                                                                @Html.Raw(i.ToString().Length == 1 ? "0" + i.ToString() : i.ToString())
+                                                            </option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="custom-dropdown display-inline-block">
+                                                    <select class="tohours">
+                                                        @for (int i = 0; i <= 24; i++)
+                                                        {
+                                                            <option @Html.Raw((i.ToString().Length == 1 ? "0" + i.ToString() : i.ToString()) == si.ToHour ? " selected" : "")>
+                                                                @Html.Raw(i.ToString().Length == 1 ? "0" + i.ToString() : i.ToString())
+                                                            </option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div class="custom-dropdown display-inline-block">
+                                                    <select class="select-z tominutes">
+                                                        @for (int i = 0; i <= 59; i++)
+                                                        {
+                                                            <option @Html.Raw((i.ToString().Length == 1 ? "0" + i.ToString() : i.ToString()) == si.ToMinute ? " selected" : "")>
+                                                                @Html.Raw(i.ToString().Length == 1 ? "0" + i.ToString() : i.ToString())
+                                                            </option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" value="@si.Quantity">
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" value="@si.PostedWait">
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" value="@si.SoldWait">
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" value="@si.HourMax">
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" value="@si.Price">
+                                            </td>
+                                            <td>
+                                                <select class="form-control">
+                                                    <option value="-1" @Html.Raw(si.LeadStatus == "-1" ? "selected" : "")>All</option>
+                                                    <option value="1" @Html.Raw(si.LeadStatus == "1" ? "selected" : "")>Sold</option>
+                                                    <option value="3" @Html.Raw(si.LeadStatus == "3" ? "selected" : "")>Rejected</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <div class="schedule_remove">
+                                                    <i class="glyphicon glyphicon-remove red"></i>
+                                                </div>
+                                                <div>
+                                                    <a href="#" class="clone-schedule-row">Clone</a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane panel-body" id="holidays-tab">
+                        <div class="input-group" style="width: 100%">
+                            <select id="holidays" multiple="multiple" class="form-control listbox-no-selection">
+                                @for (int i = 1; i <= 12; i++)
+                                {
+                                    string name = "";
+                                    int days = DateTime.DaysInMonth(DateTime.UtcNow.Year, i);
+                                    bool b = true;
+                                    string sel = "";
+                                    System.Globalization.DateTimeFormatInfo mfi = new System.Globalization.DateTimeFormatInfo();
+                                    for (int j = 1; j <= days; j++)
+                                    {
+                                        sel = "";
+                                        name = "";
+                                        foreach (SelectListItem item in Model.Holidays)
+                                        {
+                                            if (item.Value == i.ToString() + "-" + j.ToString())
+                                            {
+                                                sel = "selected='selected'";
+                                                break;
+                                            }
+                                        }
+
+                                        if (j == 1 && i == 1)
+                                        {
+                                            name = "(New Year's Day)";
+                                        }
+                                        else if (j == 21 && i == 1)
+                                        {
+                                            name = "(Martin Luther King, Jr. Day)";
+                                        }
+                                        else if (j == 18 && i == 2)
+                                        {
+                                            name = "(Washington’s Birthday)";
+                                        }
+                                        else if (j == 28 && i == 5)
+                                        {
+                                            name = "(Memorial Day)";
+                                        }
+                                        else if (j == 4 && i == 7)
+                                        {
+                                            name = "(Independence Day)";
+                                        }
+                                        else if (j == 1 && j == 5)
+                                        {
+                                            name = "(Labor Day)";
+                                        }
+                                        else if (j == 8 && i == 10)
+                                        {
+                                            name = "(Columbus Day)";
+                                        }
+                                        else if (j == 11 && i == 11)
+                                        {
+                                            name = "(Veterans Day)";
+                                        }
+                                        else if (j == 25 && i == 12)
+                                        {
+                                            name = "(Christmas)";
+                                        }
+                                        <option value="@(i.ToString() + "-" + j.ToString())" @Html.Raw(sel)>@(j.ToString() + " - " + mfi.GetMonthName(i).ToString() + name)</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane panel-body" id="filter-tab">
+                        <span style="font-size: 14px"><b>Age filter</b></span><br />
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    @Html.Label("Min age")
+                                    @Html.TextBoxFor(x => x.MinAgeTargeting, new { @class = "form-control", type = "number", tabindex = 1, placeholder = "" })
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    @Html.Label("Max age")
+                                    @Html.TextBoxFor(x => x.MaxAgeTargeting, new { @class = "form-control", type = "number", tabindex = 1, placeholder = "" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-2">
+                                <select id="filter_templates" class="form-control">
+                                    <option value="0">Select filter set</option>
+                                    @foreach (var f in Model.Filters)
+                                    {
+                                        <option value="@f.Id">@f.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-lg-2">
+                                <button id="filter_add" type="button" class="btn btn-default">Add</button>
+                            </div>
+                        </div>
+                        <div class="row margin-top">
+                            <table id="conditions" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th width="10%">Field</th>
+                                        <th width="15%">Condition</th>
+                                        <th width="73%">Value</th>
+                                        <td width="2%"></td>
+                                        <td width="2%"></td>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane panel-body" id="allowedfrom-tab">
+
+                        <div class="input-group" style="width: 100%">
+                            <select id="allowed_from" multiple="multiple" class="form-control listbox-no-selection">
+                                @foreach (var a in Model.ListAffiliateChannels)
+                                {
+                                    <option value="@a.Value" @Html.Raw(a.Selected ? "selected='selected'" : "")>@a.Text</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane panel-body" id="childchannels-tab">
+
+                        <div class="input-group" style="width: 100%">
+                            <select id="child_channels" multiple="multiple" class="form-control listbox-no-selection">
+                                @foreach (var a in Model.ListChildChannels)
+                                {
+                                    <option value="@a.Value" @Html.Raw(a.Selected ? "selected='selected'" : "")>@a.Text</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane panel-body" id="test-tab">
+                        <table class="table">
+                            <tr>
+                                <td valign="top">
+                                    <button id="test_btn" class="btn btn-default">Send XML</button>
+                                    <button id="test_btn2" class="btn btn-default">Send with possible values</button>
+                                    <div class="margin-top">
+                                        <label>XML</label>
+                                        <br />
+                                        <textarea id="test_xml" rows="10" cols="55" style="resize: none;">@ViewBag.XmlTemplate</textarea><br />
+                                        <label>Response</label>
+                                        <br />
+                                        <textarea id="test_response" rows="5" cols="55"></textarea>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div id="PissbleValuesList"></div>
+                                    <script>
+                                        $(document).ready(function () {
+                                            GenerateGridTable("PissbleValuesList", "/GetCampaignPossibleValues?campaignid=@Model.CampaignId", "Template field, Possible Value");
+                                        });
+                                    </script>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="tab-pane panel-body" id="history-tab">
+                        @{ Html.RenderAction("IndexPartial", "History", new { id = Model.BuyerChannelId, entity = "BuyerChannel" }); }
+                    </div>
+
+                    <div class="tab-pane panel-body" id="advanced-tab">
+                        @if (Model.AlwaysSoldOption == 0 || Model.AlwaysSoldOption == 2)
+                        {
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        @Html.LabelFor(x => x.PostingHeaders)
+                                        @Html.TextAreaFor(x => x.PostingHeaders, new { @class = "form-control", tabindex = 1, placeholder = "Posting headers" })
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                @*<div class="col-md-4">
+                                        <div class="form-group">
+                                            @Html.LabelFor(x => x.AfterTimeout)
+                                            @Html.TextBoxFor(x => x.AfterTimeout, new { @class = "form-control", type = "number", tabindex = 1, placeholder = "After timeout", required = "required" })
+                                        </div>
+                                    </div>*@
+                            </div>
+                        }
+                    </div>
+
+                    <div class="tab-pane panel-body" id="subidwhitelist-tab">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label">Enable SubId white list</label><br />
+                                    @Html.CheckBoxFor(x => x.SubIdWhiteListEnabled, new { tabindex = 1 })
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label">Select CSV file:</label><br />
+                                    <input type="file" class="form-control" name="subidcsvfile" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane panel-body" id="note-tab">
+                        <div class="col-md-6">
+                            <div class="form-group" id="revenue_div">
+                                @Html.Label("Notes")<br />
+                                @Html.TextAreaFor(x => x.Note, new { @class = "form-control", tabindex = 1, placeholder = "" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="color:red">
+            @Html.ValidationSummary()
+        </div>
+
+        <div class="text-right">
+            <input type="hidden" id="BuyerChannelId" name="BuyerChannelId" value="@Model.BuyerChannelId" />
+            <a class="btn btn-primary btn-ladda" data-dismiss="modal" title="Clone buyer channel" nohref="nohref" data-toggle="modal" data-target="#modal_form_clone_buyerchannel">Clone <i class="icon-arrow-right14 position-right"></i></a>
+            <a href="#" class="btn btn-default" data-close="2" onclick="history.go(-1);">Close <i class="icon-arrow-right14 position-right"></i></a>
+            <button id="btnSubmitClose" type="submit" class="btn btn-success" data-close="1">Save and close <i class="icon-arrow-right14 position-right"></i></button>
+            <button id="btnSubmit" type="submit" class="btn btn-success" data-close="0">Save<i class="icon-arrow-right14 position-right"></i></button>
+        </div>
+    }
+</div>
+
+<!-- Basic modal -->
+<div id="modal_default" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Template</h5>
+            </div>
+
+            <div class="modal-body">
+                <textarea id="xml_template" class="form-control" rows="15"></textarea>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <button id="load_template_btn" type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /basic modal -->
+
+<div id="matching_values_modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Template</h5>
+            </div>
+
+            <div class="modal-body">
+                <label>Add new</label><br />
+                <table>
+                    <tr>
+                        <td>
+                            <input type="text" id="inputValue" class="form-control" placeholder="Input value" style="width: 100%" />
+                        </td>
+                        <td>
+                            <input type="text" id="outputValue" class="form-control" placeholder="Output value" style="width: 100%" />
+                        </td>
+                        <td>
+                            <button id="addMatchingBtn" style='height:36px'>Add</button>
+                        </td>
+                    </tr>
+                </table>
+
+                <br /><br />
+                <div class="table-responsive">
+                    <table id="matching_values">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">Input value</th>
+                                <th style="width: 80px;">Output value</th>
+                                <th style="width: 80px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <button id="matchingModalSave" type="button" class="btn btn-success" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="matchings-window"></div>
+
+<div id="modal_form_clone_buyerchannel" class="modal fade">
+    <div class="modal-dialog modal-xs">
+        <div class="modal-content">
+
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">New buyer channel</h5>
+            </div>
+
+            <form action="#">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <input class="form-control" type="text" id="buyer-channel-clone-name" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btn-clone" type="button" data-target="#modal_form_clone_buyerchannel" data-toggle="modal" class="btn btn-success btn-sm" data-id="@Model.BuyerChannelId">
+                        <i class="icon-add-to-list position-left"></i> Clone
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

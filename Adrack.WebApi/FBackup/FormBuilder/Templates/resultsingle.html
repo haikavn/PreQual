@@ -1,0 +1,60 @@
+﻿
+<!doctype html>
+<html lang="en">
+
+
+
+<head>
+    <!-- Required meta tags -->
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <!-- Latest compiled and minified CSS -->
+
+
+
+
+    <!-- Optional theme -->
+    <title>Form</title>
+
+
+
+
+</head>
+
+<body>
+
+
+            <div class="" id="myform">
+
+               
+               
+
+               
+
+  
+
+            </div>
+
+
+
+    
+   
+
+
+
+<link href="https://qa-lead-distribution-api.adrack.com/forms/formbuilder.css" type="text/css" rel="stylesheet">
+<script src="https://qa-lead-distribution-api.adrack.com/forms/formbuilder.js"></script>
+<script>
+//973
+    adrackFormBuilderAPI.getForm(1409, function (result) {
+        var builder = new FormBuilder();
+	builder.Container="myform";
+        builder.ParseSource(result);
+        builder.Init();
+    });
+</script>   
+
+</body>
+
+</html>

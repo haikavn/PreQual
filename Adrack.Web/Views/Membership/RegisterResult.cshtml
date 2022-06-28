@@ -1,0 +1,35 @@
+﻿@model RegisterResultModel
+@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+
+    Html.AddPageTitle(T("PageTitle.Register").Text);
+}
+
+@{
+    var queryString = Context.Request.QueryString["returnUrl"];
+
+    var continueUrl = "";
+
+    if (!string.IsNullOrEmpty(queryString) && Url.IsLocalUrl(queryString))
+    {
+        continueUrl = queryString;
+    }
+    else
+    {
+        continueUrl = Url.RouteUrl("Login");
+    }
+}
+
+<div class="page registration-result-page">
+    <div class="page-title">
+        <h1>@T("Membership.Register")</h1>
+    </div>
+    <div class="page-body">
+        <div class="result">
+            @Model.Result
+        </div>
+        <div class="buttons">
+            <input type="button" class="button-1 register-continue-button" onclick="location.href = '@continueUrl'" value="@T("Membership.Register.Result.Button")" />
+        </div>
+    </div>
+</div>

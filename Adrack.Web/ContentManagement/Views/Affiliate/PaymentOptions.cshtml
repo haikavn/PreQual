@@ -1,0 +1,129 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.AffiliateModel
+
+@using Adrack.Service.Helpers
+
+@{
+    ViewBag.Title = "Payment Options";
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switchery.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    var currentUser = this.AppContext.AppUser;
+}
+<link rel="stylesheet" type="text/css" href="~/Scripts/plugins/tel/css/intlTelInput.css" />
+<script src="~/Scripts/plugins/tel/js/intlTelInput.js"></script>
+
+@if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+{
+    @RenderPage("../Shared/AffiliateSubMenu.cshtml")
+}
+
+<script>
+    function GeneratePaymentMethodGrid() {
+
+        $.post("/getpaymentmethods/@Model.AffiliateId").done(function (retData) {
+
+            var str = '';
+
+            for(i=0; i < retData.data.length; i++)
+            {
+                str += '<tr><td style="text-align:center"><input type="radio" '+ (retData.data[i][5]=='True'? 'checked': '') +'  name="IsDefault" id="'+retData.data[i][0]+'" /></td>'+
+                    '<td>' + retData.data[i][0] + '</td>'+
+                    '<td>' + '<span id="' + retData.data[i][0] + '" type="button" data-target="#modal_form_add_payment" data-toggle="modal" class="EditPaymentMethodBtn"><a href="#">'+ retData.data[i][1] +'</a></span>' + '</td>'+
+                    '<td>' + retData.data[i][2] + '</td>'+
+                    '<td>' + retData.data[i][3] + '</td>'+
+                    '<td>' + retData.data[i][4] + '</td>'+
+                    '<td style="text-align:center"><span class="delete_pament" id="del'+retData.data[i][0]+'"><a href="#"><i class="icon-cross2 text-danger"></i></a></span></td>' +
+                    '</tr>';
+            }
+
+            $("#payment_options tbody").html(str);
+
+            $("input[name=IsDefault]:radio").change(function () {
+                var data = 'Id=' + $(this).attr("id")+
+                    '&AffiliateId='+@Model.AffiliateId;
+                $.post("/Management/PaymentMethod/SetDefault/", data).done(function (retData) {
+                    GeneratePaymentMethodGrid();
+                });
+            });
+
+            $(".EditPaymentMethodBtn").click(function () {
+
+                $.post("/Management/PaymentMethod/Item/" + $(this).attr("id") ).done(function (retData) {
+                    $("#ModalBodyPayment").html(retData);
+                    $("#AffiliateId").val("@Model.AffiliateId");
+                    $("#AffiliateName").val("@Model.Name");
+                });
+            });
+
+            $(".delete_pament").click(function () {
+                if( confirm("Are You sure?") != true ) return false;
+                var data = 'Id=' + $(this).attr("id").replace('del', '');
+
+                $.post("/Management/PaymentMethod/Delete/", data).done(function (retData) {
+                    GeneratePaymentMethodGrid();
+                });
+            });
+        });
+    }
+
+    $(document).ready(function () {
+        $(".AddPaymentMethodBtn").click(function () {
+
+            $.post("/Management/PaymentMethod/Item/").done(function (retData) {
+                $("#ModalBodyPayment").html(retData);
+                $("#AffiliateId").val("@Model.AffiliateId");
+                $("#AffiliateName").val("@Model.Name");
+            });
+
+        });
+
+    });
+</script>
+
+<br>
+<button id="0" type="button" data-target="#modal_form_add_payment" data-toggle="modal" class="AddPaymentMethodBtn btn btn-success btn-sm">
+    <i class="icon-add-to-list position-left"></i> Add Payment Method
+</button>
+<br><br>
+
+<div>
+    <div class="row">
+        <script>
+            GeneratePaymentMethodGrid();
+        </script>
+
+        <table id="payment_options" class="display table datatable-html dataTable no-footer">
+            <thead>
+                <tr>
+                    <th width="100px" style="text-align:center"><b>Default</b></th>
+                    <th width="70px"><b>ID</b></th>
+                    <th><b>Account Name</b></th>
+                    <th><b>Payment Type</b></th>
+                    <th><b>Account Number</b></th>
+                    <th><b>Bank Name</b></th>
+                    <th width="70px" style="text-align:center"><b>Delete</b></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="modal_form_add_payment" class="modal fade">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Add New Payment Method</h5>
+            </div>
+            <div id="ModalBodyPayment">
+                <div class="panel-body"><br><br><br><br><br><img src="\Content\img\ajax-loader.gif" /><br><br><br><br><br>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

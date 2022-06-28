@@ -1,0 +1,16 @@
+﻿DataProvider: SQLServer
+DataConnectionStringOld2: Data Source=adrack.c4cgl3t91d15.us-west-1.rds.amazonaws.com; Initial Catalog=adrack;User ID=adrack;Password=adrack1234567;MultipleActiveResultSets=True
+DataConnectionStringOld: Data Source=localhost;Initial Catalog=AdrackArrowshade; MultipleActiveResultSets=True; Trusted_Connection=True;
+DataConnectionStringH: Data Source=tcp:dot818us.database.windows.net,1433;Initial Catalog=AdrackDatabaseStress;User ID=grigor;Password=P@ssw0rd;MultipleActiveResultSets=True
+
+DataConnectionStringz: Data Source=DESKTOP-IRTK5F9\SQLEXPRESS; Initial Catalog=Adrack.Database4; Integrated Security=True; Persist Security Info=False; Connect Timeout=10
+DataConnectionStringAAA: Data Source=DESKTOP-IRTK5F9\SQLEXPRESS;Initial Catalog=Adrack.Database4;Integrated Security=True
+
+DataConnectionStringDDDD: Data Source=tcp:dot818us.database.windows.net,1433;Initial Catalog=AdrackArrowshadeDemo;User ID=grigor;Password=P@ssw0rd;MultipleActiveResultSets=True
+
+DataConnectionStringD: Data Source=52.38.241.115;Initial Catalog=Adrack.Database;User ID=pingtreedev;Password=mzWkkVTHSZfxqE9D
+DataConnectionStringLeads: Data Source=prod-rack-lead-db1.database.windows.net,1433;Initial Catalog=Leads;User ID=Prod-Leads-User;Password=N0Z15e}4@IK7<L?16GVc;MultipleActiveResultSets=True
+DataConnectionString55: Data Source=prod-rack-lead-db1.database.windows.net,1433;Initial Catalog=Demo;User ID=Prod-Lead-User;Password=P@ssw0rd;MultipleActiveResultSets=True
+DataConnectionString44: Data Source=prod-rack-lead-db1.database.windows.net,1433;Initial Catalog=Leads;User ID=Prod-Leads-User;Password=N0Z15e}4@IK7<L?16GVc;MultipleActiveResultSets=True
+DataConnectionString: Data Source=DESKTOP-VM8NGB3\SQLEXPRESS;Initial Catalog=Adrack.Database;Integrated Security=True
+

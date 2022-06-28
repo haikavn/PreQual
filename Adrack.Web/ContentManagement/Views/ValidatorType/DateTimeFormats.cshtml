@@ -1,0 +1,20 @@
+﻿@{
+    string id = Adrack.Web.ContentManagement.Helper.GetUniqueKey(7);
+}
+
+<label>Select format</label>
+<br />
+<input type='text' class="form-control" name='df_datetime_value_@id' value='@Model' list='df_datetime_list_@id'>
+
+<datalist id="df_datetime_list_@id">
+    <option value="MM-dd-yyyy">DateTime (mm-dd-yyyy)</option>
+    <option value="MM-dd-yy">DateTime (mm-dd-yy)</option>
+    <option value="dd-MM-yyyy">DateTime (dd-mm-yyyy)</option>
+    <option value="dd-MM-yy">DateTime (dd-mm-yy)</option>
+    <option value="MM/dd/yyyy">DateTime (mm/dd/yyyy)</option>
+    <option value="dd/MM/yyyy">DateTime (dd/mm/yyyy)</option>
+    <option value="dd/MM/yy">DateTime (dd/mm/yy)</option>
+    <option value="dd.MM.yyyy">DateTime (dd.mm.yyyy)</option>
+    <option value="dd.MM.yy">DateTime (dd.mm.yy)</option>
+    <option value="MM-dd-yyyy">DateTime (mm-dd-yyyy)</option>
+</datalist>

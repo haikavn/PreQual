@@ -1,0 +1,18 @@
+﻿<!--
+<script>
+    $(document).ready(function () {
+        $('#add_new').click(function () {
+            window.location = '/Management/PaymentMethod/Item';
+        });
+    });
+</script>
+
+<button id="add_new" type="button" class="btn btn-success btn-sm">
+    <i class="icon-add-to-list position-left"></i>Add payment method
+</button>
+-->
+
+<div id="payment_methods"></div>
+<script>
+    GenerateGridTable("payment_methods", "/GetPaymentMethods/0", "ID, Name On Account, Primary");
+</script>

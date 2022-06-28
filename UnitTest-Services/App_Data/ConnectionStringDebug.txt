@@ -1,0 +1,2 @@
+﻿DataProvider: SQLServer
+DataConnectionString: Data Source=tcp:dot818us.database.windows.net,1433;Initial Catalog=AdrackArrowshadeDemo;User ID=grigor;Password=P@ssw0rd;MultipleActiveResultSets=True

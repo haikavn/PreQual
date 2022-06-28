@@ -1,0 +1,1 @@
+This source code is provided under perpetual software license agreement with Pomo One Marketing Inc. date June 10, 2019

@@ -1,0 +1,65 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.BuyerModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+@using Adrack.Service.Helpers
+
+@{
+    ViewBag.Title = "Channels";
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    var currentUser = this.AppContext.AppUser;
+
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+}
+
+@if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+{
+    @RenderPage("../Shared/BuyerSubMenu.cshtml")
+}
+
+<script>
+    $(document).ready(function () {
+        $('#add_new_buyer').click(function () {
+            window.location = '/Management/BuyerChannel/Create?buyerid=@Model.BuyerId';
+            return false;
+        });
+    });
+</script>
+
+@if (permissionService.Authorize(PermissionProvider.BuyerChannelsModify) && (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId))
+{
+<br>
+<button id="add_new_buyer" type="button" class="btn btn-success btn-sm">
+    <i class="icon-add-to-list position-left"></i>Add buyer channel
+</button><br>
+}
+
+<div id="buyer_channels"></div>
+<script>
+    function deleteBuyerChannel(id) {
+        if (!confirm("Are you sure?")) return;
+
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "/deletebuyerchannel",
+            data: { "BuyerChannelId": id },
+            success: function (data) {
+                if (data.result)
+                    GenerateGridTable("GridView1",
+                        "/GetBuyerChannels?a=" + BuyerChannelListParams.stid,
+                        "ID, Buyer Channel Name, Buyer Name, Campaign, Status " + BuyerChannelListParams.str);
+                else
+                    alert(data.message);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        GenerateGridTable("buyer_channels", "/GetBuyerChannels?bid=@Model.BuyerId", "ID, Name, Buyer, Campaign, Status @Html.Raw(currentUser.UserTypeId == SharedData.BuiltInUserTypeId || permissionService.Authorize(PermissionProvider.BuyersModify) ? ",Action" : "")", null, null, null, null);
+    });
+</script>

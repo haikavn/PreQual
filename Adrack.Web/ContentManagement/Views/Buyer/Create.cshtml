@@ -1,0 +1,616 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.BuyerModel
+
+@using Adrack.Service.Helpers
+
+@{
+    // Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+
+    Html.AddPageTitle(T("PageTitle.Register").Text);
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/core.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/form.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/form.wizard.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/uniform.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/blockui.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jasny.bootstrap.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/validate.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/ui/moment/moment.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/picker.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/picker.date.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/daterangepicker.js").ToLowerInvariant());
+
+    //Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/domain/membership/register.js").ToLowerInvariant());
+    Html.AppendPageCustom(PageLayoutPosition.ContainerAttribute, "login-container");
+
+    var currentUser = this.AppContext.AppUser;
+}
+
+    <script type="text/javascript">
+        $(function () {
+
+            $('#BillFrequency').change(function () {
+                if ($(this).val() == 'w' || $(this).val() == 'bw') {
+                    $("#FrequencyValue").html(
+                        '<option value="1">Monday</option>' +
+                        '<option value="2">Tuesday</option>' +
+                        '<option value="3">Wednesday</option>' +
+                        '<option value="4">Thursday</option>' +
+                        '<option value="5">Friday</option>' +
+                        '<option value="6">Saturday</option>' +
+                        '<option value="7">Sunday</option>');
+                    $("#BillWithin").val(1);
+                }
+                else {
+                    var ss = '';
+                    for (i = 1; i <= 31; i++) {
+                        ss += '<option value="' + i + '">' + i + '</option>';
+                    }
+                    $("#FrequencyValue").html(ss);
+                }
+
+            });
+
+            $("#@Html.FieldIdFor(x => x.CountryId)").change(function () {
+                var selectedItem = $(this).val();
+
+                var ddlStates = $("#@Html.FieldIdFor(x => x.StateProvinceId)");
+
+                var statesProgress = $("#states-loading-progress");
+                statesProgress.show();
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    url: "@(Url.RouteUrl("GetStateProvinceByCountryId"))",
+                    data: { "countryId": selectedItem, "addSelectStateProvinceItem": "true" },
+                    success: function (data) {
+                        ddlStates.html('');
+                        $.each(data, function (id, option) {
+                            if (option.id == 0) option.id = "";
+                            ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                        });
+                        statesProgress.hide();
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        statesProgress.hide();
+                    }
+                });
+            });
+
+            $("#@Html.FieldIdFor(x => x.DoNotPresentStatus)").change(function () {
+
+                if ($(this).val() != 2) {
+                    $("#@Html.FieldIdFor(x => x.DoNotPresentUrl)").prop('disabled', true);
+                    $("#@Html.FieldIdFor(x => x.DoNotPresentResultField)").prop('disabled', true);
+                    $("#@Html.FieldIdFor(x => x.DoNotPresentResultValue)").prop('disabled', true);
+                }
+                else {
+                    $("#@Html.FieldIdFor(x => x.DoNotPresentUrl)").prop('disabled', false);
+                    $("#@Html.FieldIdFor(x => x.DoNotPresentResultField)").prop('disabled', false);
+                    $("#@Html.FieldIdFor(x => x.DoNotPresentResultValue)").prop('disabled', false);
+                }
+            });
+
+        $(".form-validation").formwizard({
+            disableUIStyles: true,
+            validationEnabled: true,
+            inDuration: 150,
+            outDuration: 150,
+            validationOptions: {
+                ignore: 'input[type=hidden], .select2-search__field', // ignore hidden fields
+                errorClass: 'validation-error-label',
+                successClass: 'validation-valid-label',
+                highlight: function (element, errorClass) {
+                    $(element).removeClass(errorClass);
+                },
+                unhighlight: function (element, errorClass) {
+                    $(element).removeClass(errorClass);
+                },
+
+                // Different components require proper error label placement
+                errorPlacement: function (error, element) {
+
+                    // Styled checkboxes, radios, bootstrap switch
+                    if (element.parents('div').hasClass("checker") || element.parents('div').hasClass("choice") || element.parent().hasClass('bootstrap-switch-container')) {
+                        if (element.parents('label').hasClass('checkbox-inline') || element.parents('label').hasClass('radio-inline')) {
+                            error.appendTo(element.parent().parent().parent().parent());
+                        }
+                        else {
+                            error.appendTo(element.parent().parent().parent().parent().parent());
+                        }
+                    }
+
+                        // Unstyled checkboxes, radios
+                    else if (element.parents('div').hasClass('checkbox') || element.parents('div').hasClass('radio')) {
+                        error.appendTo(element.parent().parent().parent());
+                    }
+
+                        // Input with icons and Select2
+                    else if (element.parents('div').hasClass('has-feedback') || element.hasClass('select2-hidden-accessible')) {
+                        error.appendTo(element.parent());
+                    }
+
+                        // Inline checkboxes, radios
+                    else if (element.parents('label').hasClass('checkbox-inline') || element.parents('label').hasClass('radio-inline')) {
+                        error.appendTo(element.parent().parent());
+                    }
+
+                        // Input group, styled file input
+                    else if (element.parent().hasClass('uploader') || element.parents().hasClass('input-group')) {
+                        error.appendTo(element.parent().parent());
+                    }
+
+                    else {
+                        error.insertAfter(element);
+                    }
+                },
+                rules: {
+                    Email: {
+                        email: true
+                    },
+                    Password: {
+                        minlength: 5
+                    },
+                    ConfirmPassword: {
+                        minlength: 5,
+                        equalTo: "#Password"
+                    }
+                }
+            }
+        });
+
+        $('.daterange-single').daterangepicker({
+            singleDatePicker: true,
+            startDate: moment(new Date('@Adrack.Web.ContentManagement.Helper.GetTimeZoneStr()')),
+            maxDate: moment(new Date('@Adrack.Web.ContentManagement.Helper.GetTimeZoneStr()')),
+            locale: {
+                format: 'MM/DD/YYYY'
+            }
+        });
+
+        $('.select').select2();
+
+        $('.styled').uniform({
+            radioClass: 'choice'
+        });
+    });
+    </script>
+
+@using (Html.BeginForm("Register", null, FormMethod.Post, new { @class = "form-validation" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel registration-form">
+                <div class="panel-body">
+                    <div class="text-center">
+                        <h4 class="content-group-lg">
+                            @Html.Raw("Create buyer user")
+                            <small class="display-block">All fields are required</small>
+                        </h4>
+                    </div>
+
+                    <fieldset class="step" id="step1">
+                        <h6 class="form-wizard-title text-semibold">
+                            <span class="form-wizard-count">1</span>
+                            <span>Buyer info</span>
+                        </h6>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group has-feedback">
+                                    @Html.LabelFor(x => x.Name)
+                                    @Html.TextBoxFor(x => x.Name, new { @class = "form-control", tabindex = 1, placeholder = "Buyer name", required = "required" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-plus text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    @Html.Label("Account ID")<br />
+                                    @Html.TextBoxFor(x => x.AccountId, new { @class = "form-control", tabindex = 1, @type = "number", min = "0" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group has-feedback">
+                                    @Html.LabelFor(x => x.AddressLine1)
+                                    @Html.TextBoxFor(x => x.AddressLine1, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Address line1", required = "required" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-plus text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group has-feedback">
+                                    @Html.LabelFor(x => x.AddressLine2)
+                                    @Html.TextBoxFor(x => x.AddressLine2, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Address line2" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-plus text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group has-feedback">
+                                    @Html.LabelFor(x => x.City)
+                                    @Html.TextBoxFor(x => x.City, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "City", required = "required" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-plus text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group has-feedback">
+                                    @Html.Label("Company email")
+                                    @Html.TextBoxFor(x => x.CompanyEmail, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Company email", required = "required", type = "email" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-plus text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group has-feedback">
+                                    @Html.LabelFor(x => x.ZipPostalCode)
+                                    @Html.TextBoxFor(x => x.ZipPostalCode, new { @class = "form-control", tabindex = 1, placeholder = "Zip postal code", required = "required" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-plus text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group has-feedback">
+                                    @Html.Label("Company phone")
+                                    @Html.TextBoxFor(x => x.CompanyPhone, new { @class = "form-control", tabindex = 1, placeholder = "Telephone", required = "required" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-plus text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group has-feedback">
+                                    @Html.Label("Country")<br />
+                                    @Html.DropDownList("CountryId", Model.ListCountry, new { @class = "select", required = "required" })
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group has-feedback">
+                                    @Html.Label("State/Province")<br />
+                                    @Html.DropDownList("StateProvinceId", Model.ListStateProvince, new { @class = "select", required = "required" })
+                                </div>
+                            </div>
+
+                            @if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+                            {
+                                <div class="col-md-4">
+                                    <div class="form-group has-feedback">
+                                        @Html.Label("Manager")<br />
+                                        @Html.DropDownList("ManagerId", Model.ListUser, new { @class = "select", required = "required" })
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group has-feedback">
+                                    @Html.Label("Status")<br />
+                                    @Html.DropDownList("Status", Model.ListStatus, new { @class = "select", required = "required" })
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    @Html.LabelFor(x => x.AlwaysSoldOption)
+                                    @Html.DropDownList("AlwaysSoldOption", Model.ListAlwaysSoldOption, new { @class = "select", style = "width: 100px" })
+                                </div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    @Html.LabelFor(x => x.MaxDuplicateDays)
+                                    @Html.TextBoxFor(x => x.MaxDuplicateDays, new { @class = "form-control", tabindex = 1, placeholder = "Max leads per day", required = "required" })
+                                </div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    @Html.Label("Daily cap")<br />
+                                    @Html.TextBoxFor(x => x.DailyCap, new { @class = "form-control", tabindex = 1, placeholder = "Daily cap", required = "required" })
+                                </div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <div class="form-group has-feedback">
+                                    @Html.Label("Keep consistent Lead ID")<br />
+                                    @Html.CheckBoxFor(x => x.CanSendLeadId)
+                                    <div>
+                                        <span style="color: red; font-size: 10px;">Always send the same lead ID to the buyer on each lead post from the same applicant</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    @Html.Label("Description")
+                                    @Html.TextAreaFor(x => x.Description, new { @class = "form-control", tabindex = 1, placeholder = "Description" })
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="step" id="step2">
+                        <h6 class="form-wizard-title text-semibold">
+                            <span class="form-wizard-count">2</span>
+                            <span>Billing Details</span>
+                        </h6>
+
+                        <div class="row">
+                            <div class="col-md-2">
+                                <label>Bill frequency: </label><br>
+                                <select class="form-control" name="BillFrequency" id="BillFrequency">
+                                    <option value="m" selected="selected">Monthly</option>
+                                    <option value="w">Weekly</option>
+                                    <option value="bw">Bi-Weekly</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-1">
+                                <label>Value: </label>
+                                <select class="form-control" name="FrequencyValue" id="FrequencyValue" data-value="@Model.FrequencyValue">
+                                    @if (Model.BillFrequency == "m")
+                                    {
+                                        for (int i = 1; i <= 31; i++)
+                                        {
+                                            <option @{ if (Model.FrequencyValue == i) { @Html.Raw("selected='selected'")  ; } } value="@i">@i</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <option @{ if (Model.FrequencyValue == 1) { @Html.Raw("selected='selected'")  ; } } value="1">Monday</option>
+                                        <option @{ if (Model.FrequencyValue == 2) { @Html.Raw("selected='selected'")  ; } } value="2">Tuesday</option>
+                                        <option @{ if (Model.FrequencyValue == 3) { @Html.Raw("selected='selected'")  ; } } value="3">Wednesday</option>
+                                        <option @{ if (Model.FrequencyValue == 4) { @Html.Raw("selected='selected'")  ; } } value="4">Thursday</option>
+                                        <option @{ if (Model.FrequencyValue == 5) { @Html.Raw("selected='selected'")  ; } } value="5">Friday</option>
+                                        <option @{ if (Model.FrequencyValue == 6) { @Html.Raw("selected='selected'")  ; } } value="6">Saturday</option>
+                                        <option @{ if (Model.FrequencyValue == 7) { @Html.Raw("selected='selected'")  ; } } value="7">Sunday</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group has-feedback">
+                                    @Html.Label("Credit Limit: ")
+                                    @Html.TextBoxFor(x => x.Credit, new { @class = "form-control", tabindex = 1, placeholder = "Credit" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-plus text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="step" id="step3">
+                        <h6 class="form-wizard-title text-semibold">
+                            <span class="form-wizard-count">3</span>
+                            User info
+                            <small class="display-block">Tell us a bit about yourself</small>
+                        </h6>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group has-feedback">
+                                    @Html.LabelFor(x => x.Email)
+                                    @Html.TextBoxFor(x => x.Email, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Choose username", required = "required" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-plus text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group has-feedback">
+                                    @Html.Label("Contact email")
+                                    @Html.TextBoxFor(x => x.ContactEmail, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Contact email", type = "email" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-plus text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group has-feedback">
+                                    @Html.LabelFor(x => x.FirstName)
+                                    @Html.TextBoxFor(x => x.FirstName, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "First name", required = "required" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-check text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group has-feedback">
+                                    @Html.LabelFor(x => x.LastName)
+                                    @Html.TextBoxFor(x => x.LastName, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Last name", required = "required" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-plus text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group has-feedback">
+                                    @Html.LabelFor(x => x.MiddleName)
+                                    @Html.TextBoxFor(x => x.MiddleName, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Middle name" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-check text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group has-feedback">
+                                    @Html.LabelFor(x => x.Phone)
+                                    @Html.TextBoxFor(x => x.Phone, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Phone", required = "required" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-check text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group has-feedback">
+                                    @Html.LabelFor(x => x.CellPhone)
+                                    @Html.TextBoxFor(x => x.CellPhone, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Cell phone", required = "required" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-plus text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group has-feedback">
+                                    @Html.LabelFor(x => x.Password)
+                                    @Html.TextBoxFor(x => x.Password, new { @class = "form-control", tabindex = 1, placeholder = "Password", required = "required", type = "password" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-lock text-muted"></i>
+                                    </div>
+                                </div>
+
+                                @{ Html.RenderAction("PasswordStrength", "User", new { id = "Password" }); }
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group has-feedback">
+                                    @Html.LabelFor(x => x.ConfirmPassword)
+                                    @Html.TextBoxFor(x => x.ConfirmPassword, new { @class = "form-control", tabindex = 1, placeholder = "Confirm password", required = "required", type = "password" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-lock text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+                        {
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group has-feedback">
+                                        @Html.Label("User role")<br />
+                                        @Html.DropDownList("UserRoleId", Model.ListUserRole, new { @class = "select", required = "required" })
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group has-feedback">
+                                        @Html.LabelFor(x => x.Comment)
+                                        @Html.TextAreaFor(x => x.Comment, new { @class = "form-control", tabindex = 1, placeholder = "Note" })
+                                        <div class="form-control-feedback">
+                                            <i class="icon-mention text-muted"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </fieldset>
+
+                    <fieldset class="step" id="step4">
+                        <h6 class="form-wizard-title text-semibold">
+                            <span class="form-wizard-count">4</span>
+                            Do not present settings
+                        </h6>
+
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group has-feedback">
+                                    @Html.Label("DNP status")<br />
+                                    @Html.DropDownList("DoNotPresentStatus", Model.ListDoNotPresentStatus, new { @class = "form-control" })
+                                </div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <div class="form-group has-feedback">
+                                    @Html.Label("DNP URL")<br />
+                                    @Html.TextBoxFor(x => x.DoNotPresentUrl, new { @class = "form-control", tabindex = 1 })
+                                </div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <div class="form-group has-feedback">
+                                    @Html.Label("DNP Response field")<br />
+                                    @Html.TextBoxFor(x => x.DoNotPresentResultField, new { @class = "form-control", tabindex = 1 })
+                                </div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <div class="form-group has-feedback">
+                                    @Html.Label("DNP Response value")<br />
+                                    @Html.TextBoxFor(x => x.DoNotPresentResultValue, new { @class = "form-control", tabindex = 1 })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group has-feedback">
+                                    @Html.Label("DNP Response request")<br />
+                                    @Html.TextAreaFor(x => x.DoNotPresentRequest, new { @class = "form-control", tabindex = 1 })
+                                </div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <div class="form-group has-feedback">
+                                    @Html.Label("DNP post method")<br />
+                                    @Html.DropDownList("DoNotPresentPostMethod", Model.ListDoNotPresentPostMethod, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <div style="color:red">
+                        @Html.ValidationSummary()
+                    </div>
+
+                    <div class="form-wizard-actions">
+                        @Html.HiddenFor(x => x.UserRoleId)
+                        @Html.HiddenFor(x => x.UserTypeId)
+                        @Html.HiddenFor(x => x.ParentId)
+                        @Html.HiddenFor(x => x.BuyerId)
+                        <input class="btn btn-default" id="validation-back" value="Back" type="reset">
+                        <input class="btn btn-info" id="validation-next" value="Next" type="submit" onclick="if ($(this).val() == 'Submit') return validatePassword(); return true;">
+                    </div>
+                </div>
+                </div>
+            </div>
+    </div>
+}

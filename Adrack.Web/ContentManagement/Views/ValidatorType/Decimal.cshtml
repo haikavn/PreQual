@@ -1,0 +1,28 @@
+﻿@{
+    string id = Adrack.Web.ContentManagement.Helper.GetUniqueKey(7);
+    string v = Model;
+    string[] str = v.Split(new char[1] { ';' });
+
+    int min = 0;
+    if (str.Length > 0)
+    {
+        int.TryParse(str[0], out min);
+    }
+
+    int max = 0;
+    if (str.Length > 1)
+    {
+        int.TryParse(str[1], out max);
+    }
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <label>Integer</label><br />
+        <input type="text" class="form-control" name="df_int_value_@id" value="@min">
+    </div>
+    <div class="col-md-6">
+        <label>Decimal</label><br />
+        <input type="text" class="form-control" name="df_dec_value_@id" value="@max">
+    </div>
+</div>

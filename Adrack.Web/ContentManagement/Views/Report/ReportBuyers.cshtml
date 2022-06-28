@@ -1,0 +1,287 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.Reports.BuyerReportModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+@using Adrack.Service.Helpers
+
+@{
+    Html.AddPageTitle("Reports of Buyers");
+    Html.AddPageMetaDescription("Shows Reports of Buyers");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/ContentManagement/Scripts/plugins/duallistbox.min.js").ToLowerInvariant());
+
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+    var currentUser = this.AppContext.AppUser;
+    var classActive = "class='active'";
+    var classActive2 = "active";
+}
+
+<script src="~/Scripts/core/library/jquery_ui/core.min.js"></script>
+<script src="~/Scripts/core/library/jquery_ui/interactions.min.js"></script>
+<script src="~/Scripts/core/library/jquery_ui/effects.min.js"></script>
+<script src="~/Scripts/plugins/forms/selects/bootstrap_multiselect.js"></script>
+<script src="~/Scripts/plugins/trees/fancytree_all.min.js"></script>
+<script src="~/Scripts/plugins/trees/fancytree_childcounter.js"></script>
+<script src="~/Scripts/plugins/ui/moment/moment.min.js"></script>
+<script src="~/Scripts/plugins/pickers/daterangepicker.js"></script>
+<script src="~/Scripts/plugins/pickers/anytime.min.js"></script>
+<script src="~/Scripts/plugins/pickers/pickadate/picker.js"></script>
+<script src="~/Scripts/plugins/pickers/pickadate/picker.date.js"></script>
+<script src="~/Scripts/plugins/pickers/pickadate/picker.time.js"></script>
+<script src="~/Scripts/plugins/pickers/pickadate/legacy.js"></script>
+<script src="~/Scripts/pages-js/Reports.js"></script>
+
+<script>
+    var buyerid = @Model.BuyerId;
+
+    $(document).ready(function () {
+
+        ReportCommon.ready('@Adrack.Web.ContentManagement.Helper.GetTimeZoneStr()', 'buyer', '@Model.BaseUrl');
+
+        setTimeout(function () {
+            ReportCommon.loadReport('ReportBuyersByDates');
+            $('#bybuyers-a').trigger('click');
+        }, 300);
+
+        @if(currentUser.UserTypeId == SharedData.BuiltInUserTypeId)
+        { 
+            @: //$('.profit-col').hide();
+        }
+    });
+</script>
+<br>
+<table class="table-padding">
+    <tr>
+        <td width="250">
+            <b>Range</b>
+        </td>
+        @if (@Model.BuyerId == 0)
+        {
+            <td width="400">
+                <b>Buyers</b>
+            </td>
+        }
+        <td>
+            <b>Campaigns</b>
+        </td>
+        <td>
+            <b>Affiliate channels</b>
+        </td>
+        <td>
+            <b>Buyer channels</b>
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td width="200">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+                <input type="text" class="form-control daterange-single" value="">
+            </div>
+        </td>
+        @if (@Model.BuyerId == 0)
+        {
+            <td>
+                <div class="input-group">
+                    <select id="buyers" class="multiselect" multiple="multiple">
+                        @foreach (var a in Model.ListBuyers)
+                        {
+                            <option value="@a.Value" selected="selected">@a.Text</option>
+                        }
+                    </select>
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-info multiselect-toggle-selection-button" data-selector="buyers">Deselect All</button>
+                    </div>
+                </div>
+            </td>
+        }
+
+        <td>
+            <div class="input-group">
+                <select id="campaigns" class="multiselect" multiple="multiple">
+                    @foreach (var a in Model.ListCampaigns)
+                    {
+                        <option value="@a.Value" selected="selected">@a.Text</option>
+                    }
+                </select>
+                <div class="input-group-btn">
+                    <button type="button" class="btn btn-info multiselect-toggle-selection-button" data-selector="campaigns">Deselect All</button>
+                </div>
+            </div>
+        </td>
+
+        <td>
+            <div class="input-group">
+                <select id="affiliateChannels" class="multiselect" multiple="multiple">
+                    @foreach (var a in Model.ListAffiliateChannels)
+                    {
+                        <option value="@a.Value" selected="selected">@a.Text</option>
+                    }
+                </select>
+                <div class="input-group-btn">
+                    <button type="button" class="btn btn-info multiselect-toggle-selection-button" data-selector="affiliateChannels">Deselect All</button>
+                </div>
+            </div>
+        </td>
+
+        <td>
+            <div class="input-group">
+                <select id="buyerChannels" class="multiselect" multiple="multiple">
+                    @foreach (var a in Model.ListBuyerChannels)
+                    {
+                        <option value="@a.Value" selected="selected">@a.Text</option>
+                    }
+                </select>
+                <div class="input-group-btn">
+                    <button type="button" class="btn btn-info multiselect-toggle-selection-button" data-selector="buyerChannels">Deselect All</button>
+                </div>
+            </div>
+        </td>
+    </tr>
+</table>
+<table class="table-padding">
+    <tr>
+        <td>
+            <button id="report-refresh" class="btn btn-primary">Refresh</button>
+            <button id="report-download" class="btn btn-primary">Download</button>
+        </td>
+    </tr>
+</table>
+<br />
+
+<div class="tabbable">
+    <ul class="nav nav-tabs nav-tabs-highlight">
+        @if (permissionService.Authorize(PermissionProvider.BuyerReportsByStates))
+        {
+            <li @Html.Raw(classActive)><a href="#reportbuyersbydates-tab" data-toggle="tab">By dates</a></li>
+
+            {
+                classActive = "";
+            }
+        }
+        @if (permissionService.Authorize(PermissionProvider.BuyerReportsByBuyerChannels))
+        {
+            <li @Html.Raw(classActive)><a id="bybuyers-a" href="#reportbuyers-tab" data-toggle="tab">By buyers</a></li>
+            <li><a href="#reportbuyerchannels-tab" data-toggle="tab">By channels</a></li>
+
+            {
+                classActive = "";
+            }
+        }
+
+        @if (permissionService.Authorize(PermissionProvider.BuyerReportsByAffiliateChannels) && (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId))
+        {
+            <li @Html.Raw(classActive)><a href="#reportbuyersbyaffiliatechannels-tab" data-toggle="tab">By affiliate channels</a></li>
+
+            {
+                classActive = "";
+            }
+        }
+        @if (permissionService.Authorize(PermissionProvider.BuyerReportsByStates))
+        {
+            <li @Html.Raw(classActive)><a href="#reportbuyersbystates-tab" data-toggle="tab">By states</a></li>
+
+            {
+                classActive = "";
+            }
+        }
+
+        @if (Model.AlwaysSoldOption != 0)
+        {
+            <li @Html.Raw(classActive)><a href="#reportbuyersbyleadnotes-tab" data-toggle="tab">By lead notes</a></li>
+
+            <!--<li><a href="#reportbuyersbyreactiontime-tab" data-toggle="tab">Lead reaction time</a></li>-->
+
+            {
+                classActive = "";
+            }
+        }
+    </ul>
+
+    <div class="tab-content" id="reports-tab">
+        @if (permissionService.Authorize(PermissionProvider.BuyerReportsByStates))
+        {
+            <div class="tab-pane @Html.Raw(classActive2)" id="reportbuyersbydates-tab" data-report="ReportBuyersByDates">
+                @{
+                    classActive2 = "";
+                    Html.RenderAction("ReportBuyersByDates", "Report");
+                }
+            </div>
+        }
+        @if (permissionService.Authorize(PermissionProvider.BuyerReportsByBuyerChannels))
+        {
+            <div class="tab-pane @Html.Raw(classActive2)" id="reportbuyers-tab" data-report="BuyerReportByBuyer">
+                @{
+                    classActive2 = "";
+                    Html.RenderAction("BuyerReportByBuyer", "Report");
+                }
+            </div>
+
+            <div class="tab-pane @Html.Raw(classActive2)" id="reportbuyerchannels-tab" data-report="BuyerReportByBuyerChannel">
+                @{
+                    classActive2 = "";
+                    Html.RenderAction("BuyerReportByBuyerChannel", "Report");
+                }
+            </div>
+        }
+
+        @if (permissionService.Authorize(PermissionProvider.BuyerReportsByAffiliateChannels) && (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId))
+        {
+            <div class="tab-pane @Html.Raw(classActive2)" id="reportbuyersbyaffiliatechannels-tab" data-report="ReportBuyersByAffiliateChannels">
+                @{
+                    classActive2 = "";
+                    Html.RenderAction("ReportBuyersByAffiliateChannels", "Report");
+                }
+            </div>
+        }
+        @if (permissionService.Authorize(PermissionProvider.BuyerReportsByStates))
+        {
+            <div class="tab-pane @Html.Raw(classActive2)" id="reportbuyersbystates-tab" data-report="ReportBuyersByStates">
+                @{
+                    classActive2 = "";
+                    Html.RenderAction("ReportBuyersByStates", "Report");
+                }
+            </div>
+        }
+        @if (Model.AlwaysSoldOption != 0)
+        {
+            <div class="tab-pane @Html.Raw(classActive2)" id="reportbuyersbyleadnotes-tab" data-report="ReportBuyersByLeadNotes">
+                @{
+                    classActive2 = "";
+                    Html.RenderAction("ReportBuyersByLeadNotes", "Report");
+                }
+            </div>
+        }
+
+        @if (2 < 1)
+        {
+            <div class="tab-pane @Html.Raw(classActive2)" id="reportbuyersbyreactiontime-tab" data-report="ReportBuyersByReactionTime">
+                @{
+                    classActive2 = "";
+                    Html.RenderAction("ReportBuyersByReactionTime", "Report");
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<button style="display:none;" type="button" class="btn btn-leads btn-sm" data-toggle="modal" data-target="#modal_leads">Launch <i class="icon-play3 position-right"></i></button>
+
+<!-- Info modal for Buyer -->
+<div id="modal_leads" class="modal fade">
+    <div class="modal-dialog modal-full">
+        <div class="modal-content">
+            <div class="modal-body">
+                @{
+                    Html.RenderAction("IndexPartialReport", "Lead");
+                }
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal" data-target="#modal_theme_info">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /info modal -->

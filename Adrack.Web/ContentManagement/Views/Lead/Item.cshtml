@@ -1,0 +1,585 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.LeadModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+@using Adrack.Service
+@using Adrack.Service.Helpers
+
+@using Adrack.Service.Configuration
+
+@{
+    var currentUser = this.AppContext.AppUser;
+    var top_item_size = "2";
+
+    Adrack.Core.Domain.Lead.LeadSensitiveData sensitiveData = ViewBag.SensitiveData;
+
+    ISettingService settingService = AppEngineContext.Current.Resolve<ISettingService>();
+}
+
+@if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+{
+    top_item_size = "1";
+}
+
+<script>
+    $(document).ready(function () {
+        $('.node-btn').on('click', function (e) {
+            e.preventDefault();
+            var index = $(this).data('index');
+            $('#node-' + index).text($('#node-' + index).data('backup'));
+        });
+    });
+</script>
+
+<div class="text-center" style="height:92px" id="LeadGeneralInfo">
+    <div class="col-md-@top_item_size text-center">
+        <div class="content-group">
+            <span class="text-muted text-size-small">Lead ID</span>
+            <h6 id="CurrentLeadId" class="text-semibold no-margin">@(ViewBag.Lead != null ? @ViewBag.Lead.Id : "")</h6>
+        </div>
+    </div>
+    <div class="col-md-@top_item_size text-center">
+        <div class="content-group">
+            <span class="text-muted text-size-small">Date/Time</span>
+            <h6 id="CurrentLeadId" class="text-semibold no-margin">@String.Format("{0:MM/dd/yyyy HH:mm:ss}", ViewBag.LeadCreated)</h6>
+        </div>
+    </div>
+@if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+{
+    <div class="col-md-2 text-center">
+        <div class="content-group">
+            <span class="text-muted text-size-small">Affiliate / ID</span>
+            <h6 class="text-semibold no-margin"><a href="/Management/Affiliate/Item/@ViewBag.Lead.AffiliateId"> @ViewBag.AffiliateName / @ViewBag.Lead.AffiliateId</a></h6>
+        </div>
+    </div>
+    <div class="col-md-2 text-center">
+        <div class="content-group">
+            <span class="text-muted text-size-small">Affiliate Channel / ID</span>
+            <h6 class="text-semibold no-margin"><a href="/Management/AffiliateChannel/Item/@ViewBag.Lead.AffiliateChannelId">@ViewBag.AffiliateChannelName / @ViewBag.Lead.AffiliateChannelId</a></h6>
+        </div>
+    </div>
+}
+    <div class="col-md-2 text-center">
+        <div class="content-group">
+            <span class="text-muted text-size-small">Campaign</span>
+            <h6 class="text-semibold no-margin"><a href="/Management/Campaign/Item/@ViewBag.Lead.CampaignId">@ViewBag.CampaignName</a></h6>
+        </div>
+    </div>
+
+    <div class="col-md-@top_item_size text-center">
+        <div class="content-group">
+            <span class="text-muted text-size-small">Status</span>
+            <h6 class="text-semibold no-margin">@Html.Raw(ViewBag.Status)</h6>
+        </div>
+    </div>
+@if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+{
+    <div class="col-md-1 text-center">
+        <div class="content-group">
+            <span class="text-muted text-size-small">Minprice</span>
+            <h6 class="text-semibold no-margin">@ViewBag.Lead.MinpriceStr.Replace(",", ", ")</h6>
+        </div>
+    </div>
+
+    if (ViewBag.Lead.AffiliatePrice != null && ViewBag.Lead.BuyerPrice != null)
+    {
+    <div class="col-md-1 text-center">
+        <div class="content-group">
+            <span class="text-muted text-size-small">APrice | BPrice</span>
+            <h6 class="text-semibold no-margin">@ViewBag.Lead.AffiliatePrice.ToString("$#,###,###.00") | @ViewBag.Lead.BuyerPrice.ToString("$#,###,###.00")</h6>
+        </div>
+    </div>
+    }
+}
+    <div class="col-md-@top_item_size text-center">
+        <div class="content-group">
+            <span class="text-muted text-size-small">IP</span>
+            <h6 class="text-semibold no-margin">@ViewBag.Lead.Ip</h6>
+        </div>
+    </div>
+</div>
+
+<div id="tab1content">
+    @if (ViewBag.GeoData != null)
+    {
+    <b>Geo Data</b><br>
+    <table style="width: 100%">
+        <tr>
+            <td><b>City:</b></td><td>@ViewBag.GeoData.CityName</td>
+            <td><b>CountryCode:</b></td><td>@ViewBag.GeoData.CountryCode</td>
+            <td><b>CountryName:</b></td><td>@ViewBag.GeoData.CountryName</td>
+            <td><b>RegionName:</b></td><td>@ViewBag.GeoData.RegionName</td>
+            <td><b>CityName:</b></td><td>@ViewBag.GeoData.CityName</td>
+            <td><b>Latitude:</b></td><td>@ViewBag.GeoData.Latitude</td>
+            <td><b>Longitude:</b></td><td>@ViewBag.GeoData.Longitude</td>
+            <td><b>ZipCode:</b></td><td>@ViewBag.GeoData.ZipCode</td>
+            <td><b>TimeZone:</b></td><td>@ViewBag.GeoData.TimeZone</td>
+            <td><b>AreaCode:</b></td><td>@ViewBag.GeoData.AreaCode</td>
+        </tr>
+    </table>
+    <hr>
+    }
+
+@{
+    int nodeIndex = 1;
+
+    foreach (System.Xml.XmlNode node in ViewBag.nodes)
+    {
+        if( !ViewBag.AllowedNodes.Contains(node.Name) )
+        {
+            continue;
+        }
+
+        if (node.NodeType != System.Xml.XmlNodeType.Element)
+        {
+            continue;
+        }
+        <div class="lead-info001">
+            <div class="table-responsive">
+                <table class="table requestdatatable">
+                    <tbody>
+                        <tr><th class="active" colspan="3"><b>@node.Name</b></th></tr>
+                        @foreach (System.Xml.XmlNode node2 in node.ChildNodes)
+                        {
+                            string value = (node2.Attributes["decrypted"] != null ? node2.Attributes["decrypted"].Value : "");
+
+                            if (node2.NodeType == System.Xml.XmlNodeType.Element)
+                            {
+                                <tr><td style="width: 20%;">@node2.Name:</td><td><span id="node-@nodeIndex" data-backup="@value">@node2.InnerText</span>
+
+                                @if (value.Length > 0)
+                                {
+                                    <br /><a href="#" id="node-btn-@nodeIndex" data-index="@nodeIndex" class="node-btn">Show</a>
+                                }
+                                    </td>
+                                </tr>
+                            }
+                            nodeIndex++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    if (sensitiveData != null)
+    {
+        <div class="lead-info001">
+            <div class="table-responsive">
+                <table class="table requestdatatable">
+                    <tr><th class="active" colspan="3"><b>SENSITIVE DATA</b></th></tr>
+                    @if (!string.IsNullOrEmpty(sensitiveData.Data1))
+                    {
+                        string[] sd = sensitiveData.Data1.Split(new char[1] { ':' });
+                        <tr><td style="width: 20%;">@sd[0]</td><td>@sd[1]</td></tr>
+                    }
+                    @if (!string.IsNullOrEmpty(sensitiveData.Data2))
+                    {
+                        string[] sd = sensitiveData.Data2.Split(new char[1] { ':' });
+                        <tr><td style="width: 20%;">@sd[0]</td><td>@sd[1]</td></tr>
+                    }
+                    @if (!string.IsNullOrEmpty(sensitiveData.Data3))
+                    {
+                        string[] sd = sensitiveData.Data3.Split(new char[1] { ':' });
+                        <tr><td style="width: 20%;">@sd[0]</td><td>@sd[1]</td></tr>
+                    }
+                    @if (!string.IsNullOrEmpty(sensitiveData.Data4))
+                    {
+                        string[] sd = sensitiveData.Data4.Split(new char[1] { ':' });
+                        <tr><td style="width: 20%;">@sd[0]</td><td>@sd[1]</td></tr>
+                    }
+                    @if (!string.IsNullOrEmpty(sensitiveData.Data5))
+                    {
+                        string[] sd = sensitiveData.Data5.Split(new char[1] { ':' });
+                        <tr><td style="width: 20%;">@sd[0]</td><td>@sd[1]</td></tr>
+                    }
+                    @if (!string.IsNullOrEmpty(sensitiveData.Data6))
+                    {
+                        string[] sd = sensitiveData.Data6.Split(new char[1] { ':' });
+                        <tr><td style="width: 20%;">@sd[0]</td><td>@sd[1]</td></tr>
+                    }
+                    @if (!string.IsNullOrEmpty(sensitiveData.Data7))
+                    {
+                        string[] sd = sensitiveData.Data7.Split(new char[1] { ':' });
+                        <tr><td style="width: 20%;">@sd[0]</td><td>@sd[1]</td></tr>
+                    }
+                    @if (!string.IsNullOrEmpty(sensitiveData.Data8))
+                    {
+                        string[] sd = sensitiveData.Data8.Split(new char[1] { ':' });
+                        <tr><td style="width: 20%;">@sd[0]</td><td>@sd[1]</td></tr>
+                    }
+                    @if (!string.IsNullOrEmpty(sensitiveData.Data9))
+                    {
+                        string[] sd = sensitiveData.Data9.Split(new char[1] { ':' });
+                        <tr><td style="width: 20%;">@sd[0]</td><td>@sd[1]</td></tr>
+                    }
+                    @if (!string.IsNullOrEmpty(sensitiveData.Data10))
+                    {
+                        string[] sd = sensitiveData.Data10.Split(new char[1] { ':' });
+                        <tr><td style="width: 20%;">@sd[0]</td><td>@sd[1]</td></tr>
+                    }
+                </table>
+            </div>
+        </div>
+    }
+}
+</div>
+@if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+{
+<div id="tab2content">
+    @if (((string)ViewBag.AffiliateResponseMessage).Length > 0)
+    {
+        <span style="font-size: 20px; color: red">@ViewBag.AffiliateResponseMessage</span><br /><br />
+    }
+
+    <table class="table datatable-basic table-bordered">
+        <thead>
+            <tr>
+                <th>Buyer / ID</th>
+                <th>Buyer Channel / ID</th>
+                <th>Posted</th>
+                <th>Response</th>
+                <th>Response Time (ms.)</th>
+                <th>Min price</th>
+                <th class="text-center">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                foreach (Adrack.Core.Domain.Lead.LeadResponse lr in ViewBag.leadResponseList)
+                {
+                    <tr>
+                        <td><a href='/Management/Buyer/Item/@lr.BuyerId'>@lr.BuyerName / @lr.BuyerId</a></td>
+                        <td><a href='/Management/BuyerChannel/Item/@lr.BuyerChannelId'>@lr.BuyerChanelName / @lr.BuyerChannelId</a></td>
+                        <td>
+                            <div class="text-size-small"><b>Posted Date: </b>@String.Format("{0:MM/dd/yyyy HH:mm:ss}", settingService.GetTimeZoneDate(lr.Created))</div><textarea rows="3" style="border: 1px solid #cccccc; width:100%; overflow: visible;">@lr.Posted</textarea>
+                        </td>
+                        <td>
+                            <div class="text-size-small"><b>Response Date: </b>@String.Format("{0:MM/dd/yyyy HH:mm:ss}", settingService.GetTimeZoneDate(lr.ResponseCreated))</div><textarea rows="3" style="border: 1px solid #cccccc; width:100%" readonly>@lr.Response</textarea>
+                        </td>
+                        <td class="text-center">@String.Format("{0:#0.0}", lr.ResponseTime)</td>
+                        <td class="text-center">@String.Format("{0:#0.00}", Math.Round(Double.Parse(lr.MinPrice.ToString()), 2))</td>
+                        <td class="text-center">
+                            @if (lr.Status == 1)
+                            {<span>Sold</span>}
+                            @if (lr.Status == 2)
+                            {<span>Error</span>}
+                            @if (lr.Status == 3)
+                            {<span>Reject</span>}
+                            @if (lr.Status == 4)
+                            {<span>Processing</span>}
+                            @if (lr.Status == 5)
+                            {<span>Filter</span>}
+                            @if (lr.Status == 6)
+                            {<span>Min Price</span>}
+                            @if (lr.Status == 0)
+                            {<span>Test</span>}
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<select id="ResponseBuyerList" style="display:none">
+    <option class="ResponseBuyerListOption" value="aaa">www</option>
+    @{
+        foreach (Adrack.Core.Domain.Lead.LeadResponse lr in ViewBag.leadResponseList)
+        {
+            <option value="@lr.BuyerId">@lr.BuyerName</option>
+        }
+    }
+</select>
+
+<div id="tab3content">
+    <span id="dublicate_count_view" style="display: none" >@ViewBag.leadDublicateList.Count</span>
+    @if (ViewBag.leadDublicateList.Count > 0)
+    {
+    <table class="table datatable-basic table-bordered">
+        <thead>
+            <tr>
+                <th>Lead ID</th>
+                <th>Created</th>
+                <th>Affiliate</th>
+                <th>Requested<br>Amount</th>
+                <th>Net<br>Monthly Income</th>
+                <th>Pay<br>Frequency</th>
+                <th>Directdeposit</th>
+                <th class="text-center">Email</th>
+                <th class="text-center">Home<br>Phone</th>
+                <th class="text-center">IP</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Changes:</td>
+                <td class="text-center"></td>
+                <td class="text-center"></td>
+                <td class="text-center"><span class="text-danger">@ViewBag.RequestedAmountCount</span></td>
+                <td class="text-center"><span class="text-danger">@ViewBag.NetMonthlyIncomeCount</span></td>
+                <td class="text-center"><span class="text-danger">@ViewBag.PayFrequencyCount</span></td>
+                <td class="text-center"><span class="text-danger">@ViewBag.DirectdepositCount</span></td>
+                <td class="text-center"><span class="text-danger">@ViewBag.EmailCount</span></td>
+                <td class="text-center"><span class="text-danger">@ViewBag.HomePhoneCount</span></td>
+                <td class="text-center"><span class="text-danger">@ViewBag.IpCount</span></td>
+            </tr>
+
+            @{
+                Adrack.Core.Domain.Lead.LeadContentDublicate lr = new Adrack.Core.Domain.Lead.LeadContentDublicate();
+                for (int ii = 0; ii < ViewBag.leadDublicateList.Count; ii++)
+                // foreach (Adrack.Core.Domain.Lead.LeadContentDublicate lr in ViewBag.leadDublicateList)
+                {
+                    lr = ViewBag.leadDublicateList[ii];
+                    string EmailResult2 = lr.Email;
+
+                    if (lr.Email != null && lr.Email != "")
+                    {
+                        //EmailResult2 = System.Text.RegularExpressions.Regex.Replace(lr.Email, @"(?<=[\w]{2})[\w-\._\+%]*(?=[\w]{1}@)", m => new string('*', m.Length));
+                    }
+                    <tr @if (ViewBag.Lead.Id == lr.LeadId)
+                    { @Html.Raw("style=\"font-weight:bold\"") }>
+                        <td>
+                            @if (ViewBag.Lead.Id == lr.LeadId)
+                            {
+                                <b>@lr.LeadId</b>
+                            }
+                            else
+                            {
+                                <a class="idhref2" id="lead_@lr.LeadId.ToString()" nohref="nohref"><b>@lr.LeadId</b></a>
+                            }
+                        </td>
+                        <td class="text-center">@String.Format("{0:MM/dd/yyyy HH:mm:ss}", settingService.GetTimeZoneDate(lr.Created))</td>
+                        <td align="center"
+                            @if (ii < ViewBag.leadDublicateList.Count - 1)
+                            {
+                                if (ViewBag.leadDublicateList[ii + 1].AffiliateId != lr.AffiliateId)
+                                {
+                                    @Html.Raw("class=\"text-danger\"")
+                                }
+                            }><a href="/Management/Affiliate/Item/@lr.AffiliateId">@lr.AffiliateName</a></td>
+                        <td align="right"
+                            @if (ii < ViewBag.leadDublicateList.Count - 1)
+                            {
+                                if (ViewBag.leadDublicateList[ii + 1].RequestedAmount != lr.RequestedAmount)
+                                {
+                                    @Html.Raw("class=\"text-danger\"")
+                                }
+                            }>@String.Format("{0:# ###.00}", lr.RequestedAmount)</td>
+                        <td style="white-space:nowrap" align="right"
+                            @if (ii < ViewBag.leadDublicateList.Count - 1)
+                            {
+                                if (ViewBag.leadDublicateList[ii + 1].NetMonthlyIncome != lr.NetMonthlyIncome)
+                                {
+                                    @Html.Raw("class=\"text-danger\"")
+                                }
+                            }>@String.Format("{0:# ###.00}", lr.NetMonthlyIncome)</td>
+                        <td align="center"
+                            @if (ii < ViewBag.leadDublicateList.Count - 1)
+                            {
+                                if (ViewBag.leadDublicateList[ii + 1].PayFrequency != lr.PayFrequency)
+                                {
+                                    @Html.Raw("class=\"text-danger\"")
+                                }
+                            }>@lr.PayFrequency</td>
+                        <td align="center"
+                            @if (ii < ViewBag.leadDublicateList.Count - 1)
+                            {
+                                if (ViewBag.leadDublicateList[ii + 1].Directdeposit != lr.Directdeposit)
+                                {
+                                    @Html.Raw("class=\"text-danger\"")
+                                }
+                            }>@lr.Directdeposit</td>
+                        <td align="center"
+                            @if (ii < ViewBag.leadDublicateList.Count - 1)
+                            {
+                                if (ViewBag.leadDublicateList[ii + 1].Email != lr.Email)
+                                {
+                                    @Html.Raw("class=\"text-danger\"")
+                                }
+                            }>@EmailResult2</td>
+                        <td align="center"
+                            @if (ii < ViewBag.leadDublicateList.Count - 1)
+                            {
+                                if (ViewBag.leadDublicateList[ii + 1].HomePhone != lr.HomePhone)
+                                {
+                                    @Html.Raw("class=\"text-danger\"")
+                                }
+                            }><div style="width:100px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;" title="@lr.HomePhone">@lr.HomePhone</div></td>
+                        <td align="center"
+                            @if (ii < ViewBag.leadDublicateList.Count - 1)
+                            {
+                                if (ViewBag.leadDublicateList[ii + 1].Ip != lr.Ip)
+                                {
+                                    @Html.Raw("class=\"text-danger\"")
+                                }
+                            }>@lr.Ip</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+                }
+                else
+                {
+                    <h4>No duplicates found</h4>
+                }
+
+<script>
+    $('.idhref2').click(function () {
+
+        var thisObj = $(this);
+        GridSelectedID = $(this).attr('id').replace("lead_", "");
+        console.log(GridSelectedID);
+
+        $('#DataTables_Leads tbody tr').removeClass('selected');
+
+        $(".tab2tab").removeClass("active");
+        $(".tab3tab").removeClass("active");
+        $(".tab4tab").removeClass("active");
+        $(".tab5tab").removeClass("active");
+        $(".tab1tab").addClass("active");
+        $(".tab-pane2").removeClass("active");
+        $(".tab-pane3").removeClass("active");
+        $(".tab-pane4").removeClass("active");
+        $(".tab-pane5").removeClass("active");
+        $(".tab-pane1").addClass("active");
+
+        $("#LeadGeneralInfoContainer").html("");
+
+        var data = 'leadid=' + GridSelectedID;
+
+        $("#left-icon-tab1").html('<img src="/Content/img/ajax-loader.gif" />');
+
+        $.post("/Management/Lead/Item/" + GridSelectedID, data).done(function (retData) {
+            $("#left-icon-tab1").html(retData);
+            $("#left-icon-tab2").html($("#tab2content").html());
+            $("#left-icon-tab3").html($("#tab3content").html());
+            $("#left-icon-tab4").html($("#tab4content").html());
+            $("#left-icon-tab5").html($("#tab5content").html());
+
+            $("#LeadGeneralInfo").hide();
+            $("#LeadGeneralInfoContainer").html($("#LeadGeneralInfo").html());
+
+            $("#tab2content").hide();
+            $("#tab3content").hide();
+            $("#tab4content").hide();
+            $("#tab5content").hide();
+
+            $("#dublicate_count").html('(' + $("#dublicate_count_view").html() + ')');
+
+            if (thisObj.hasClass("monitor-ico")) {
+                $(".tab3tab a").trigger("click");
+            }
+            if (thisObj.hasClass("redirect-ico")) {
+                $(".tab5tab a").trigger("click");
+            }
+
+        });
+    });
+</script>
+</div>
+
+<div id="tab4content">
+    <table class="table datatable-basic table-bordered">
+        <thead>
+            <tr>
+                <th>Min price</th>
+                <th>Processing started</th>
+                <th>Response sent</th>
+                <th>Processing time (sec.)</th>
+                <th>Response</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                foreach (Adrack.Core.Domain.Lead.AffiliateResponse lr in ViewBag.AffiliateResponses)
+                {
+                    var ts = lr.Created - lr.ProcessStartedAt;
+
+                    <tr>
+                        <td align="right">@String.Format("{0:# ###.00}", lr.MinPrice)</td>
+                        <td align="center">@String.Format("{0:MM/dd/yyyy HH:mm:ss}", settingService.GetTimeZoneDate(lr.ProcessStartedAt))</td>
+                        <td align="center">@String.Format("{0:MM/dd/yyyy HH:mm:ss}", settingService.GetTimeZoneDate(lr.Created))</td>
+                        <td align="center">@ts.TotalSeconds</td>
+                        <td>@lr.Response</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+}
+<div id="tab5content">
+    @if (ViewBag.Redirect != null && ViewBag.Redirect.Clicked == true)
+    {
+        <table class="table datatable-basic table-bordered">
+            <thead>
+                <tr>
+                    <th>Url</th>
+                    <th>Click Date/Time</th>
+                    <th>Click IP</th>
+                    <th>Device</th>
+                    <th>Operation System</th>
+                    <th>Browser</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>@ViewBag.Redirect.Url</td>
+                    <td>@String.Format("{0:MM/dd/yyyy HH:mm:ss}", ViewBag.Redirect.ClickDate)</td>
+                    <td>
+                        @if (ViewBag.Redirect != null && ViewBag.Redirect.Ip != null && ViewBag.Lead.Ip != null && ViewBag.Redirect.Ip.Trim() != ViewBag.Lead.Ip.Trim())
+                        {
+                            <span class="text-danger">
+                                Click IP: @ViewBag.Redirect.Ip <br>
+                                Lead IP: @ViewBag.Lead.Ip
+                            </span>
+                        }
+                        else
+                        {
+                            @ViewBag.Redirect.Ip
+                        }
+                    </td>
+                    <td>@ViewBag.Redirect.Device</td>
+                    <td>@ViewBag.Redirect.OS</td>
+                    <td>@ViewBag.Redirect.Browser</td>
+                </tr>
+            </tbody>
+        </table>
+    }
+    else if (ViewBag.Redirect == null)
+    {
+        <h4>No redirect data</h4>
+    }
+    else
+    {
+        <h4>Not redirected to '@ViewBag.Redirect.Url'</h4>
+    }
+</div>
+
+<div id="tab6content">
+    <table class="table datatable-basic table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Action</th>
+                <th>Data</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                foreach (Adrack.Web.ContentManagement.Models.Lead.LeadJourneyModel lr in ViewBag.LeadJourneys)
+                {
+                    <tr>
+                        <td align="center">@Html.Raw(@lr.Name)</td>
+                        <td align="center">@String.Format("{0:MM/dd/yyyy HH:mm:ss}", settingService.GetTimeZoneDate(lr.DateTime))</td>
+                        <td align="center">@Html.Raw(lr.Action)</td>
+                        <td align="center">@Html.Raw(@lr.Data)</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

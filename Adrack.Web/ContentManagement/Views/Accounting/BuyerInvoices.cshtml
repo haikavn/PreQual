@@ -1,0 +1,125 @@
+﻿@model Adrack.Web.ContentManagement.Models.Accounting.BuyerInvoiceModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+    Html.AddPageTitle("Buyer Invoices");
+    Html.AddPageMetaDescription("Shows all Invoices from All buyers");
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/pages/datatables_basic.js").ToLowerInvariant());
+
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+}
+
+<script type="text/javascript" src="~/Scripts/plugins/ui/moment/moment.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/daterangepicker.js"></script>
+
+<br>
+<div class="row" style="margin-bottom:-38px; position:absolute; z-index:1001">
+    <div class="display-inline-block" style="width: 350px">
+        <select id="AllBuyersList" data-placeholder="Select a Buyer..." class="select-search-buyers">
+            <option value="0">All Buyers</option>
+            @foreach (Adrack.Core.Domain.Lead.Buyer bu in ViewBag.AllBuyersList)
+                {
+                <option value="@bu.Id">@bu.Name</option>
+            }
+        </select>
+    </div>
+    <div class="display-inline-block">
+        <input type="text" class="daterange form-control" value="@ViewBag.TimeZoneNow" style="height: 35px; margin: 0 0 -14px 0">
+    </div>
+
+    <div class="display-inline-block">
+        <select id="status-filter" data-placeholder="" style="width:150px" class="form-control">
+            <option value="-2" selected="selected">All Statuses</option>
+            <option value="1">Approved</option>
+            <option value="0">Not Approved</option>
+            <option value="2">Paid</option>
+            <option value="-1">Deleted</option>
+        </select>
+    </div>
+    <div class="display-inline-block">
+        <button id="ShowAll" class="btn btn-default btn-xs margin-lr" type="button"> Clear Filters </button>
+    </div>
+
+    <div class="display-inline-block" style="width:50px">
+    </div>
+
+    <div class="display-inline-block" style="width:480px">
+        <div class="col-md-3 text-center bg-teal-400 margin-lr">
+            <span class="text-size-small">Approved Invoices </span><br>
+            <span id="InvoicedSum" class="text-semibold no-margin text-size-large">0</span>
+        </div>
+
+        <div class="col-md-3 text-center bg-pink-400 margin-lr">
+            <span class="text-size-small">Payments </span><br>
+            <span id="ApprovedSum" class="text-semibold no-margin text-size-large">0</span>
+        </div>
+
+        <div class="col-md-3 text-center bg-blue-400 margin-lr">
+            <span class="text-size-small">Outstanding </span><br>
+            <span id="PaidSum" class="text-semibold no-margin text-size-large">0</span>
+        </div>
+    </div>
+</div>
+
+    <div id="GridViewBuyersInvoices"></div>
+
+<!--Invoice Pay Modal Window-->
+<div id="modal_form_pay_invoice" class="modal fade">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Pay Invoice</h5>
+            </div>
+
+            <form action="#">
+                <div class="modal-body">
+                    <div class="row">
+                        <label class="control-label col-lg-6">Total:</label>
+                        <div class="col-lg-4">
+                            <div class="input-group">
+                                <b>$<span id="total-sum"></span></b>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="control-label col-lg-6">Avaliable for Distribution:</label>
+                        <div class="col-lg-4">
+                            <div class="input-group">
+                                <b>$<span id="distribution"></span></b>
+                            </div>
+                        </div>
+                    </div>
+                    <br><br>
+                    <div class="row">
+                        <label class="control-label col-lg-6">Amount:</label>
+                        <div class="col-lg-4">
+                            <div class="input-group">
+                                <input id="PaymentAmount" class="form-control" type="text" placeholder="Enter number" required="required" name="numbers" aria-required="true" aria-invalid="true">
+                            </div>
+                        </div>
+                    </div>
+                    <br><br>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                    <button id="Btn_PayInvoice" type="button" data-target="#modal_form_pay_invoice" data-toggle="modal" class="btn btn-success btn-sm">
+                        <i class="icon-add-to-list position-left"></i> Pay Invoice
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/pages-js/BuyerInvoices.js"></script>
+<script>
+    BuyerInvoiceParams.timeZone = '@Adrack.Web.ContentManagement.Helper.GetTimeZoneStr()';
+</script>

@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{EB8D3251-9CC6-450B-9576-76399F1F12CE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Adrack.PlanManagement</RootNamespace>
+    <AssemblyName>Adrack.PlanManagement</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>0</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DataUtils.cs" />
+    <Compile Include="Component.cs" />
+    <Compile Include="PlanManagement\AdrackManagementPlan.cs" />
+    <Compile Include="PlanManagement\AdrackPlanPeriodPrice.cs" />
+    <Compile Include="PlanManagement\AdrackPlanReporter.cs" />
+    <Compile Include="PlanManagement\AdrackPlanValidator.cs" />
+    <Compile Include="PlanManagement\AdrackUserFeatureAccessMap.cs" />
+    <Compile Include="PlanManagement\FeatureAccess.cs" />
+    <Compile Include="PlanManagement\ServiceFeatureControl.cs" />
+    <Compile Include="PlanManagement\TestClass.cs" />
+    <Compile Include="PluginManagement\Deployment\AssemblyManager.cs" />
+    <Compile Include="PluginManagement\Deployment\PluginDeploy.cs" />
+    <Compile Include="PluginManagement\Deployment\PluginHost.cs" />
+    <Compile Include="PluginManagement\Deployment\PluginInstaller.cs" />
+    <Compile Include="PluginManagement\Deployment\PluginLoader.cs" />
+    <Compile Include="PluginManagement\Host\IAdrackPlugin.cs" />
+    <Compile Include="PluginManagement\Host\IAdrackPluginBase.cs" />
+    <Compile Include="PluginManagement\Host\IAdrackPluginHost.cs" />
+    <Compile Include="PluginManagement\Host\IAdrackPluginState.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Adrack.Core\PreQual.Core.csproj">
+      <Project>{5f57182e-10b9-4395-a9f3-f9a8fad05e85}</Project>
+      <Name>PreQual.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

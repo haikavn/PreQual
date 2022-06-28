@@ -1,0 +1,22 @@
+﻿@{
+    Layout = "~/Views/Shared/_Master.Layout.cshtml";
+
+    Html.AppendPageCustom(PageLayoutPosition.BodyAttribute, "class=\"navbar-top0\"");
+}
+
+@Html.Action("Navigation", "Common")
+<div class="page-container @Html.AppPageCustom(PageLayoutPosition.ContainerAttribute)">
+    <div class="page-content @Html.AppPageCustom(PageLayoutPosition.ContainerContentAttribute)">
+        <div class="content-wrapper @Html.AppPageCustom(PageLayoutPosition.ContainerContentWrapperAttribute)">
+            <div class="content @Html.AppPageCustom(PageLayoutPosition.ContentAttribute)">
+                @Html.Partial("Header")
+
+                @RenderBody()
+
+                @Html.Partial("Footer")
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--AZ-->

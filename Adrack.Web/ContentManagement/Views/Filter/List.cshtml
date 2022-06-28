@@ -1,0 +1,25 @@
+﻿@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+    Html.AddPageTitle(T("PageTitle.Register").Text);
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+}
+
+<script>
+    $(document).ready(function () {
+        $('#add_new').click(function () {
+            window.location = '/Management/Filter/Item';
+        });
+    });
+</script>
+
+<h2>Filters</h2>
+
+<button id="add_new" type="button" class="btn btn-success btn-sm">
+    <i class="icon-add-to-list position-left"></i>Add filter
+</button>
+<br />
+
+<div id="GridView1"></div>
+<script>
+    GenerateGridTable("GridView1", "/GetFilters", "ID, Name, Campaign");
+</script>

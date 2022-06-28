@@ -1,0 +1,15 @@
+﻿@model RegisterModel
+@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+
+    Html.AddPageTitle(T("PageTitle.Register").Text);
+
+    Html.AppendPageScript(PageLayoutPosition.Body, "~/Scripts/plugins/tables/datatables/datatables.min.js".ToLowerInvariant());
+}
+
+<h2>Test</h2>
+
+<div id="GridView1"></div>
+<script>
+    GenerateGridTable("GridView1", "/Home/GetTestData/", "ID, Name, Address");
+</script>

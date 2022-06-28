@@ -1,0 +1,514 @@
+﻿<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<title>Demo Canada</title>
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,700&display=swap" rel="stylesheet">
+	<link href='https://formz.azurewebsites.net/form/css/style.css?v13' rel='stylesheet' />
+	<link href='https://formz.azurewebsites.net/form/css/TimeCircles.css?v13' rel='stylesheet' />
+</head>
+
+
+<body>
+
+	<div class="content middle stepsBlock">
+		<div class="text">
+			<form class="contactForm">
+				<div class="step step-1">
+					<div class="step-title">How much would you like to borrow?</div>
+					<div class="step-subtitle">Amount Requested</div>
+					<div class="step-body">
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step1.png" />
+							<span data-val="999">$100 - $1000</span>
+						</div>
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step1.png" />
+							<span data-val="2000">$1000 - $2000</span>
+						</div>
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step1.png" />
+							<span data-val="3000">$2000 - $3000</span>
+						</div>
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step1.png" />
+							<span data-val="4000">$3000 - $4000</span>
+						</div>
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step1.png" />
+							<span data-val="5000">$4000 - $5000</span>
+						</div>
+					</div>
+				</div>
+				<div class="step step-2">
+					<div class="step-title">Please tell us a little about yourself.</div>
+					<div class="step-subtitle">First and last name</div>
+					<div class="step-body limitedWidth">
+						<label><input type="text" id="FirstName" maxlength="128" data-type="name"
+								placeholder="First Name" required /></label>
+						<label><input type="text" id="LastName" maxlength="128" data-type="name" placeholder="Last Name"
+								required /></label>
+					</div>
+				</div>
+				<div class="step step-3">
+					<div class="step-title">What is your personal address?</div>
+					<div class="step-subtitle">Address</div>
+					<div class="step-body limitedWidth">
+						<div class="clearfix">
+							<label class="colBig margin"><input type="text" id="Address" data-type="address"
+									placeholder="Address" required /></label>
+							<label class="colSmall"><input type="text" maxlength="6" id="ZIP" data-type="zip"
+									placeholder="Postcode" required /></label>
+						</div>
+						<div class="clearfix">
+							<label class="colHalf margin"><input type="text" id="City" data-type="city"
+									placeholder="City" required /></label>
+							<label class="colHalf custom-dropdown">
+								<select id="State">
+									<option value="">Province</option>
+									<option value="AB">Alberta</option>
+									<option value="BC">British Columbia</option>
+									<option value="MB">Manitoba</option>
+									<option value="NB">New Brunswick</option>
+									<option value="NL">Newfoundland</option>
+									<option value="NS">Nova Scotia</option>
+									<option value="NT">Northwest Territory</option>
+									<option value="NU">Nunavut</option>
+									<option value="ON">Ontario</option>
+									<option value="PE">Prince Edward Island</option>
+									<option value="QC">Quebec</option>
+									<option value="SK">Saskatchewan</option>
+									<option value="YT">Yukon Territory</option>
+								</select>
+							</label>
+						</div>
+					</div>
+					<div class="note red">Please check Postcode code.</div>
+				</div>
+				<div class="step step-4">
+					<div class="step-title">What is your Address Month?</div>
+					<div class="step-subtitle">Address Month</div>
+					<div class="step-body limitedWidth">
+						<div class="clearfix">
+							<label class="custom-dropdown">
+								<select id="AddressMonth">
+									<option value="" selected>Address Month</option>
+									<option value="12">1 Year</option>
+									<option value="24">2 Years</option>
+									<option value="36">3 Years</option>
+									<option value="48">4 Years</option>
+									<option value="60">5 Years</option>
+									<option value="72">6 Years</option>
+									<option value="84">7 Years</option>
+									<option value="96">8 Years</option>
+									<option value="108">9 Years</option>
+									<option value="120">10+ Years</option>
+								</select>
+							</label>
+						</div>
+					</div>
+				</div>
+				<div class="step step-5">
+					<div class="step-title">You may still get funded even if you don't own your house.</div>
+					<div class="step-subtitle">Are you a homeowner?</div>
+					<div class="step-body">
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step4-1.png" />
+							<span data-val="0">No</span>
+						</div>
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step4-2.png" />
+							<span data-val="1">Yes</span>
+						</div>
+					</div>
+				</div>
+				<div class="step step-6">
+					<div class="step-title">How old are you?</div>
+					<div class="step-subtitle">Birth Date</div>
+					<div class="step-body">
+						<div class="clearfix">
+							<label class="colThirth custom-dropdown margin">
+								<select id="months">
+									<option value="">Month</option>
+								</select>
+							</label>
+							<label class="colThirth custom-dropdown margin">
+								<select id="days">
+									<option value="">Day</option>
+								</select>
+							</label>
+							<label class="colThirth custom-dropdown">
+								<select id="years">
+									<option value="">Year</option>
+								</select>
+							</label>
+						</div>
+					</div>
+					<div class="note red">You need to be above 18 to continue.</div>
+				</div>
+				<div class="step step-7">
+					<div class="step-title">You will need a valid email address to request a loan.</div>
+					<div class="step-subtitle">Email</div>
+					<div class="step-body limitedWidth">
+						<label><input type="email" placeholder="Email" data-type="email" id="email" required /></label>
+					</div>
+				</div>
+				<div class="step step-8">
+					<div class="step-title">Please enter a number to reach you at.</div>
+					<div class="step-subtitle">Home Phone</div>
+					<div class="step-body limitedWidth">
+						<label><input type="text" id="phone" data-type="phone"
+								oninput="this.value=this.value.replace(/[^0-9]/g,'');" maxlength="10"
+								placeholder="xxxxxxxxxx" required /></label>
+					</div>
+				</div>
+				<div class="step step-9 validate">
+					<div class="step-title">Sign up to receive SMS Alerts.</div>
+					<div class="step-subtitle">Mobile Phone</div>
+					<div class="step-body limitedWidth">
+						<label><input type="text" id="MobilePhone" data-type="mobilephone" required
+								placeholder="xxxxxxxxxx" maxlength="10"
+								oninput="this.value=this.value.replace(/[^0-9]/g,'');" /></label>
+						<div class="note2">By entering my mobile phone number, I agree to receive autodialed marketing
+							text messages, telephone calls, SMS alerts, and prerecorded voice messaging from third party
+							marketers at the number I provided. I understand my consent is not required to purchase
+							goods or services, message and data rates may apply, and I may receive recurring monthly
+							messages. <a href="https://www.turbopaydayloans.com/terms-of-use/" target="_blank">Terms &
+								Conditions</a></div>
+					</div>
+				</div>
+				<div class="step step-10">
+					<div class="step-title">You are just about finished filling out our loan request form.</div>
+					<div class="step-subtitle">Social Insurance Number</div>
+					<div class="step-body limitedWidth">
+						<label><input type="text" id="SIN" data-type="ssn" placeholder="123 45 6789"
+								oninput="this.value=this.value.replace(/[^0-9\ ]/g,'');" maxlength="9"
+								required /></label>
+						<div class="note">The site is secured by an Internet security provider.</div>
+					</div>
+				</div>
+				<div class="step step-11">
+					<div class="step-title">We now need some of your Employment Infromation</div>
+					<div class="step-subtitle">Income Source</div>
+					<div class="step-body limitedWidth">
+						<div class="clearfix">
+							<label class="custom-dropdown">
+								<select id="IncomeType">
+									<option value="" selected>Income Type</option>
+									<option value="full_employed">Full Employed</option>
+									<option value="self_employed">Self Employed</option>
+									<option value="part_employed">Part Employed</option>
+									<option value="temporary_employed">Temporary Employed</option>
+									<option value="benefits">Benefits</option>
+									<option value="pension">Pension</option>
+									<option value="disability">Disability Income</option>
+									<option value="paid_by_commission">Paid by Commission</option>
+									<option value="unemployed">Unemployed</option>
+								</select>
+							</label>
+						</div>
+					</div>
+				</div>
+				<div class="step step-12">
+					<div class="step-title">Please let us know how long you have had your current job.</div>
+					<div class="step-subtitle">Time Employed</div>
+					<div class="step-body">
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step13-1.png" />
+							<span data-val="1">1M - 6M</span>
+						</div>
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step13-2.png" />
+							<span data-val="6">6M - 1Y</span>
+						</div>
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step13-3.png" />
+							<span data-val="12">1Y - 5Y</span>
+						</div>
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step13-4.png" />
+							<span data-val="60">5Y+</span>
+						</div>
+					</div>
+				</div>
+				<div class="step step-13">
+					<div class="step-title">What is your official job title?</div>
+					<div class="step-subtitle">Job Title</div>
+					<div class="step-body limitedWidth">
+						<label><input type="text" id="JobTitle" data-type="empty" placeholder="Job title"
+								required /></label>
+					</div>
+				</div>
+				<div class="step step-14">
+					<div class="step-title">What is the name of your place of employment?</div>
+					<div class="step-subtitle">Employer Name</div>
+					<div class="step-body limitedWidth">
+						<label><input type="text" id="EmployerName" data-type="company" placeholder="Company Name"
+								required /></label>
+					</div>
+				</div>
+				<div class="step step-15">
+					<div class="step-title">What is your work address?</div>
+					<div class="step-subtitle">Employer Address</div>
+					<div class="step-body limitedWidth">
+						<div class="clearfix">
+							<label class="colBig margin"><input type="text" id="Address2" data-type="address"
+									placeholder="Address" required /></label>
+							<label class="colSmall"><input type="text" maxlength="7" id="ZIP2" data-type="zip"
+									placeholder="Postcode" required /></label>
+						</div>
+						<div class="clearfix">
+							<label class="colHalf margin"><input type="text" id="City2" data-type="city"
+									placeholder="City" required /></label>
+							<label class="colHalf custom-dropdown">
+								<select id="State2">
+									<option value="">Province</option>
+									<option value="AB">Alberta</option>
+									<option value="BC">British Columbia</option>
+									<option value="MB">Manitoba</option>
+									<option value="NB">New Brunswick</option>
+									<option value="NL">Newfoundland</option>
+									<option value="NS">Nova Scotia</option>
+									<option value="NT">Northwest Territory</option>
+									<option value="NU">Nunavut</option>
+									<option value="ON">Ontario</option>
+									<option value="PE">Prince Edward Island</option>
+									<option value="QC">Quebec</option>
+									<option value="SK">Saskatchewan</option>
+									<option value="YT">Yukon Territory</option>
+								</select>
+							</label>
+						</div>
+					</div>
+					<div class="note red">Please check Postcode code.</div>
+				</div>
+				<div class="step step-16">
+					<div class="step-title">Our lenders require this information to approve you for a loan.</div>
+					<div class="step-subtitle">Work Phone</div>
+					<div class="step-body limitedWidth">
+						<label><input type="text" id="WorkPhone" data-type="phone" maxlength="10"
+								oninput="this.value=this.value.replace(/[^0-9]/g,'');" placeholder="xxxxxxxxxx"
+								required /></label>
+					</div>
+				</div>
+				<div class="step step-17">
+					<div class="step-title">How much do you make each month?</div>
+					<div class="step-subtitle">Monthly Net Income</div>
+					<div class="step-body">
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step17-1.png" />
+							<span data-val="500">$500</span>
+						</div>
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step17-1.png" />
+							<span data-val="1000">$1000</span>
+						</div>
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step17-2.png" />
+							<span data-val="2000">$2000</span>
+						</div>
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step17-3.png" />
+							<span data-val="3000">$3000</span>
+						</div>
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step17-4.png" />
+							<span data-val="4000">$4000</span>
+						</div>
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step17-5.png" />
+							<span data-val="5000">$5000+</span>
+						</div>
+					</div>
+				</div>
+				<div class="step step-18">
+					<div class="step-title">How frequently do you get paid?</div>
+					<div class="step-subtitle">I get paid</div>
+					<div class="step-body">
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step18-1.png" />
+							<span data-val="weekly">Weekly</span>
+						</div>
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step18-1.png" />
+							<span data-val="biweekly">Every 2 Weeks</span>
+						</div>
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step18-1.png" />
+							<span data-val="twicemonthly">Twice a Month</span>
+						</div>
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step18-1.png" />
+							<span data-val="monthly">Month</span>
+						</div>
+					</div>
+				</div>
+				<div class="step step-19 validate">
+					<div class="step-title">On which day will you receive your next paycheck?</div>
+					<div class="step-subtitle">Next Paydate</div>
+					<div class="step-body limitedWidth">
+						<label><input type="text" placeholder="" readonly data-type="date" id="datepicker"
+								required /><img src="https://formz.azurewebsites.net/form/img/step19.png"
+								class="calendar" /></label>
+					</div>
+				</div>
+				<div class="step step-20">
+					<div class="step-title">We need to know some of your banking information.</div>
+					<div class="step-subtitle">Acount Type</div>
+					<div class="step-body">
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step20-1.png" />
+							<span data-val="checking">Checking</span>
+						</div>
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step20-2.png" />
+							<span data-val="saving">Savings</span>
+						</div>
+					</div>
+				</div>
+				<div class="step step-21">
+					<div class="step-title">We'll keep your information safe and secure.</div>
+					<div class="step-subtitle">Branch Number</div>
+					<div class="step-body limitedWidth">
+						<label><input type="text" id="BranchNumber" data-type="branchNumber"
+								oninput="this.value=this.value.replace(/[^0-9]/g,'');" maxlength="5" placeholder="01234"
+								required /></label>
+						<label><input type="text" id="BankName" data-type="empty" placeholder="Bank name"
+								required /></label>
+					</div>
+				</div>
+				<div class="step step-22">
+					<div class="step-title">Our lenders require your bank account number.</div>
+					<div class="step-subtitle">Account Number</div>
+					<div class="step-body limitedWidth">
+						<label><input type="text" id="AccountNumber"
+								oninput="this.value=this.value.replace(/[^0-9]/g,'');" data-type="number"
+								placeholder="12345678901" maxlength="11" required /></label>
+						<div class="note">Please note that this site is secured by a leading Internet security provider.
+						</div>
+					</div>
+				</div>
+				<div class="step step-23">
+					<div class="step-title">Our lenders require your bank account information.</div>
+					<div class="step-subtitle">Bank Months</div>
+					<div class="step-body limitedWidth">
+						<label class="custom-dropdown">
+							<select id="BankMonth">
+								<option value="">Bank Month</option>
+								<option value="1">1 Month</option>
+								<option value="2">2 Month</option>
+								<option value="6">3-6 Months</option>
+								<option value="12">7-12 Months</option>
+								<option value="24">More than 1 year</option>
+							</select>
+						</label>
+					</div>
+				</div>
+				<div class="step step-24">
+					<div class="step-title">Our lenders require your bank information.</div>
+					<div class="step-subtitle">Institution Number</div>
+					<div class="step-body limitedWidth">
+						<label><input type="text" id="InstitutionNumber"
+								oninput="this.value=this.value.replace(/[^0-9]/g,'');" data-type="institutionNumber"
+								placeholder="004" maxlength="3" required /></label>
+
+					</div>
+				</div>
+				<div class="step step-25">
+					<div class="step-title">Providing accurate information helps us pair you with a lender.</div>
+					<div class="step-subtitle">Do you have Direct Deposit?</div>
+					<div class="step-body">
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step23-1.png" />
+							<span data-val="1">Yes</span>
+						</div>
+						<div class="inline">
+							<img src="https://formz.azurewebsites.net/form/img/step23-2.png" />
+							<span data-val="0">No</span>
+						</div>
+					</div>
+				</div>
+				<div class="step step-26">
+					<div class="step-title">You're now ready to request your loan.</div>
+					<div class="step-body">
+						<label class="checkbox">
+							<span class="tip">By clicking "Go", you acknowledge, agree and consent to the
+								following:</a></span>
+							<input class="agree-check" id="Agree" type="checkbox" required="" name="Agree">
+							<span class="checkmark"></span>
+						</label>
+
+						<div class="note3">
+							By checking the box and clicking “SUBMIT,” you acknowledge, agree and consent to the
+							following:<br>
+							I read and agree to the <a href="https://www.turbopaydayloans.com/e-consent/"
+								target="_blank">E-consent</a>, <a
+								href="https://www.turbopaydayloans.com/privacy-policy/" target="_blank">Privacy
+								Policy</a>, <a href="https://www.turbopaydayloans.com/terms-of-use/"
+								target="_blank">Terms &
+								Conditions</a>,
+							<a href="https://www.turbopaydayloans.com/responsible-lending-policy/"
+								target="_blank">Responsible Lending and Marketing Policy</a>, and <a
+								href="https://www.turbopaydayloans.com/legal/" target="_blank">Legal Disclaimers</a>. I
+							authorize turbopaydayloans.com to share my information with lenders, lending partners, and
+							marketing partners and for these parties to use my information to obtain consumer report
+							information on my credit profile. I also give express consent to receive recurring
+							communications from them and turbopaydayloans.com.
+
+							<label class="checkbox">
+								<span class="tip">I agree to the terms above.</a></span>
+								<input class="agree-check" id="Agree" type="checkbox" required="" name="Agree">
+								<span class="checkmark"></span>
+							</label>
+
+							<div class="extra">Please be patient. It may take up to 90 seconds to process your loan
+								request.</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="button-block">
+					<div class="formButton button-continue disabled" id="ContinueBtn">Continue</div>
+					<div></div>
+					<div class="formButton button-go disabled" id="GoBtn">Submit</div>
+					<div></div>
+					<div class="formButton button-back" id="BackBtn">Back</div>
+				</div>
+			</form>
+
+			<div class="waitBlock">
+				<div class="w-title">Please wait</div>
+				<div class="w-subtitle">It may take up to 90 seconds to process your loan request</div>
+				<div class="clearfix secondsBlock">
+					<div class="toLeft countdown">
+						<div id="circle_timer" data-timer="90"></div>
+					</div>
+					<div class="toRight">
+						<ul class="waitList" id="DataList">
+							<li><span></span>Submit Data</li>
+							<li><span></span>Checking Information</li>
+							<li><span></span>Searching Network</li>
+							<li><span></span>Preparing Results</li>
+						</ul>
+					</div>
+				</div>
+				<div><b id="username">John</b>, if we pair you with a lender, please note:</div>
+				<ul class="noteList">
+					<li><span></span>After we pair you with a third party lender, you are redirected to their website.
+						The lender makes you a loan offer, presents you with terms, and asks for your approval. If you
+						approve of the terms, you're one step closer to getting your money.</li>
+					<li><span></span>The lender makes you a loan offer, presents you with terms, and asks for your
+						approval. If you approve of the terms, you' re one step closer to getting your money. If you
+						change your ming and don't want the loan, simply decline it.</li>
+					<li><span></span>After we pair you with a third party lender, you are redirected to their website.
+					</li>
+					<ul>
+			</div>
+		</div>
+	</div>
+	<script src='https://formz.azurewebsites.net/form/js/api-canada.js?v13' type="text/javascript"></script>
+	<script src='https://formz.azurewebsites.net/form/js/main-canada.js?v13' type="text/javascript"></script>
+</body>
+
+</html>

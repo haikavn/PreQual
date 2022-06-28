@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="2386832c-3dde-4585-bb40-0177648ac0e6" ChangeDateTime="01/25/2019 17:47:36">
+    <Property Name="ElementName" Value="[dbo].[LeadMainReportDayReceived].[stat]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[LeadMainReportDayReceived]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="State" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="1a4eaf4f-cd1f-484a-873b-ec59143d5961" ChangeDateTime="07/02/2019 16:28:23">
+    <Property Name="ElementName" Value="[dbo].[Buyer].[DoNotPresentResponseField]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Buyer]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="DoNotPresentResultField" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="e75f6daa-126f-426c-9db9-e0ff70455ff1" ChangeDateTime="07/02/2019 16:29:35">
+    <Property Name="ElementName" Value="[dbo].[Buyer].[DoNotPresentResultMessage]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Buyer]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="DoNotPresentMessageField" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="52a0051b-e99d-4877-a29b-efa68a222a3c" ChangeDateTime="07/03/2019 15:28:50">
+    <Property Name="ElementName" Value="[dbo].[Buyer].[DoNotPresentResultValue]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Buyer]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="DoNotPresentResultSuccessValue" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="88ec1095-134e-4447-a0fd-4c173418162e" ChangeDateTime="07/03/2019 15:47:03">
+    <Property Name="ElementName" Value="[dbo].[Buyer].[DoNotPresentResultSuccessValue]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Buyer]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="DoNotPresentResultValue" />
+  </Operation>
+</Operations>

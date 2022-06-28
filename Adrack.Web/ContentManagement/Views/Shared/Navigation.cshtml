@@ -1,0 +1,467 @@
+﻿@using Adrack.Core.Domain.Membership
+@using Adrack.Core.Infrastructure
+@using Adrack.Service.Membership
+@using Adrack.Service.Content
+@using Adrack.Service.Security
+@using Adrack.Service.Helpers
+
+@{
+    var currentUser = this.AppContext.AppUser;
+    var usernameEnabled = AppEngineContext.Current.Resolve<UserSetting>().UsernameEnabled;
+    var userProfile = AppEngineContext.Current.Resolve<IProfileService>().GetProfileByUserId(currentUser.Id);
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+    var cookieExpireMinutes = AppEngineContext.Current.Resolve<UserSetting>().CookieExpireMinutes;
+    // Address
+    //var addressType = AppEngineContext.Current.Resolve<IAddressService>().GetAddressTypeByName("Contact");
+    //var address = AppEngineContext.Current.Resolve<IAddressService>().GetAddressByUserIdAndAddressTypeId(currentUser.Id, addressType.Id);
+}
+
+@model NavigationManager
+
+<input type="hidden" id="cookieExpireMinutes" value="@cookieExpireMinutes" />
+
+<style>
+    #navbar-second {
+        position: fixed;
+        z-index: 1000;
+        width: 100%;
+        height: 77px;
+        top: 0px;
+        border-bottom: solid 3px #0094ff;
+    }
+
+    .dropdown-user {
+        float: right !important;
+    }
+
+    .navbar-nav-z {
+        margin-left: 0px !important;
+        padding-left: 0px !important;
+        height: 64px;
+    }
+
+        .navbar-nav-z > li {
+            float: left;
+            display: block;
+            position: relative;
+            list-style: outside none none;
+            margin-bottom: 0;
+            padding-left: 0;
+        }
+
+            .navbar-nav-z > li > a {
+                display: block;
+                position: relative;
+                padding: 9px 15px;
+                color: #555;
+            }
+
+    .drop-ul {
+        /* background-color: #80f9f9; */
+    }
+
+    .drop-li {
+        display: inline-block;
+        margin: 8px 15px;
+    }
+
+        .drop-li a {
+            color: #555;
+        }
+
+            .drop-li a:hover {
+                color: #888;
+            }
+
+    .submenu-container {
+        background-color: #fff;
+        position: fixed;
+        top: 39px;
+        width: 100%;
+        height: 37px;
+        display: none;
+    }
+
+    .activeitem {
+        text-decoration: underline;
+        font-weight: bold;
+        color: #000 !important;
+    }
+</style>
+
+<script>
+
+    $(function () {
+
+        $(".submenu-container").each(function () {
+            var element = $(this);
+            $(this).find("a").each(function () {
+                if ($(this).hasClass("activeitem")) {
+                    element.show();
+
+                    curID = element.attr("id").substr(10, 2)
+                    $("#li-" + curID).css("background-color", $("#li-" + curID).data("color"));
+
+                }
+            });
+
+        });
+
+        $(".submenuitem").click(function () {
+
+            $(".submenuitem").css("background-color", "#fff");
+            $(this).css("background-color", $(this).data("color"));
+
+            $(".submenu-container").hide();
+
+            $("#submenuid-" + $(this).data("id")).show();
+        });
+    });
+</script>
+
+@if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+{
+    if (currentUser.MenuType == null || currentUser.MenuType == 1)
+    {
+        <div class="sidebar sidebar-main sidebar-fixed">
+            <div class="sidebar-content">
+
+                <div class="sidebar-user">
+                    <div class="category-content">
+                        <div class="media">
+                            <br>
+                            <!--
+                            <a href="#" class="media-left"><img src="~/ContentManagement/Content/core/domain/multimedia/image/user.png" class="img-circle img-sm" alt=""></a>
+                            <div class="media-body">
+                                <span class="media-heading text-semibold">@(userProfile == null ? "" : String.Format(userProfile.FirstName + " " + userProfile.LastName))</span>
+                                <div class="text-size-mini text-muted">
+                                    <i class="icon-pin text-size-small"></i> &nbsp;@*@address.City, @address.StateProvince.Name*@
+                                </div>
+                            </div>
+                            -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-category sidebar-category-visible">
+                    <div class="category-content no-padding">
+                        <ul class="navigation navigation-main navigation-accordion">
+
+                        @foreach (NavigationItem rootItem in Model.Child)
+                        {
+                            if (rootItem.ParentId != 0 && !permissionService.CheckNavigationPermissions(rootItem.Permission))
+                            {
+                                continue;
+                            }
+
+                            <!--<li class="navigation-header"><span>@rootItem.Key</span> <i class="icon-menu" title="@rootItem.Key"></i></li>-->
+                            foreach (NavigationItem parentItem in rootItem.Child)
+                            {
+                                if (parentItem.ParentId != 0 && !permissionService.CheckNavigationPermissions(parentItem.Permission))
+                                {
+                                    continue;
+                                }
+
+                                if (parentItem.Child.Count == 0)
+                                {
+                            <li @Html.IsActive("class=\"active\"", @parentItem.Action, @parentItem.Controller)><a href="@Url.Action(@parentItem.Action, @parentItem.Controller)"><i class="@parentItem.HtmlClass"></i> <span>@parentItem.Key</span></a></li>
+                        }
+                        else
+                        {
+                            <li @Html.IsActive("class=\"active\"", @parentItem.Action, @parentItem.Controller)>
+                                <a href="#"><i class="@parentItem.HtmlClass"></i> <span>@parentItem.Key</span></a>
+                                <ul>
+                                    @foreach (NavigationItem childItem in parentItem.Child)
+                                    {
+                                        if (childItem.ParentId != 0 && !permissionService.CheckNavigationPermissions(childItem.Permission))
+                                        {
+                                            continue;
+                                        }
+                                        <li @Html.IsActive("class=\"active\"", @childItem.Action, @childItem.Controller)><a href="@Url.Action(@childItem.Action, @childItem.Controller)">@childItem.Key</a></li>
+                                        if (childItem.Child.Count > 0)
+                                        {
+                                            <li>
+                                                <a href="@Url.Action(@parentItem.Action, @parentItem.Controller)"><i class="@childItem.HtmlClass"></i> <span>@childItem.Key</span></a>
+                                                <ul>
+                                                    @foreach (NavigationItem childItem0 in childItem.Child)
+                                                    {
+                                                        if (childItem0.ParentId != 0 && !permissionService.CheckNavigationPermissions(childItem0.Permission))
+                                                        {
+                                                            continue;
+                                                        }
+                                                        <li @Html.IsActive("class=\"active\"", @childItem0.Action, @childItem0.Controller)><a href="@Url.Action(@childItem0.Action, @childItem0.Controller)">@childItem0.Key</a></li>
+                                                    }
+                                                </ul>
+                                            </li>
+                                        }
+                                    }
+                                </ul>
+                            </li>
+                        }
+                    }
+                }
+</ul>
+</div>
+</div>
+</div>
+</div>
+}
+else
+{
+<style>
+    .activeMenu a {
+        font-weight: bold;
+        background-color: #80f9f9;
+    }
+</style>
+
+<div style="height:80px; width:100%;"></div>
+<!-- Second navbar -->
+
+<div class="navbar navbar-default" id="navbar-second">
+    <ul class="nav navbar-nav no-border visible-xs-block">
+        <li><a class="text-center collapsed" data-toggle="collapse" data-target="#navbar-second-toggle"><i class="icon-menu7"></i></a></li>
+    </ul>
+    <div class="navbar-collapse collapse" id="navbar-second-toggle">
+        <ul class="navbar-nav-z">
+
+            @foreach (NavigationItem rootItem in Model.Child)
+            {
+                if (rootItem.ParentId != 0 && !permissionService.CheckNavigationPermissions(rootItem.Permission))
+                {
+                    continue;
+                }
+
+                foreach (NavigationItem parentItem in rootItem.Child)
+                {
+                    if (parentItem.ParentId != 0 && !permissionService.CheckNavigationPermissions(parentItem.Permission))
+                    {
+                        continue;
+                    }
+
+                    if (parentItem.Child.Count == 0)
+                    {
+                        <li @Html.IsActive("class=\"activeitem\"", @parentItem.Action, @parentItem.Controller) data-color="@parentItem.Color" data-id="@parentItem.Id" class="submenuitem" @Html.IsActive("class=\"activeMenu\"", @parentItem.Action, @parentItem.Controller)>
+                            <a href="@Url.Action(@parentItem.Action, @parentItem.Controller)">
+                                <i class="@parentItem.HtmlClass"></i> <span>@parentItem.Key</span>
+                            </a>
+                        </li>
+                        <div class="submenu-container" id="submenuid-@parentItem.Id" style="background-color: @parentItem.Color"></div>
+                    }
+                    else
+                    {
+                        <li data-color="@parentItem.Color" class="submenuitem" data-id="@parentItem.Id" id="li-@parentItem.Id">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="@parentItem.HtmlClass"></i> <span>@parentItem.Key</span> <span class="caret"></span>
+                            </a>
+                        </li>
+                        <div class="submenu-container" id="submenuid-@parentItem.Id" style="background-color: @parentItem.Color">
+                            @foreach (NavigationItem childItem in parentItem.Child)
+                            {
+                                if (childItem.ParentId != 0 && !permissionService.CheckNavigationPermissions(childItem.Permission))
+                                {
+                                    continue;
+                                }
+                                <div class="drop-li">
+                                    @if (childItem.Url != null)
+                                    {
+                                        <a href="@childItem.Url" @Html.IsActive("class=\"activeitem\"", @childItem.Action, @childItem.Controller)> <i class="@childItem.HtmlClass"></i> @childItem.Key</a>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.Action(@childItem.Action, @childItem.Controller)" @Html.IsActive("class=\"activeitem\"", @childItem.Action, @childItem.Controller)> <i class="@childItem.HtmlClass"></i> @childItem.Key</a>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+            }
+
+            <li class="dropdown dropdown-user">  </li>
+            <li class="dropdown dropdown-user">
+                <a class="dropdown-toggle" data-toggle="dropdown">
+                    <span class="media-heading text-semibold">@(userProfile == null ? "" : String.Format(userProfile.FirstName + " " + userProfile.LastName))</span>
+                    <span>@String.Format(usernameEnabled ? currentUser.Username : currentUser.Email)</span>
+                    <i class="caret"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li><a href="@Url.Action("Item", "Profile")"><i class="icon-user-plus"></i> @T("Profile.MyProfile")</a></li>
+                    @*<li><a href="#"><span class="badge badge-warning pull-right">58</span> <i class="icon-comment-discussion"></i> Messages</a></li>*@
+                    <li class="divider"></li>
+                    <!-- <li><a href="@Url.Action("Index", "Setting")"><i class="icon-cog5"></i> @T("Membership.Setting")</a></li> -->
+                    <li><a href="@Url.Action("Logout", "Membership", new { area = "" }, null)"><i class="icon-switch2"></i> @T("Membership.Logout")</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div style="clear:both"></div>
+<!-- /second navbar -->
+}
+}
+else
+{
+
+<div class="sidebar sidebar-main sidebar-fixed">
+    <div class="sidebar-content">
+        <!--
+                    <div class="sidebar-user">
+                        <div class="category-content">
+                            <div class="media">
+                                <a href="#" class="media-left"><img src="~/ContentManagement/Content/core/domain/multimedia/image/user.png" class="img-circle img-sm" alt=""></a>
+                                <div class="media-body">
+                                    <span class="media-heading text-semibold">@(userProfile == null ? "" : String.Format(userProfile.FirstName + " " + userProfile.LastName))</span>
+                                    <div class="text-size-mini text-muted">
+                                        <i class="icon-pin text-size-small"></i> &nbsp;@*@address.City, @address.StateProvince.Name*@
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        -->
+        <div class="sidebar-category sidebar-category-visible">
+            <div class="category-content no-padding">
+                <ul class="navigation navigation-main navigation-accordion">
+                    @if (currentUser.UserTypeId == SharedData.BuyerUserTypeId)
+                    {
+                        <li><a href="/Management/Buyer/Dashboard/"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
+                        if (permissionService.Authorize(PermissionProvider.LeadsView))
+                        {
+                            <li><a href="/Management/Lead"><i class="icon-make-group position-left"></i> <span>Leads</span></a></li>
+                        }
+                        if (permissionService.Authorize(PermissionProvider.BuyerReportsAccess))
+                        {
+                            <li><a href="/Management/Buyer/Reports/"><i class="icon-calendar5"></i> <span>Reporting</span></a></li>
+                        }
+                        if (permissionService.Authorize(PermissionProvider.AccountingAccess))
+                        {
+                            <li>
+                                <a href="/Management/Accounting/Invoices"><i class="fa fa-money"></i> <span>Billing</span></a>
+                                @if (permissionService.Authorize(PermissionProvider.AccountingAccess))
+                                {
+                                    <ul>
+                                        <li><a href="/Management/Accounting/Invoices"><i class="fa fa-money"></i> <span>Billing</span></a></li>
+                                    </ul>
+                                }
+                            </li>
+                        }
+                        if (permissionService.Authorize(PermissionProvider.SupportView))
+                        {
+                            <li><a href="/Management/Support/Tickets"><i class="icon-lifebuoy"></i> <span>Support</span></a></li>
+                        }
+
+                        <li>
+                            <a href="/Management/Buyer/Item"><i class="icon-hammer-wrench"></i> <span>Company Info</span></a>
+                            @if (permissionService.Authorize(PermissionProvider.User))
+                            {
+                                <ul>
+                                    <li><a href="/Management/Buyer/Item/@currentUser.ParentId"><i class="icon-hammer-wrench"></i> <span>Company Info</span></a></li>
+                                    <li><a href="/Management/Buyer/Users/"><i class="fa fa-users"></i> <span>Users</span></a></li>
+                                </ul>
+                            }
+                        </li>
+
+                        if (permissionService.Authorize(PermissionProvider.BuyerChannelsView))
+                        {
+                            <li><a href="/Management/Buyer/Channels/"><i class="fa fa-cubes"></i> <span>Channels</span></a></li>
+                        }
+
+                        if (permissionService.Authorize(PermissionProvider.SettingsHistory))
+                        {
+                            <li><a href="/Management/Buyer/History/0"><i class="fa fa-history"></i> <span>Change Log</span></a></li>
+                        }
+                    }
+                    else if (currentUser.UserTypeId == SharedData.AffiliateUserTypeId)
+                    {
+                        <li><a href="/Management/Affiliate/Dashboard/"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
+                        if (permissionService.Authorize(PermissionProvider.LeadsView))
+                        {
+                            <li><a href="/Management/Lead"><i class="icon-make-group position-left"></i> <span>Leads</span></a></li>
+                        }
+                        if (permissionService.Authorize(PermissionProvider.AffiliateReportsAccess))
+                        {
+                            <li><a href="/Management/Affiliate/Reports/"><i class="icon-calendar5"></i> <span>Reporting</span></a></li>
+                        }
+                        if (permissionService.Authorize(PermissionProvider.AccountingAccess))
+                        {
+                            <li><a href="/Management/Accounting/Invoices"><i class="fa fa-money"></i> <span>Billing</span></a></li>
+                        }
+                        if (permissionService.Authorize(PermissionProvider.SupportView))
+                        {
+                            <li><a href="/Management/Support/Tickets"><i class="icon-lifebuoy"></i> <span>Support</span></a></li>
+                        }
+                        if (permissionService.Authorize(PermissionProvider.AffiliatesModify))
+                        {
+                            <li><a href="/Management/Affiliate/Item"><i class="icon-hammer-wrench"></i> <span>Company Info</span></a></li>
+                        }
+                        if (permissionService.Authorize(PermissionProvider.User))
+                        {
+                            <li><a href="/Management/Affiliate/Users/"><i class="fa fa-users"></i> <span>Users</span></a></li>
+                        }
+                        if (permissionService.Authorize(PermissionProvider.AffiliateChannelsView))
+                        {
+                            <li><a href="/Management/Affiliate/Channels/"><i class="fa fa-cubes"></i> <span>Channels</span></a></li>
+                        }
+                        if (permissionService.Authorize(PermissionProvider.CampaignsView))
+                        {
+                            <li><a href="/Management/Affiliate/Campaigns/"><i class="icon-flattr"></i> <span>Campaigns</span></a></li>
+                        }
+                        if (permissionService.Authorize(PermissionProvider.AccountingAccess))
+                        {
+                            <li><a href="/Management/Affiliate/PaymentOptions/"><i class="fa fa-bank"></i> <span>Payment Options</span></a></li>
+                        }
+                        if (permissionService.Authorize(PermissionProvider.SettingsHistory))
+                        {
+                            <li><a href="/Management/Affiliate/History/0"><i class="fa fa-history"></i> <span>History</span></a></li>
+                        }
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .navbar-nav-notadmin {
+        margin-left: 0px !important;
+        padding-left: 0px !important;
+    }
+
+        .navbar-nav-notadmin > li {
+            float: left;
+            display: block;
+            position: relative;
+            list-style: outside none none;
+            margin-bottom: 0;
+            padding-left: 0;
+        }
+
+            .navbar-nav-notadmin > li > a {
+                display: block;
+                position: relative;
+                padding: 9px 15px;
+                color: #555;
+            }
+</style>
+<!--
+    <div id="clock" class="clock-container-notadmin label bg-grey-300 text-muted"></div>
+-->
+<ul class="navbar-nav-notadmin">
+    <li class="dropdown dropdown-user">
+        <a class="dropdown-toggle" data-toggle="dropdown">
+            <span class="media-heading text-semibold">@(userProfile == null ? "" : String.Format(userProfile.FirstName + " " + userProfile.LastName))</span>
+            <span>@String.Format(usernameEnabled ? currentUser.Username : currentUser.Email)</span>
+            <i class="caret"></i>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-right">
+            <li><a href="@Url.Action("Item", "Profile")"><i class="icon-user-plus"></i> @T("Profile.MyProfile")</a></li>
+            @*<li><a href="#"><span class="badge badge-warning pull-right">58</span> <i class="icon-comment-discussion"></i> Messages</a></li>*@
+            <li class="divider"></li>
+            <!-- <li><a href="@Url.Action("Index", "Setting")"><i class="icon-cog5"></i> @T("Membership.Setting")</a></li> -->
+            <li><a href="@Url.Action("Logout", "Membership", new { area = "" }, null)"><i class="icon-switch2"></i> @T("Membership.Logout")</a></li>
+        </ul>
+    </li>
+</ul>
+}

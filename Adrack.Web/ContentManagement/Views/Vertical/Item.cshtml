@@ -1,0 +1,53 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.VerticalModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switchery.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+}
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-validation" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="panel-body">
+        <fieldset>
+            <legend class="text-semibold">
+                <i class="icon-file-text2 position-left"></i>
+                Enter your information
+                <a class="control-arrow" data-toggle="collapse" data-target="#general">
+                    <i class="icon-circle-down2"></i>
+                </a>
+            </legend>
+
+            <div class="collapse in" id="general">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group has-feedback">
+                            @Html.LabelFor(x => x.Name)
+                            @Html.TextBoxFor(x => x.Name, new { @class = "form-control", tabindex = 1, placeholder = "Vertical name", required = "required" })
+                            <div class="form-control-feedback">
+                                <i class="icon-user-plus text-muted"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <div style="color:red">
+            @Html.ValidationSummary()
+        </div>
+        @if (permissionService.Authorize(PermissionProvider.SettingsVerticalModify))
+        {
+            <div>
+                @Html.HiddenFor(x => x.VerticalId)
+                <input class="btn btn-info" id="validation-next" value="Submit" type="submit">
+            </div>
+        }
+    </div>
+}

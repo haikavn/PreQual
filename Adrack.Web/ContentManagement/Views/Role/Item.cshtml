@@ -1,0 +1,135 @@
+﻿@model Adrack.Web.ContentManagement.Models.Security.RoleModel
+
+@{
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    //    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switchery.min.js").ToLowerInvariant());
+    //    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    Html.AppendPageCss(PageLayoutPosition.Body, string.Format("~/Scripts/bootstrap-switch-master/bootstrap-switch.min.css").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/bootstrap-switch-master/bootstrap-switch.min.js").ToLowerInvariant());
+
+    string entityName = "";
+}
+
+<script src="~/Scripts/pages-js/RoleItem.js"></script>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-validation" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="panel-body">
+        <fieldset>
+            <div class="collapse in" id="general">
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="form-group has-feedback">
+                            <b>Status</b><br />
+                            Inactive @Html.CheckBoxFor(x => x.Active, new { @class = "switchery" }) Active
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group has-feedback">
+                            <b>Role Name</b>
+                            @Html.TextBoxFor(x => x.Name, new { @class = "form-control", tabindex = 1, placeholder = "Role name", required = "required" })
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group has-feedback">
+                            <b>Role type</b><br />
+                            @Html.DropDownList("UserTypeId", Model.ListUserType, new { @class = "select", required = "required", style = "width: 150px" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group has-feedback">
+                            @{
+                                long lastId = 0;
+                                string isParentActive = "";
+                                string isParentActive2 = "";
+                            }
+                            @for (var i = 0; i < Model.Permissions.Count; i++)
+                            {
+                                if (entityName != Model.Permissions[i].EntityName)
+                                {
+                                    <hr />
+                                    <h4>@Model.Permissions[i].EntityName</h4>
+                                    entityName = Model.Permissions[i].EntityName;
+                                }
+
+                                if (Model.Permissions[i].ParentId == 0)
+                                {
+                                    lastId = Model.Permissions[i].Id;
+
+                                    isParentActive = Model.Permissions[i].Active ? "" : "hidden-div";
+
+                                    <div class="permission-item">
+                                        @Html.HiddenFor(model => model.Permissions[i].Id)
+                                        @Html.HiddenFor(model => model.Permissions[i].Name)
+                                        @Html.HiddenFor(model => model.Permissions[i].Key)
+                                        @Html.HiddenFor(model => model.Permissions[i].EntityName)
+                                        @Html.HiddenFor(model => model.Permissions[i].Deleted)
+                                        @Html.CheckBoxFor(model => model.Permissions[i].Active, new { @class = "switchery", @id = "cb-" + Model.Permissions[i].Id.ToString(), @data_on_text = "YES", @data_off_text = "NO" })
+                                        @Html.Label(Model.Permissions[i].Name, new { @class = "text-bold" })<br />
+                                    </div>
+                                }
+                                else if(Model.Permissions[i].ParentId == lastId)
+                                {
+                                    isParentActive2 = Model.Permissions[i].Active ? "" : "hidden-div";
+                                    <div class="@isParentActive permission-item-child2 child_for_cb-@Model.Permissions[i].ParentId">
+                                        @Html.HiddenFor(model => model.Permissions[i].Id)
+                                        @Html.HiddenFor(model => model.Permissions[i].Name)
+                                        @Html.HiddenFor(model => model.Permissions[i].Key)
+                                        @Html.HiddenFor(model => model.Permissions[i].EntityName)
+                                        @Html.HiddenFor(model => model.Permissions[i].Deleted)
+                                        @Html.CheckBoxFor(model => model.Permissions[i].Active, new { @class = "switchery switchery2", @id = "cb-" + Model.Permissions[i].Id.ToString(), @data_on_text = "YES", @data_off_text = "NO", @parentid = "cb-" + Model.Permissions[i].ParentId.ToString() })
+                                        @Html.Label(Model.Permissions[i].Name, new { @class = "" })<br />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="@isParentActive2 permission-item-child child_for_cb-@Model.Permissions[i].ParentId child2_for_cb-@lastId">
+                                        @Html.HiddenFor(model => model.Permissions[i].Id)
+                                        @Html.HiddenFor(model => model.Permissions[i].Name)
+                                        @Html.HiddenFor(model => model.Permissions[i].Key)
+                                        @Html.HiddenFor(model => model.Permissions[i].EntityName)
+                                        @Html.HiddenFor(model => model.Permissions[i].Deleted)
+                                        @Html.CheckBoxFor(model => model.Permissions[i].Active, new { @class = "switchery3", @parentid2 = "cb-" + lastId.ToString(), @parentid = "cb-" + Model.Permissions[i].ParentId.ToString() })
+                                        @Html.Label(Model.Permissions[i].Name)<br />
+                                    </div>
+
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group has-feedback">
+                            <b>Users List</b> <br />
+                            <table width="100%" class="table datatable-scroll-y dataTable no-footer" id="GridViewRoleUsers" role="grid" aria-describedby="DataTables_Table_3_info" style="width: 100%;">
+                                <thead>
+                                    <tr><th>ID</th><th>User Name</th><th>Email</th></tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                            <script>
+                                GenerateUsersGridTable("#GridViewRoleUsers", "/Management/Role/GetUsers/?roleid="+@Model.RoleId, "ID, User Name, Email");
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <div style="color:red">
+            @Html.ValidationSummary()
+        </div>
+
+        <div>
+            @Html.HiddenFor(x => x.RoleId)
+            <input class="btn btn-success" id="validation-next" value="Save" type="submit">
+        </div>
+    </div>
+}

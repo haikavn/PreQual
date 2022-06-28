@@ -1,0 +1,55 @@
+﻿@{
+    var appSetting = AppEngineContext.Current.Resolve<AppSetting>();
+}
+@using Adrack.Core
+@using Adrack.Core.Infrastructure
+@model NavigationManager
+
+<div class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed nav-left" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="@Url.Action("Index", "Home")">
+                <img src="~/Uploads/adrack_logo3.png" /> <!-- @appSetting.Name -->
+            </a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav navbar-right">
+                @foreach (var rootItem in Model.Child)
+                {
+                    @*<li @Html.IsActive("class=\"active\"", @rootItem.Action, @rootItem.Controller)><a href="@Url.Action(@rootItem.Action, @rootItem.Controller)"><i class="@rootItem.HtmlClass"></i> <span>@rootItem.Key</span></a></li>*@
+
+                    foreach (var parentItem in rootItem.Child)
+                    {
+                        if (parentItem.Child.Count == 0)
+                        {
+                            <li @Html.IsActive("class=\"active\"", parentItem.Action, parentItem.Controller)>
+                                <a href="@Url.Action(parentItem.Action, parentItem.Controller)">
+                                    <i class="@parentItem.HtmlClass"></i> <span>@parentItem.Key</span>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a href="#">Action</a>
+                                    </li>
+                                    <li role="separator" class="divider"></li>
+                                </ul>
+                            </li>
+                        }
+                    }
+                }
+            </ul>
+        </div>
+    </div>
+</div>
+<!--AZ-->

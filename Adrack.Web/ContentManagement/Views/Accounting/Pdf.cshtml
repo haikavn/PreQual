@@ -1,0 +1,6 @@
+﻿@model Adrack.Web.ContentManagement.Models.Accounting.BuyerInvoiceModel
+<a id="download" download href="@ViewBag.PdfFileUrl" target="_blank">Downloads</a>
+<script>
+    location.href = "@ViewBag.PdfFileUrl";
+    document.getElementById('download').click();
+</script>

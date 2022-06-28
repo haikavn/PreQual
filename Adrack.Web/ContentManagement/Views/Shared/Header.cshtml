@@ -1,0 +1,102 @@
+﻿@using Adrack.Core.Infrastructure
+@using Adrack.Core.Domain.Membership
+@using Adrack.Service.Membership
+@using Adrack.Service.Helpers
+@using Adrack.Service.Lead
+
+@using Adrack.Core.Domain.Configuration
+@using Adrack.Service.Configuration
+
+@{
+    var backUser = this.AppContext.GetBackLoginUser(false);
+
+    var currentUser = this.AppContext.AppUser;
+    var usernameEnabled = AppEngineContext.Current.Resolve<UserSetting>().UsernameEnabled;
+    //var userProfile = AppEngineContext.Current.Resolve<IProfileService>().GetProfileById(currentUser.Id);
+
+    var CompanyName = "";
+    if (currentUser.ParentId != 0)
+    {
+        if (currentUser.UserTypeId == SharedData.BuyerUserTypeId)
+        {
+            var CurrentBuyer = AppEngineContext.Current.Resolve<IBuyerService>().GetBuyerById(currentUser.ParentId);
+            if (CurrentBuyer != null)
+            {
+                CompanyName = CurrentBuyer.Name;
+            }
+        }
+        else if(currentUser.UserTypeId == SharedData.AffiliateUserTypeId)
+        {
+            var CurrentAffiliate = AppEngineContext.Current.Resolve<IAffiliateService>().GetAffiliateById(currentUser.ParentId, true);
+            if (CurrentAffiliate != null)
+            {
+                CompanyName = CurrentAffiliate.Name;
+            }
+        }
+    }
+
+    ISettingService settingService = AppEngineContext.Current.Resolve<ISettingService>();
+    Setting logoSetting = settingService.GetSetting("Settings.CompanyLogoPath");
+    string logo = (logoSetting == null ? "~/Uploads/adrack_logo_white.png" : logoSetting.Value);
+
+    Setting profileImageSetting = settingService.GetSetting("Settings.ProfileImagePath-" + currentUser.Id.ToString());
+    string profileImageUrl = profileImageSetting != null ? profileImageSetting.Value : "";
+}
+
+@if (currentUser.MenuType != 0 )
+{
+
+<div class="navbar navbar-default navbar-fixed-top header-highlight">
+    @if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId || 1==1)
+    {
+    <div class="navbar-header">
+        <a class="navbar-brand" href="#"><img src="@logo" /></a>
+        <ul class="nav navbar-nav pull-right visible-xs-block">
+            <li><a data-toggle="collapse" data-target="#navbar-mobile"><i class="icon-tree5"></i></a></li>
+            <li><a class="sidebar-mobile-main-toggle"><i class="icon-paragraph-justify3"></i></a></li>
+        </ul>
+    </div>
+
+    }
+
+    <div class="navbar-collapse collapse" id="navbar-mobile">
+
+        <ul class="nav navbar-nav">
+            <li><a class="sidebar-control sidebar-main-toggle hidden-xs"><i class="icon-paragraph-justify3"></i></a></li>
+            <li>&nbsp;</li>
+            <li><a href="@Url.Action("Index", "Home")"><i class="icon-home2 position-left"></i> Home</a></li>
+            <li><a href="/Management/Support/Tickets"><i class="icon-lifebuoy"></i> Support</a></li>
+            <li><a href="#"><i class="icon-info22"></i> Help</a></li>
+            @if (backUser != null)
+            {
+                <li><a href="/Management/Home/LoginBack">Login Back to @String.Format(usernameEnabled ? backUser.Username : backUser.Email)</a></li>
+            }
+        </ul>
+        @if (currentUser.UserTypeId == SharedData.AffiliateUserTypeId || currentUser.UserTypeId == SharedData.BuyerUserTypeId )
+        {
+            <div style="display:inline-block"><div id="clock" class="clock-container"> </div></div>
+        }
+
+        <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown dropdown-user">
+                <a class="dropdown-toggle" data-toggle="dropdown">
+                    @if (!string.IsNullOrEmpty(profileImageUrl))
+                    {
+                    <img src="@profileImageUrl" />
+                    }
+                    <span class="text-bold">@(currentUser == null ? "" : String.Format(currentUser.GetFullName()))</span>
+                    <span><b>@CompanyName  </b> @String.Format(usernameEnabled ? currentUser.Username : currentUser.Email)</span>
+
+                    <i class="caret"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li><a href="@Url.Action("Item", "Profile")"><i class="icon-user-plus"></i> @T("Profile.MyProfile")</a></li>
+                    <li class="divider"></li>
+                    <!-- <li><a href="@Url.Action("Index", "Setting")"><i class="icon-cog5"></i> @T("Membership.Setting")</a></li> -->
+                    <li><a href="@Url.Action("Logout", "Membership", new { area = "" }, null)"><i class="icon-switch2"></i> @T("Membership.Logout")</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+}

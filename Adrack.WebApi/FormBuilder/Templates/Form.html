@@ -1,0 +1,30 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="bootstrap/3.3.7/css/bootstrap.min.css?v=113">
+    <title>Form</title>
+    <script type="text/javascript" src="jquery/jquery.js?v=113"></script>
+    <link href="css/style_demoform.css?v=113" type="text/css" rel="stylesheet">
+    <link href="https://qa-lead-distribution-api.adrack.com/forms/formbuilder.css" type="text/css" rel="stylesheet">
+    <script src="https://qa-lead-distribution-api.adrack.com/forms/formbuilder.js"></script>
+</head>
+<body>
+<div id="globalbody" >
+    <div class="container-fluid contentpadd">
+        <div class="" id="formcontainer">
+        </div>
+    </div>
+</div>
+<script>
+    adrackFormBuilderAPI.getForm(15, function (result) {
+        var builder = new FormBuilder();
+        builder.ParseSource(result);
+        builder.Init();
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+﻿@model Adrack.Web.ContentManagement.Models.Accounting.BuyerInvoiceModel
+
+<style>
+    .AdjustmentRemoveButton{
+        color: #d80202;
+        cursor: pointer;
+    }
+</style>
+
+<br>
+<a href="javascript:history.back();">< Back to Invoices</a>
+
+<div class="content">
+
+    <!-- Invoice template -->
+    <div class="panel panel-white">
+        <div class="panel-heading">
+            <h6 class="panel-title">Buyer Invoice</h6>
+            <div class="heading-elements">
+                @if (Model.Status == 0)
+                {
+                    <button id="InvoicePay" class="btn btn-default btn-labeled btn-xs margin-lr" type="button" data-target="#modal_form_adjustment" data-toggle="modal"><b><i class="glyphicon glyphicon-plus"></i></b> Add Custom Adjustment</button>
+                }
+
+                <button onclick="javascript:window.open('/Management/Accounting/Pdf/@Model.Id')" type="button" class="btn btn-default btn-xs heading-btn"><i class="icon-file-pdf position-left"></i> Download PDF</button>
+
+                <button onclick="javascript:location.href=''" type="button" class="btn btn-default btn-xs heading-btn"><i class="icon-printer position-left"></i> Print</button>
+            </div>
+        </div>
+
+        <!--<div class="panel-body no-padding-bottom">-->
+        <div id="" class="panel-body no-padding-bottom">
+            <div class="row">
+                <div class="col-sm-6 content-group">
+                    <img src="@Model.CompanyLogoPath" class="content-group mt-10" alt="" style="width: 120px;">
+                    <ul class="list-condensed list-unstyled">
+                        <li>@Model.CompanyName</li>
+                        <li>@Model.CompanyAddress</li>
+                        <li>@Model.CompanyEmail</li>
+                        <li>@Model.CompanyBank</li>
+                    </ul>
+                </div>
+
+                <div class="col-sm-6 content-group">
+                    <div class="invoice-details">
+                        <h5 class="text-uppercase text-semibold">Invoice #@Model.Number</h5>
+                        <ul class="list-condensed list-unstyled">
+                            <li>Date: <span class="text-semibold">@Model.DateCreated</span></li>
+                            <li>Date From: <span class="text-semibold">@Model.DateFrom</span></li>
+                            <li>Date To: <span class="text-semibold">@Model.DateTo</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 col-lg-9 content-group">
+                    <span class="text-muted">Invoice To:</span>
+                    <ul class="list-condensed list-unstyled">
+                        <li><h5>@Model.buyer.Name</h5></li>
+                        <li>@Model.buyer.AddressLine1<br>@Model.buyer.AddressLine2</li>
+                        <li>@Model.buyer.City @Model.buyer.ZipPostalCode</li>
+                        <li>@Model.BuyerCountryName</li>
+                        <li>@Model.buyer.Phone</li>
+                        <li><a href="#">@Model.buyer.Email</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-md-6 col-lg-3 content-group">
+                    <span class="text-muted">Payment Details:</span>
+                    <ul class="list-condensed list-unstyled invoice-payment-details">
+                        <li><h5>Total Due: <span class="text-right text-semibold">@String.Format("{0:$#.00}", Model.Total)</span></h5></li>
+                        <li>Bank name: <span class="text-semibold"></span></li>
+                        <li>Country: <span></span></li>
+                        <li>City: <span></span></li>
+                        <li>Address: <span></span></li>
+                        <li>IBAN: <span class="text-semibold"></span></li>
+                        <li>SWIFT code: <span class="text-semibold"></span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-lg">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th class="col-sm-1">Price</th>
+                        <th class="col-sm-1">Count</th>
+                        <th class="col-sm-1">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @if (Model.BuyerInvoiceDetailsList.Count > 0 )
+                    {
+                        <tr>
+                            <td colspan="4" style="background-color: #EEEEEE">
+                                <h3 class="no-margin">Leads / Campaing</h3>
+                            </td>
+                        </tr>
+                        foreach (Adrack.Core.Domain.Accounting.BuyerInvoiceDetails bid in Model.BuyerInvoiceDetailsList)
+                        {
+                            <tr>
+                                <td>
+                                    <h6 class="no-margin">@bid.CampaignId. @bid.CampaignName</h6>
+                                </td>
+                                <td align="right">@String.Format("{0:$#.00}", bid.BuyerPrice)</td>
+                                <td align="center">@bid.BuyerLeadsCount</td>
+                                <td align="right"><span class="text-semibold">@String.Format("{0:$#.00}", bid.BuyerSum)</span></td>
+                            </tr>
+
+                        }
+
+                        <tr>
+                            <td>
+                                <h4 class="no-margin">Sold Leads Sub Total</h4>
+                            </td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td align="right"><span class="text-bold">@String.Format("{0:$#.00}", Model.Sum)</span></td>
+                        </tr>
+                    }
+
+                    @if (Model.BuyerRefundedLeadsList.Count > 0)
+                    {
+                        <tr>
+                            <td colspan="4" style="background-color: #EEEEEE">
+                                <h3 class="no-margin">Refunded Leads</h3>
+                            </td>
+                        </tr>
+
+                        foreach (Adrack.Core.Domain.Lead.RefundedLeads rl in Model.BuyerRefundedLeadsList)
+                        {
+                            <tr>
+                                <td>
+                                    <h6 class="no-margin">Lead ID: #@rl.LeadId (@rl.Reason)</h6>
+                                </td>
+                                <td align="right">-@String.Format("{0:$#.00}", rl.BPrice)</td>
+                                <td align="center">1</td>
+                                <td align="right"><span class="text-semibold">-@String.Format("{0:$#.00}", rl.BPrice)</span></td>
+                            </tr>
+                        }
+
+                        <tr>
+                            <td>
+                                <h4 class="no-margin">Refunded Sub Total</h4>
+                            </td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td align="right"><span class="text-bold">-@String.Format("{0:$#.00}", Model.RefundedTotal)</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @if (Model.BuyerInvoiceAdjustmentsList.Count > 0)
+            {
+                <table class="table table-lg">
+                    <thead>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th class="col-sm-1">&nbsp;</th>
+                            <th class="col-sm-1">&nbsp;</th>
+                            <th class="col-sm-1">&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <tr>
+                            <td style="background-color: #EEEEEE">
+                                <h3 class="no-margin">Custom Adjustments</h3>
+                            </td>
+                            <td colspan="3" style="background-color: #EEEEEE">
+                            </td>
+                        </tr>
+                        @foreach (Adrack.Core.Domain.Accounting.BuyerInvoiceAdjustment bia in Model.BuyerInvoiceAdjustmentsList)
+                        {
+                            <tr id="row_@bia.Id">
+                                <td>
+                                    <h6 class="no-margin">
+                                        <span data-id="@bia.Id" class="AdjustmentRemoveButton"><i class="glyphicon glyphicon-remove"></i> </span>&nbsp;&nbsp; @bia.Name
+                                    </h6>
+                                </td>
+                                <td align="right">@String.Format("{0:$#.00}", bia.Price)</td>
+                                <td align="center">@bia.Qty</td>
+                                <td align="right"><span class="text-semibold">@String.Format("{0:$#.00}", @bia.Sum)</span></td>
+                            </tr>
+
+                        }
+                        <tr>
+                            <td>
+                                <h4 class="no-margin">Custom Adjustments Sub Total</h4>
+                            </td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td align="right"><span class="text-bold">@String.Format("{0:$#.00}", Model.AdjustmentTotal)</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            }
+        </div>
+
+        <div class="panel-body">
+            <div class="row invoice-payment">
+                <div class="col-sm-7">
+                </div>
+
+                <div class="col-sm-5">
+                    <div class="content-group">
+                        <h6>Total due</h6>
+                        <div class="table-responsive no-border">
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <th>Total:</th>
+                                        <td align="right" class="text-right text-primary"><h5 class="text-semibold">@String.Format("{0:$#.00}", Model.Total)</h5></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="text-right">
+                            <button type="button" class="btn btn-primary btn-labeled"><b><i class="icon-paperplane"></i></b> Send invoice</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /invoice template -->
+
+    <!-- Footer -->
+    <div class="footer text-muted">
+        &nbsp;&nbsp;&nbsp; &copy; 2017. By <a href="#" target="_blank">AdRack</a>
+    </div>
+    <!-- /footer -->
+</div>
+
+<!-- Modal Form Adjustment Modal Window-->
+<div id="modal_form_adjustment" class="modal fade">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Add Custom Adjustment</h5>
+            </div>
+
+            <form action="#">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <label class="control-label">Name:</label>
+                            <input id="AdjustmentName" class="form-control" type="text" placeholder="Enter Adjustment name" required="required" name="AdjustmentName" aria-required="true">
+                        </div>
+                    </div>
+                    <div class="row">&nbsp;</div>
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <label class="control-label">Price:</label>
+                            <input id="AdjustmentPrice" class="form-control" type="text" placeholder="Enter Amount" required="required" name="AdjustmentPrice" aria-required="true" aria-invalid="true">
+                        </div>
+                        <div class="col-lg-4">
+                            <label class="control-label">Qty:</label>
+                            <input id="AdjustmentQty" class="form-control" type="text" placeholder="Enter Qty" required="required" name="AdjustmentQty" aria-required="true">
+                        </div>
+                    </div>
+                    <div class="row">&nbsp;</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                    <button id="Btn_AddAdjustment" type="button" data-target="#modal_form_adjustment" data-toggle="modal" class="btn btn-success btn-sm">
+                        <i class="icon-add-to-list position-left"></i> Add Adjustment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $("#Btn_AddAdjustment").click(function () {
+            if ($("#AdjustmentName").val().trim() == "" || $("#AdjustmentPrice").val().trim() == "" || $("#AdjustmentQty").val().trim() == "")
+            {
+                alert("Plaese fill fields");
+                return;
+            }
+
+            var data = 'binvoiceid=' + @Model.Id + '&name=' + $("#AdjustmentName").val() + "&price=" + $("#AdjustmentPrice").val() + "&qty=" + $("#AdjustmentQty").val();
+            $.post("/Accounting/AddBuyerInvoiceAdjustment", data).done(function (retData) {
+
+                $("#AdjustmentName").val("");
+                $("#AdjustmentPrice").val("");
+                $("#AdjustmentQty").val("");
+                document.location.reload();
+            });
+        });
+
+        $(".AdjustmentRemoveButton").click(function () {
+            var rowID = $(this).data("id");
+            var data = 'adjustmentid=' + rowID;
+            $.post("/Accounting/DeleteBuyerInvoiceAdjustment", data).done(function (retData) {
+
+                $("#row_" + rowID).remove();
+
+                //document.location.reload();
+            });
+
+        });
+
+    });
+</script>

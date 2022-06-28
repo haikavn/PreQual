@@ -1,0 +1,75 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.Reports.BuyerReportModel
+
+@{
+    /*Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/core.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/effects.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/uniform.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switchery.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_all.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_childcounter.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/loaders/blockui.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/ui/moment/moment.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/daterangepicker.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/anytime.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/picker.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/picker.date.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/picker.time.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/legacy.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/json2.js").ToLowerInvariant());*/
+}
+
+<script>
+    $(document).ready(function () {
+        ReportCommon.initReport("BuyerReportByBuyerChannel", { AlwaysSoldOption: '@Model.AlwaysSoldOption' });
+    });
+</script>
+
+<div class="table-responsive">
+    <table id="BuyerReportByBuyerChannel" class="table table-bordered tree-table">
+        <thead>
+            <tr>
+                <th style="width: 80px;"><a href="#" data-col="title" data-order="asc" data-report="BuyerReportByBuyerChannel" class="sortable-column">Channel</a></th>
+                <th style="width: 80px;"><a href="#" data-col="CapHit" data-order="asc" data-report="BuyerReportByBuyerChannel" class="sortable-column">Cap hit</a></th>
+                <th style="width: 80px;"><a href="#" data-col="TotalLeads" data-order="asc" data-report="BuyerReportByBuyerChannel" class="sortable-column">Number of posted leads</a></th>
+                <th style="width: 80px;"><a href="#" data-col="SoldLeads" data-order="asc" data-report="BuyerReportByBuyerChannel" class="sortable-column">Number of sold leads</a></th>
+                <th style="width: 80px;"><a href="#" data-col="RejectedLeads" data-order="asc" data-report="BuyerReportByBuyerChannel" class="sortable-column">Number of rejected leads</a></th>
+                @if (Model.AlwaysSoldOption == 1)
+                {
+                    <th style="width: 80px;"><a href="#" data-col="LoanedLeads" data-order="asc" data-report="BuyerReportByBuyerChannel" class="sortable-column">Number of loaned leads</a></th>
+                }
+                <th style="width: 80px;"><a href="#" data-col="Cost" data-order="asc" data-report="BuyerReportByBuyerChannel" class="sortable-column sortable-column-default">Cost</a></th>
+                <th style="width: 80px;" class="profit-col"><a href="#" data-col="Profit" data-order="asc" data-report="BuyerReportByBuyerChannel" class="sortable-column">Profit</a></th>
+                <th style="width: 80px;"><a href="#" data-col="AveragePrice" data-order="asc" data-report="BuyerReportByBuyerChannel" class="sortable-column">Average price</a></th>
+                <th style="width: 80px;"><a href="#" data-col="AcceptRate" data-order="asc" data-report="BuyerReportByBuyerChannel" class="sortable-column">Accept rate</a></th>
+                <th style="width: 80px;"><a href="#" data-col="RedirectRate" data-order="asc" data-report="BuyerReportByBuyerChannel" class="sortable-column">Redirect rate</a></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                @if (Model.AlwaysSoldOption == 1)
+                {
+                    <td></td>
+                }
+                <td></td>
+                <td class="profit-col"></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+    <br />
+    <br />
+</div>

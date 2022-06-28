@@ -1,0 +1,520 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.BuyerModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+@using Adrack.Service.Helpers
+
+@{
+    Html.AddPageTitle("Buyer");
+    Html.AddPageMetaDescription("Shows selected Buyer");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/anytime.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/selects/bootstrap_multiselect.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/ContentManagement/Scripts/plugins/notifications/pnotify.min.js").ToLowerInvariant());
+
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+    var currentUser = this.AppContext.AppUser;
+}
+
+@if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+{
+    @RenderPage("../Shared/BuyerSubMenu.cshtml")
+}
+
+<script>
+    var saveInProgress = false;
+
+    $(function () {
+
+        $("#CoolOffStart").AnyTime_picker({
+            format: "%m/%d/%y %H:%i %p"
+        });
+
+        $("#CoolOffEnd").AnyTime_picker({
+            format: "%m/%d/%y %H:%i %p"
+        });
+
+        $('#CoolOffEnabled').on('click', function () {
+            var checked = $(this).is(':checked');
+            if (!checked) {
+                $('#CoolOffStart').attr('disabled', 'disabled');
+                $('#CoolOffEnd').attr('disabled', 'disabled');
+            }
+            else {
+                $('#CoolOffStart').removeAttr('disabled');
+                $('#CoolOffEnd').removeAttr('disabled');
+            }
+        });
+
+        $("#@Html.FieldIdFor(x => x.CountryId)").change(function () {
+            var selectedItem = $(this).val();
+
+            var ddlStates = $("#@Html.FieldIdFor(x => x.StateProvinceId)");
+
+            var statesProgress = $("#states-loading-progress");
+            statesProgress.show();
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.RouteUrl("GetStateProvinceByCountryId"))",
+                data: { "countryId": selectedItem, "addSelectStateProvinceItem": "true" },
+                success: function (data) {
+                    ddlStates.html('');
+                    $.each(data, function (id, option) {
+                        if (option.id == 0) option.id = "";
+                        ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                    });
+                    statesProgress.hide();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    statesProgress.hide();
+                }
+            });
+        });
+
+        //$('.select').select2();
+
+        var elems = document.querySelectorAll('.switchery');
+        for (var i = 0; i < elems.length; i++) {
+            var switchery = new Switchery(elems[i]);
+        }
+
+        $('#BillFrequency').change(function () {
+            if ($(this).val() == 'w') {
+                $("#FrequencyValue").html(
+                    '<option value="1">Monday</option>' +
+                    '<option value="2">Tuesday</option>' +
+                    '<option value="3">Wednesday</option>' +
+                    '<option value="4">Thursday</option>' +
+                    '<option value="5">Friday</option>' +
+                    '<option value="6">Saturday</option>' +
+                    '<option value="7">Sunday</option>');
+                $("#BillWithin").val(1);
+            }
+            else {
+                var ss = '';
+                for (i = 1; i <= 31; i++) {
+                    ss += '<option value="' + i + '">' + i + '</option>';
+                }
+                $("#FrequencyValue").html(ss);
+            }
+        });
+
+        $("#@Html.FieldIdFor(x => x.DoNotPresentStatus)").change(function () {
+
+            if ($(this).val() != 2) {
+                $("#@Html.FieldIdFor(x => x.DoNotPresentUrl)").prop('disabled', true);
+                $("#@Html.FieldIdFor(x => x.DoNotPresentResultField)").prop('disabled', true);
+                $("#@Html.FieldIdFor(x => x.DoNotPresentResultValue)").prop('disabled', true);
+            }
+            else {
+                $("#@Html.FieldIdFor(x => x.DoNotPresentUrl)").prop('disabled', false);
+                $("#@Html.FieldIdFor(x => x.DoNotPresentResultField)").prop('disabled', false);
+                $("#@Html.FieldIdFor(x => x.DoNotPresentResultValue)").prop('disabled', false);
+            }
+        });
+
+        $(".nav-tabs li").click(function(){
+            location.hash = $(this).find("a").attr("href");
+            if (location.hash == "#dashboard-tab")
+            {
+                $('#refresh_dashboard').trigger('click');
+            }
+        });
+
+        $('#add_new_affiliate').click(function () {
+            window.location = '/Management/Affiliate/Item';
+        });
+
+    });
+</script>
+
+<br />
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-validation", id="item-form" }))
+{
+    @Html.AntiForgeryToken()
+<fieldset @Html.Raw((currentUser.UserTypeId != SharedData.BuiltInUserTypeId && currentUser.UserTypeId != SharedData.NetowrkUserTypeId ? "disabled='disabled'" : ""))>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group has-feedback">
+                @Html.LabelFor(x => x.Name)
+                @Html.TextBoxFor(x => x.Name, new { @class = "form-control", tabindex = 1, placeholder = "Buyer name", required = "required", @readonly = "true" })
+                <div class="form-control-feedback">
+                    <i class="icon-user-plus text-muted"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="form-group">
+                @Html.Label("Account ID")<br />
+                @Html.TextBoxFor(x => x.AccountId, new { @class = "form-control", tabindex = 1, @type = "number", min = "0" })
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group has-feedback">
+                @Html.LabelFor(x => x.AddressLine1)
+                @Html.TextBoxFor(x => x.AddressLine1, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Address line1", required = "required" })
+                <div class="form-control-feedback">
+                    <i class="icon-user-plus text-muted"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group has-feedback">
+                @Html.LabelFor(x => x.AddressLine2)
+                @Html.TextBoxFor(x => x.AddressLine2, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Address line2" })
+                <div class="form-control-feedback">
+                    <i class="icon-user-plus text-muted"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group has-feedback">
+                @Html.LabelFor(x => x.City)
+                @Html.TextBoxFor(x => x.City, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "City", required = "required" })
+                <div class="form-control-feedback">
+                    <i class="icon-user-plus text-muted"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="form-group has-feedback">
+                @Html.Label("Company email")
+                @Html.TextBoxFor(x => x.CompanyEmail, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Company email", required = "required", type = "email" })
+                <div class="form-control-feedback">
+                    <i class="icon-user-plus text-muted"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="form-group has-feedback">
+                @Html.LabelFor(x => x.ZipPostalCode)
+                @Html.TextBoxFor(x => x.ZipPostalCode, new { @class = "form-control", tabindex = 1, placeholder = "Zip postal code", required = "required", pattern = "[0-9]{5}", maxlength = "5" })
+                <div class="form-control-feedback">
+                    <i class="icon-user-plus text-muted"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="form-group has-feedback">
+                @Html.Label("Company phone")
+                @Html.TextBoxFor(x => x.CompanyPhone, new { @class = "form-control", tabindex = 1, placeholder = "Telephone", required = "required", pattern = "[0-9]{7,15}" })
+                <div class="form-control-feedback">
+                    <i class="icon-user-plus text-muted"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group has-feedback">
+                @Html.Label("Country")<br />
+                @Html.DropDownList("CountryId", Model.ListCountry, new { @class = "form-control", required = "required" })
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-group has-feedback">
+                @Html.Label("State/Province")<br />
+                @Html.DropDownList("StateProvinceId", Model.ListStateProvince, new { @class = "form-control", required = "required" })
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-group has-feedback">
+                @Html.Label("Manager")<br />
+                @Html.DropDownList("ManagerId", Model.ListUser, new { @class = "form-control", required = "required" })
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-2">
+            <div class="form-group has-feedback">
+                @Html.Label("Status")<br />
+                @Html.DropDownList("Status", Model.ListStatus, new { @class = "form-control", required = "required" })
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-group">
+                @Html.LabelFor(x => x.AlwaysSoldOption)
+                @Html.DropDownList("AlwaysSoldOption", Model.ListAlwaysSoldOption, new { @class = "form-control" })
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-group">
+                @Html.LabelFor(x => x.MaxDuplicateDays)
+                @Html.TextBoxFor(x => x.MaxDuplicateDays, new { @class = "form-control", tabindex = 1, placeholder = "Max leads per day", required = "required", max = "180" })
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-group">
+                @Html.Label("Daily cap")<br />
+                @Html.TextBoxFor(x => x.DailyCap, new { @class = "form-control", tabindex = 1, placeholder = "Daily cap", required = "required" })
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-group">
+                @Html.Label("Keep consistent Lead ID")<br />
+                @Html.CheckBoxFor(x => x.CanSendLeadId)
+                <div>
+                    <span style="color: red; font-size: 10px;">Always send the same lead ID to the buyer on each lead post from the same applicant</span>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-2">
+            <div class="form-group">
+                @Html.Label("Cool Off Enabled")<br>
+                @Html.CheckBoxFor(x => x.CoolOffEnabled, new { @class = "", tabindex = 1 })
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-group">
+                @Html.Label("Cool Off Start")
+                @Html.TextBoxFor(x => x.CoolOffStart, new { @class = "form-control", tabindex = 1 })
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-group">
+                @Html.Label("Cool Off End")
+                @Html.TextBoxFor(x => x.CoolOffEnd, new { @class = "form-control", tabindex = 1 })
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group">
+                @Html.Label("Description")
+                @Html.TextAreaFor(x => x.Description, new { @class = "form-control", tabindex = 1, placeholder = "Description" })
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group has-feedback">
+                @Html.Label("DNP Status")<br />
+                @Html.DropDownList("DoNotPresentStatus", Model.ListDoNotPresentStatus, new { @class = "form-control" })
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-group has-feedback">
+                @Html.Label("DNP Request URL")<br />
+                @Html.TextBoxFor(x => x.DoNotPresentUrl, new { @class = "form-control", tabindex = 1 })
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-2">
+            <div class="form-group has-feedback">
+                @Html.Label("DNP Response Field")<br />
+                @Html.TextBoxFor(x => x.DoNotPresentResultField, new { @class = "form-control", tabindex = 1 })
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-group has-feedback">
+                @Html.Label("DNP Response Value")<br />
+                @Html.TextBoxFor(x => x.DoNotPresentResultValue, new { @class = "form-control", tabindex = 1 })
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group has-feedback">
+                @Html.Label("DNP Request Query String of Post Body ( use {ssn} and {email} labels for dynamic fields )")<br />
+                @Html.TextAreaFor(x => x.DoNotPresentRequest, new { @class = "form-control", tabindex = 1 })
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-group has-feedback">
+                @Html.Label("DNP Post Method")<br />
+                @Html.DropDownList("DoNotPresentPostMethod", Model.ListDoNotPresentPostMethod, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+</fieldset>
+
+    <div style="color:red">
+        @Html.ValidationSummary()
+    </div>
+
+    <div>
+        @Html.HiddenFor(x => x.BuyerId)
+@if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+{
+        <input class="btn btn-success" id="validation-next" value="Save" type="submit">
+}
+    </div>
+
+}
+
+<script>
+
+    $(document).ready(function () {
+
+        $(".multiselect").multiselect({
+            enableCaseInsensitiveFiltering: true,
+            buttonWidth: '290px',
+            onChange: function () {
+                //self.loadReport($('#buyer-reports-tab .tab-pane.active').data('report'));
+            }
+        });
+
+
+        $('#item-form').on('submit', function () {
+            ShowLoader();
+
+            var affiliates = $("#affiliateChannels").val();
+
+            var affiliateIds = "";
+
+            if (affiliates != undefined) {
+                for (var i = 0; i < affiliates.length; i++) {
+                    affiliateIds += '<' + affiliates[i] + ">,";
+                }
+            }
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: "POST",
+                data: $(this).serialize() + '&affiliateids=' + affiliateIds,
+                async: false,
+                success: function (data) {
+                    HideLoader();
+
+                    NotificationPopup('Success', 'Buyer successfully saved');
+
+                    if (data.error != undefined) {
+                        alert(data.error);
+                    }
+                    else {
+                        $('#modal_form_add_blacklist').modal('hide');
+                        GenerateGridTable("black_lists", "/GetBlackListTypes?t=2&p=@Model.BuyerId", "ID, Name");
+                        $('#blacklist_values').show();
+
+                        window.location = '/management/buyer/list';
+                    }
+
+                },
+                error: function (jXHR, textStatus, errorThrown) {
+                    HideLoader();
+                }
+            });
+
+            return false;
+        });
+
+    });
+</script>
+
+<div id="modal_form_add_blacklist" class="modal fade">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            @{ Html.RenderAction("ItemPartial", "BlackList", new { BlackListType = 2, ParentId = @Model.BuyerId }); }
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>
+
+<!--Edit Payment Modal Window-->
+<div id="modal_form_edit_payment" class="modal fade">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Edit Payment</h5>
+            </div>
+
+            <form action="#">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label>Affiliates:</label>
+                            <select id="PaymentAffiliate" data-placeholder="Select an Affiliate..." class="select-search">
+                                <option></option>
+                                <option value="1">Affiliate 1</option>
+                                <option value="2">Affiliate 2</option>
+                                <option value="3">Affiliate 3</option>
+                                <option value="4">Affiliate 4</option>
+                            </select>
+                        </div>
+
+                        <p>&nbsp;</p>
+
+                        <div class="col-sm-6">
+                            <label>Select Payment Date:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+                                <input id="PaymentDate" type="text" value="" class="form-control daterange-single">
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <label>Amount:</label>
+                            <div class="input-group">
+                                <div class="col-lg-9">
+                                    <input id="PaymentAmount" class="form-control" type="text" placeholder="Enter number" required="required" name="numbers" aria-required="true" aria-invalid="true">
+                                </div>
+                            </div>
+                        </div>
+
+                        <p>&nbsp;</p>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label>Note:</label>
+                                <textarea id="PaymentNote" class="form-control" placeholder="Leave a note" rows="4"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                    <button id="Btn_AddPayment" type="button" data-target="#modal_form_add_payment" data-toggle="modal" class="btn btn-success btn-sm">
+                        <i class="icon-add-to-list position-left"></i> Edit Payment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

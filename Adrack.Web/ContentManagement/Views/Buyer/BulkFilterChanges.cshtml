@@ -1,0 +1,54 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.Reports.BuyerReportModel
+
+@{
+    Html.AddPageTitle("Bulk Filter Changes");
+}
+
+<script src="~/Scripts/core/library/jquery_ui/core.min.js"></script>
+<script src="~/Scripts/core/library/jquery_ui/interactions.min.js"></script>
+<script src="~/Scripts/core/library/jquery_ui/effects.min.js"></script>
+<script src="~/Scripts/plugins/forms/selects/bootstrap_multiselect.js"></script>
+<script src="~/Scripts/plugins/trees/fancytree_all.min.js"></script>
+<script src="~/Scripts/plugins/trees/fancytree_childcounter.js"></script>
+
+<script src="~/Scripts/pages-js/BulkFilterChanges.js"></script>
+<script> BulkFilterChangesParams.init('@Model.BaseUrl'); </script>
+
+<br />
+<h4>Buyer channel filters</h4>
+<div class="row bulk-filter">
+    <div class="col-lg-4">
+        <div class="form-group">
+            <select id="campaigns" class="form-control">
+                <option value="0">Select campaign</option>
+                @foreach (var a in Model.ListCampaigns)
+                {
+                    <option value="@a.Value">@a.Text</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="form-group">
+            <select id="buyerChannels" class="form-control multiselect" multiple="multiple">
+                @foreach (var a in Model.ListBuyerChannels)
+                {
+                    <option value="@a.Value">@a.Text</option>
+                }
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="form-group">
+            <table id="fields" class="table">
+                <tbody></tbody>
+            </table>
+            <div id="results"></div>
+        </div>
+    </div>
+</div>
+
+<button id="apply-btn" class="btn btn-success">Apply</button>

@@ -1,0 +1,69 @@
+<html>
+<head>
+    <script language="javascript">
+
+        var outStr = "";
+        function prepareFrame(url) {
+            outStr += url + "<br>";
+            outStr += ("<iframe src='" + url + "' width=100% height=10></iframe>") + "<br>";
+        }
+        var Urls = new Array();
+        Urls.push("/Management/Home/Dashboard");
+        Urls.push("/Management/Lead");
+
+        Urls.push("/Management/Accounting/BuyerPayments");
+        Urls.push("/Management/Accounting/AffiliateInvoices");
+        Urls.push("/Management/Accounting/RefundedLeads");
+        Urls.push("/Management/Accounting/BuyerInvoices");
+        Urls.push("/Management/Accounting/GenerateCustomInvoices");
+        Urls.push("/Management/Accounting/BuyersBalance");
+        Urls.push("/Management/Accounting/AffiliatesBalance");
+        Urls.push("/Management/Affiliate/List");
+        Urls.push("/Management/Affiliate/Item");
+        Urls.push("/Management/AffiliateChannel/List");
+        Urls.push("/Management/AffiliateChannel/Item");
+        Urls.push("/Management/Buyer/List");
+        Urls.push("/Management/Buyer/Item");
+        Urls.push("/Management/Buyer/Item");
+        Urls.push("/Management/Buyer/BulkFilterChanges");
+        Urls.push("/Management/BuyerChannel/List");
+        Urls.push("/Management/BuyerChannel/Item");
+        Urls.push("/Management/BuyerChannel/Item/1");
+        Urls.push("/Management/Campaign/List");
+        Urls.push("/Management/Campaign/Item");
+        Urls.push("/Management/Campaign/Create");
+        Urls.push("/Management/Campaign/TemplateList");
+        Urls.push("/Management/History");
+        Urls.push("/Management/Lead/BadIPClicksReport");
+        Urls.push("/Management/Lead/ErrorLeadsReportBuyer");
+        Urls.push("/Management/Lead/ErrorLeadsReportAffiliate");
+        Urls.push("/Management/Report/ReportBuyers");
+        Urls.push("/Management/Report/ReportAffiliates");
+        Urls.push("/Management/Report/ReportBuyersByPrices");
+        Urls.push("/Management/Report/ReportBuyersByTrafficEstimator");
+        Urls.push("/Management/Report/SubIdConverter");
+        Urls.push("/Management/Report/ReportBuyersByHour");
+        Urls.push("/Management/Report/ReportBuyersComparison");
+        Urls.push("/Management/Role/List");
+        Urls.push("/Management/Role/Item");
+        Urls.push("/Management/Setting/TimeZone");
+        Urls.push("/Management/Setting");
+        Urls.push("/Management/Setting/EMailTemplates");
+        Urls.push("/Management/Setting/Smtp");
+        Urls.push("/Management/Support/Tickets");
+        Urls.push("/Management/Support");
+        Urls.push("/Management/User/List");
+        Urls.push("/Management/User/Item");
+        Urls.push("/Management/User/AffiliateList");
+        Urls.push("/Management/User/BuyerList");
+        Urls.push("/Management/Vertical/List");
+
+        for (var i = 0; i < Urls.length; i++) {
+            prepareFrame(Urls[i]);
+        }
+        document.write("Post-Deployment compiling and caching of Adrack system<br>Please wait until all lines are loaded<br><hr><br>",outStr);
+    </script>
+</head>
+<body>
+</body>
+</html>

@@ -1,0 +1,78 @@
+﻿@model Adrack.Web.ContentManagement.Models.Accounting.RefundedLeadModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+
+    Html.AddPageTitle("Refunded Leads");
+    Html.AddPageMetaDescription("Shows Refunded Leads");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+}
+
+@if(permissionService.Authorize(PermissionProvider.AccountingRefundedChangeStatus))
+{
+@*<div class="actions-bar">
+    <button id="ChangeStatusModal" class="btn btn-info btn-labeled btn-xs margin-lr" type="button" data-target="#modal_form_change_status" data-toggle="modal"><b><i class="glyphicon glyphicon-alert"></i></b> Change Status</button>
+</div>*@
+}
+
+<div id="GridViewRefunded"></div>
+
+<!--Change status of Refund Lead Modal Window-->
+<div id="modal_form_change_status" class="modal fade">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Change status of Refund Lead</h5>
+            </div>
+            <form action="#">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label>Status:</label>
+                                <select class="Status form-control" id="RefundedStatus">
+                                    <option value="0">Pending</option>
+                                    <option value="1">Approve</option>
+                                    <option value="2">Reject</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <input type="checkbox" checked /> <label>From Buyer</label>
+                        </div>
+                        <div class="col-sm-5">
+                            <input type="checkbox" checked /> <label>From Affiliate</label>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label>Review Note:</label>
+                                <textarea id="ReviewNote" class="form-control" placeholder="Leave a note" rows="4"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                    <button id="Btn_ChangeStatus" type="button" data-target="#modal_form_change_status" data-toggle="modal" class="btn btn-success btn-sm">
+                        <i class="icon-add-to-list position-left"></i> Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/pages-js/RefundedLeads.js"></script>

@@ -1,0 +1,157 @@
+﻿@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+    Html.AddPageTitle("History");
+    Html.AddPageMetaDescription("Shows System Logs for selected period");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+}
+
+<script type="text/javascript" src="~/Scripts/plugins/ui/moment/moment.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/daterangepicker.js"></script>
+
+<script type="text/javascript" src="~/Scripts/plugins/forms/selects/select2.min.js"></script>
+<div class="">
+    <button type="button" id="LeadRefresh" class="btn btn-info btn-ladda btn-ladda-spinner" data-spinner-color="#fff" data-style="zoom-in"><span class="ladda-label">Refresh</span></button>
+    &nbsp; &nbsp;
+    <button type="button" id="ClearFilters" class="btn btn-danger btn-ladda btn-ladda-spinner" data-spinner-color="#fff" data-style="zoom-in"><span class="ladda-label">Clear Filter</span></button>
+</div>
+<br>
+
+<input type="hidden" value="1" id="GridPageNumber">
+<div id="DataTables_Table_3_wrapper" class="dataTables_wrapper no-footer">
+    <div class="datatable-scroll">
+        <table width="100%" class="table datatable-scroll-y dataTable no-footer" id="DataTables_Leads" role="grid" aria-describedby="DataTables_Table_3_info" style="width: 100%;">
+            <thead>
+                <tr role="row" style="height: 0px;">
+                    <th width="12%">
+                        <p class='text-center'>ID</p>
+                    </th>
+
+                    <th width="12%">
+                        <p class='text-center'><input type="text" class="daterange form-control" value="@ViewBag.TimeZoneNow"></p>
+                    </th>
+                    <th width="12%">
+                        <br>
+                    </th>
+                    <th width="20%">
+                        <p class='text-center'>
+                            <select id="filter-action" class="form-control" data-placeholder="Filter by Action...">
+                                <option value="0" selected="selected">All Actions</option>
+                                <option value="1">New Buyer Registered</option>
+                                <option value="2">New Affiliate Registered</option>
+                                <option value="3">New System User Registered</option>
+
+                                <option value="4">Payment Added</option>
+                                <option value="5">Payment Deleted</option>
+                                <option value="6">Payment Edited</option>
+
+                                <option value="7">Invoice Deleted</option>
+                                <option value="8">Invoice Status Changed</option>
+                                <option value="9">Invoice Edited Custom Adjustment</option>
+                                <option value="10">Invoice Payment Added</option>
+                                <option value="11">Invoice Generated Custom Invoice</option>
+                                <option value="12">Payment Notice Deleted</option>
+                                <option value="13">Payment Notice Changed</option>
+                                <option value="14">Payment Notice Custom Adjustment</option>
+                                <option value="15">Payment Notice Payment Added</option>
+                                <option value="16">Payment Notice Payment History Deleted</option>
+
+                                <option value="17">Refund Added</option>
+                                <option value="18">Refund Status Changed</option>
+
+                                <option value="19">Affiliate Channel Added</option>
+                                <option value="20">Affiliate Channel Edited</option>
+                                <option value="21">Affiliate Channel Deleted</option>
+
+                                <option value="22">Buyer Channel Added</option>
+                                <option value="23">Buyer Channel Edited</option>
+                                <option value="24">Buyer Channel Deleted</option>
+
+                                <option value="25">Campaign Added</option>
+                                <option value="26">Campaign Edited</option>
+                                <option value="27">Campaign Deleted</option>
+                            </select>
+                        </p>
+                    </th>
+                    <th width="20%">
+                        <p class='text-center'>
+                            Note
+                            <br>
+                        </p>
+                    </th>
+                    <th width="20%">
+                        <p class='text-center'>
+                            <select id="filter-user" class="form-control" data-placeholder="Filter by User...">
+                                <option value="0" selected="selected">All Users</option>
+                                @foreach (KeyValuePair<long, string> u in ViewBag.UsersList)
+                                {
+                                    <option value="@u.Key">@u.Value</option>
+                                }
+                            </select>
+                        </p>
+                    </th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div class="datatable-footer">
+        <div class="dataTables_info" id="DataTables_Table_3_info" role="status" aria-live="polite">
+            Showing page <span id="PageNumberSpan">1</span>
+            <br>Total <span id="totalRecords"></span> entries
+        </div>
+        <!-- <a class="paginate_button previous disabled" id="PreviousPage">←</a> -->
+        <div class="dataTables_paginate paging_simple_numbers" id="GridViewLeads_paginate"></div>
+        <!-- <a class="paginate_button next" id="NextPage">→</a> -->
+    </div>
+</div>
+<button style="display:none;" type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#modal_theme_info">Launch <i class="icon-play3 position-right"></i></button>
+
+<!-- Info modal -->
+<div id="modal_theme_info" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h6 class="modal-title">History Details</h6>
+            </div>
+            <div class="modal-body">
+                <!--            <img src="\Content\img\ajax-loader.gif" /> -->
+                <table>
+                    <tr><td style="width:150px">Date:</td><td id="tr-data"></td></tr>
+                    <tr><td>Action:</td><td id="tr-action"></td></tr>
+                    <tr><td>Module:</td><td id="tr-module"></td></tr>
+                    <tr><td>Entity # ID:</td><td id="tr-enitity"></td></tr>
+                    <tr class="hidden"><td>Note:</td><td id="tr-note"></td></tr>
+                    <tr><td>User:</td><td id="tr-user"></td></tr>
+                </table>
+                <div id="history-details">
+                    <hr>
+                    <h6 class="text-semibold">Fields details</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="table-details">
+                            <thead>
+                                <tr>
+                                    <th>Field Name</th>
+                                    <th>Old Data</th>
+                                    <th>Data Difference</th>
+                                    <th>New Data</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /info modal -->
+
+<script src="~/Scripts/pages-js/History.js"></script>
+<script>
+    HistoryParams.init('@Adrack.Web.ContentManagement.Helper.GetTimeZoneStr()');
+</script>

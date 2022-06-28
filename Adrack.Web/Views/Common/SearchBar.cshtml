@@ -1,0 +1,28 @@
+﻿@model SearchBarModel
+
+@using (Html.BeginRouteForm("CommonSearch", FormMethod.Get, new {id = "search-bar-form"}))
+{
+    <div id="search-input">
+        <div class="input-group col-md-12">
+            <input type="text" name="q" id="search-bar" placeholder="@T("Search.Tooltip")" autocomplete="off" class="form-control input-lg" />
+            <span class="input-group-btn">
+                <button type="submit" class="btn btn-default btn-lg">
+                    <i class="glyphicon glyphicon-search"></i> @*@T("Search.Button")*@
+                </button>
+            </span>
+        </div>
+    </div>
+
+    if (Model.SearchMinimumLength > 0)
+    {
+        <script type="text/javascript">
+            $("#search-bar-form").submit(function(event) {
+                if ($("#search-bar").val() == "") {
+                    alert('@Html.Raw(HttpUtility.JavaScriptStringEncode(T("Search.EnterSearchTerms").Text))');
+                    $("#search-bar").focus();
+                    event.preventDefault();
+                }
+            });
+        </script>
+    }
+}

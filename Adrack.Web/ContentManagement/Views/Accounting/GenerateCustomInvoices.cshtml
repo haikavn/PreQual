@@ -1,0 +1,146 @@
+﻿@model Adrack.Web.ContentManagement.Models.Accounting.GenerateInvoiceModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+    Html.AddPageTitle("Generate Custom Invoices");
+    Html.AddPageMetaDescription("Here you can Generate Custom Invoices for Buyers and Affiliates for Selected Date period");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+}
+<script type="text/javascript" src="~/Scripts/plugins/ui/moment/moment.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/daterangepicker.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/anytime.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/pickadate/picker.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/pickadate/picker.date.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/pickadate/picker.time.js"></script>
+
+<script type="text/javascript" src="~/Scripts/plugins/forms/selects/select2.min.js"></script>
+<br>
+<div class="row">
+
+@if (permissionService.Authorize(PermissionProvider.AccountingGenerateCustomInvoicesBuyers))
+{
+    <div class="col-md-6">
+        <div class="panel panel-flat">
+            <div class="panel-heading">
+                <h5 class="panel-title">Invoice of Buyers</h5>
+                <div class="heading-elements">
+                    <ul class="icons-list">
+                        <li><a data-action="collapse"></a></li>
+                        <li><a data-action="close"></a></li>
+                    </ul>
+                </div>
+                <a class="heading-elements-toggle"><i class="icon-more"></i></a>
+            </div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <label>Buyers: </label>
+                    <select id="select-buyer" data-placeholder="Select a Buyer..." class="select-buyer">
+                        <option></option>
+                        @if (Model.buyerList != null && Model.buyerList.Count > 0)
+                        {
+                            foreach (Adrack.Core.Domain.Lead.Buyer bu in Model.buyerList)
+                            {
+                                <option value="@bu.Id">@bu.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date To: </label>
+                    <input type="text" class="form-control daterange-buyer" id="daterange-buyer">
+                </div>
+
+                <div class="col-md-6">
+                    <button id="Btn_GenerateBuyer" type="button" class="btn btn-success btn-sm">
+                        <i class="icon-add-to-list position-left"></i> Generate
+                    </button>
+                </div>
+
+                <div class="col-md-6">
+                    <button id="Btn_CreateBuyerBulkInvoice" type="button" class="btn btn-success btn-sm">
+                        <i class="icon-add-to-list position-left"></i> Create Bulk Invoice
+                    </button>
+                </div>
+
+                <div class="col-md-8" id="generated-invoice-buyer" style="display:none"><br>
+                    <a class="btn border-teal-400 text-teal btn-flat btn-rounded btn-icon btn-xs" id="InvoiceUrl" href="#">
+                        <b>Generated Invoice #<span id="InvoiceId"></span> </b> <i class="icon-redo2"></i>
+                    </a>
+                </div>
+                <div>
+                    <img id="Loading" src="/Content/img/loading7.gif" width="32px" style="display:none" />
+                    <div id="invoice-message" style="display:none"><b>Not Invoiced Lead were found</b></div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@if (permissionService.Authorize(PermissionProvider.AccountingGenerateCustomInvoicesAffiliates))
+{
+    <div class="col-md-6">
+        <div class="panel panel-flat">
+            <div class="panel-heading">
+                <h5 class="panel-title">Payments notice of Affiliates</h5>
+                <div class="heading-elements">
+                    <ul class="icons-list">
+                        <li><a data-action="collapse"></a></li>
+                        <li><a data-action="close"></a></li>
+                    </ul>
+                </div>
+                <a class="heading-elements-toggle"><i class="icon-more"></i></a>
+            </div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <label>Affiliates: </label>
+                    <select id="select-affiliate" data-placeholder="Select an Affiliate..." class="select-affiliate">
+                        <option></option>
+                        @if (Model.affiliateList != null && Model.affiliateList.Count > 0)
+                        {
+                            foreach (Adrack.Core.Domain.Lead.Affiliate af in Model.affiliateList)
+                            {
+                                <option value="@af.Id">@af.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date To: </label>
+                    <input type="text" class="form-control daterange-affiliate" id="daterange-affiliate">
+                </div>
+                <div class="col-md-6">
+                    <button id="Btn_GenerateAffiliate" type="button" class="btn btn-success btn-sm">
+                        <i class="icon-add-to-list position-left"></i> Generate
+                    </button>
+                </div>
+
+                <div class="col-md-6">
+                    <button id="Btn_CreateAffiliateBulkInvoice" type="button" class="btn btn-success btn-sm">
+                        <i class="icon-add-to-list position-left"></i> Create Bulk Invoice
+                    </button>
+                </div>
+
+                <div class="col-md-8" id="generated-invoice-affiliate" style="display:none"><br>
+                    <a class="btn border-teal-400 text-teal btn-flat btn-rounded btn-icon btn-xs" id="InvoiceUrlAff" href="#">
+                        <b>Generated payment Notice #<span id="InvoiceIdAff"></span> </b> <i class="icon-redo2"></i>
+                    </a>
+                </div>
+                <div>
+                    <img id="Loading2" src="/Content/img/loading7.gif" width="32px" style="display:none" />
+                    <div id="invoice-message2" style="display:none"><b>Not Invoiced Lead were found</b></div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+</div>
+
+<script src="~/Scripts/pages-js/GenerateCustomInvoices.js"></script>
+<script>
+    GenerateCustomInvoicesParams.init('@Adrack.Web.ContentManagement.Helper.GetTimeZoneStr()');
+</script>

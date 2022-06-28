@@ -1,0 +1,20 @@
+﻿@using Adrack.Service.Helpers
+
+@{
+    var currentUser = this.AppContext.AppUser;
+}
+
+<script>
+    var parentid = '@Model';
+
+    function UpdateReportTotalsBuyer() {
+        GenerateGridTable("report-totals", "@ViewBag.BaseUrl/management/report/GetReportTotalsBuyer?parentid=@Model", "Name, Money spent, Received, Sold, Rejected", null, null, null, null, false);
+    }
+</script>
+
+<div id="report-totals"></div>
+<script>
+    $(document).ready(function () {
+        GenerateGridTable("report-totals", "@ViewBag.BaseUrl/management/report/GetReportTotalsBuyer?parentid=@Model", "Name, Money spent, Received, Sold, Rejected", null, null, null, null, false);
+    });
+</script>

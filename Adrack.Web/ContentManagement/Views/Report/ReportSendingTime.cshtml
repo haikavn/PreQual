@@ -1,0 +1,293 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.Reports.BuyerReportModel
+
+@{
+    Html.AddPageTitle("Sending time report");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+}
+
+<script src="~/Scripts/core/library/jquery_ui/core.min.js"></script>
+<script src="~/Scripts/core/library/jquery_ui/interactions.min.js"></script>
+<script src="~/Scripts/core/library/jquery_ui/effects.min.js"></script>
+<script src="~/Scripts/plugins/forms/selects/bootstrap_multiselect.js"></script>
+<script src="~/Scripts/plugins/trees/fancytree_all.min.js"></script>
+<script src="~/Scripts/plugins/trees/fancytree_childcounter.js"></script>
+
+<script src="~/Scripts/plugins/ui/moment/moment.min.js"></script>
+<script src="~/Scripts/plugins/pickers/daterangepicker.js"></script>
+<script src="~/Scripts/plugins/pickers/anytime.min.js"></script>
+<script src="~/Scripts/plugins/pickers/pickadate/picker.js"></script>
+<script src="~/Scripts/plugins/pickers/pickadate/picker.date.js"></script>
+<script src="~/Scripts/plugins/pickers/pickadate/picker.time.js"></script>
+<script src="~/Scripts/plugins/pickers/pickadate/legacy.js"></script>
+
+<style>
+    th, td {
+        border: 1px solid black;
+    }
+</style>
+
+<script>
+
+    function loadReport(csv) {
+        if (csv == undefined) csv = false;
+
+        if (!csv) {
+
+            ShowLoader();
+
+            var campaigns = $('#campaigns').val();
+            var campaignIds = '0';
+            if (campaigns != undefined) {
+                if (campaigns.length > 0)
+                    campaignIds += ',';
+                for (var i = 0; i < campaigns.length; i++) {
+                    campaignIds += campaigns[i];
+                    if (i < campaigns.length - 1)
+                        campaignIds += ',';
+                }
+            }
+
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "POST",
+                url: '@Model.BaseUrl' + '/management/report/GetReportSendingTime',
+                data: { startDate: $('#startDate').val(), endDate: $('#endDate').val(), campaignIds: campaignIds },
+                success: function (data) {
+                    HideLoader();
+
+                    $("#ReportSendingTime tbody").find("tr").remove();
+                    var rows = '';
+
+                    for (var i = 0; i < data.list.length; i++) {
+                        rows += '<tr><td>' + data.list[i].title + '</td>';
+
+                        rows += '<td>' + data.list[i].BeforeSoldMin + '</td>';
+                        rows += '<td>' + data.list[i].BeforeSoldAvg + '</td>';
+                        rows += '<td>' + data.list[i].BeforeSoldMax + '</td>';
+                        rows += '<td>' + data.list[i].BeforeSoldQuantity + '</td>';
+
+                        rows += '<td>' + data.list[i].BeforeRejectMin + '</td>';
+                        rows += '<td>' + data.list[i].BeforeRejectAvg + '</td>';
+                        rows += '<td>' + data.list[i].BeforeRejectMax + '</td>';
+                        rows += '<td>' + data.list[i].BeforeRejectQuantity + '</td>';
+
+                        rows += '<td>' + data.list[i].BeforePostedQuantity + '</td>';
+
+                        rows += '<td>' + data.list[i].AfterSoldMin + '</td>';
+                        rows += '<td>' + data.list[i].AfterSoldAvg + '</td>';
+                        rows += '<td>' + data.list[i].AfterSoldMax + '</td>';
+                        rows += '<td><a href="/Management/Lead/ErrorLeadsReportBuyer?buyerid=' + data.list[i].BuyerId + '&status=1&startDate=' + $('#startDate').val() + '&endDate=' + $('#endDate').val() + '&error=-1' + '" target="_blank">' + data.list[i].AfterSoldQuantity + '</a></td>';
+
+                        rows += '<td>' + data.list[i].AfterRejectMin + '</td>';
+                        rows += '<td>' + data.list[i].AfterRejectAvg + '</td>';
+                        rows += '<td>' + data.list[i].AfterRejectMax + '</td>';
+                        rows += '<td><a href="/Management/Lead/ErrorLeadsReportBuyer?buyerid=' + data.list[i].BuyerId + '&status=3&startDate=' + $('#startDate').val() + '&endDate=' + $('#endDate').val() + '&error=-1' + '" target="_blank">' + data.list[i].AfterRejectQuantity + '</a></td>';
+
+                        rows += '<td>' + data.list[i].AfterPostedQuantity + '</td>';
+
+                        rows += '<td>' + data.list[i].TotalPaused + '</td>';
+                        rows += '<td>' + (data.list[i].AfterPostedQuantity + data.list[i].BeforePostedQuantity) + '</td>';
+
+                        rows += '</tr>';
+                    }
+
+                    $("#ReportSendingTime tbody").append(rows);
+
+                    $("#ReportSendingTime tfoot").find("tr").remove();
+
+                    rows = '';
+                    rows += '<tr><td><b>' + data.total.title + '</b></td>';
+
+                    rows += '<td><b>' + data.total.BeforeSoldMin + '</b></td>';
+                    rows += '<td><b>' + data.total.BeforeSoldAvg + '</b></td>';
+                    rows += '<td><b>' + data.total.BeforeSoldMax + '</b></td>';
+                    rows += '<td><b>' + data.total.BeforeSoldQuantity + '</b></td>';
+
+                    rows += '<td><b>' + data.total.BeforeRejectMin + '</b></td>';
+                    rows += '<td><b>' + data.total.BeforeRejectAvg + '</b></td>';
+                    rows += '<td><b>' + data.total.BeforeRejectMax + '</b></td>';
+                    rows += '<td><b>' + data.total.BeforeRejectQuantity + '</b></td>';
+
+                    rows += '<td><b>' + data.total.BeforePostedQuantity + '</b></td>';
+
+                    rows += '<td><b>' + data.total.AfterSoldMin + '</b></td>';
+                    rows += '<td><b>' + data.total.AfterSoldAvg + '</b></td>';
+                    rows += '<td><b>' + data.total.AfterSoldMax + '</b></td>';
+                    rows += '<td><b>' + data.total.AfterSoldQuantity + '</b></td>';
+
+                    rows += '<td><b>' + data.total.AfterRejectMin + '</b></td>';
+                    rows += '<td><b>' + data.total.AfterRejectAvg + '</b></td>';
+                    rows += '<td><b>' + data.total.AfterRejectMax + '</b></td>';
+                    rows += '<td><b>' + data.total.AfterRejectQuantity + '</b></td>';
+
+                    rows += '<td><b>' + data.total.AfterPostedQuantity + '</b></td>';
+
+                    rows += '<td><b>' + data.total.TotalPaused + '</b></td>';
+                    rows += '<td><b>' + (data.total.AfterPostedQuantity + data.total.BeforePostedQuantity) + '</b></td>';
+
+                    rows += '</tr>';
+
+                    $("#ReportSendingTime tfoot").append(rows);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    HideLoader();
+                }
+            });
+        }
+        else {
+            location.href = '@Model.BaseUrl' + '/management/report/GetReportSendingTime?startDate=' + $('#startDate').val() + '&endDate=' + $('#endDate').val() + '&csv=true';
+        }
+    }
+
+    $(document).ready(function () {
+      $('#startDate').pickadate({
+            formatSubmit: 'mm/dd/yyyy',
+            format: 'mm/dd/yyyy',
+            onSet: function (context) {
+            },
+            onStart: function ()
+            {
+                var date = new Date();
+                date.setDate(date.getDate() - 1);
+                this.set('select', date);
+            }
+        });
+
+        $('#endDate').pickadate({
+            formatSubmit: 'mm/dd/yyyy',
+            format: 'mm/dd/yyyy',
+            onSet: function (context) {
+            },
+            onStart: function ()
+            {
+                var date = new Date();
+                this.set('select', date);
+            }
+        });
+
+        $('#refresh-btn').on('click', function () {
+            loadReport();
+        });
+
+        $('#download-btn').on('click', function () {
+            loadReport(true);
+        });
+
+        $('.multiselect').multiselect({
+            enableCaseInsensitiveFiltering: true,
+            numberDisplayed: 1
+        });
+    });
+</script>
+<br>
+<div class="row">
+    <div class="col-md-3">
+        <div class="form-group">
+            <label>Start</label><br />
+            <input type="text" id="startDate" class="form-control daterange-single" />
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label>End</label><br />
+            <input type="text" id="endDate" class="form-control daterange-single" />
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label>Campaign</label><br />
+            <select id="campaigns" class="multiselect" multiple="multiple">
+                @foreach (var a in Model.ListCampaigns)
+                {
+                    <option value="@a.Value">@a.Text</option>
+                }
+            </select>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-3">
+        <div class="form-group">
+            <button id="refresh-btn" class="btn btn-info">Refresh</button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <br>
+            <table id="ReportSendingTime" style="border: 1px solid black; border-collapse: collapse;" class="table">
+                <thead>
+                    <tr>
+                        <th rowspan="3">Company</th>
+                        <th colspan="9">Before timeout</th>
+                        <th colspan="10">After timeout</th>
+                        <th rowspan="3">Total post leads</th>
+                    </tr>
+                    <tr>
+                        <th colspan="4">Sold leads</th>
+                        <th colspan="4">Reject leads</th>
+                        <th rowspan="2">Post leads</th>
+
+                        <th colspan="4">Sold leads</th>
+                        <th colspan="4">Reject leads</th>
+                        <th rowspan="2">Post leads</th>
+                        <th rowspan="2">Qty. of stops due buyers timeout</th>
+                    </tr>
+
+                    <tr>
+                        <th>Min (sec)</th>
+                        <th>Avg (sec)</th>
+                        <th>Max (sec)</th>
+                        <th>Qty.</th>
+
+                        <th>Min (sec)</th>
+                        <th>Avg (sec)</th>
+                        <th>Max (sec)</th>
+                        <th>Qty.</th>
+
+                        <th>Min (sec)</th>
+                        <th>Avg (sec)</th>
+                        <th>Max (sec)</th>
+                        <th>Qty.</th>
+
+                        <th>Min (sec)</th>
+                        <th>Avg (sec)</th>
+                        <th>Max (sec)</th>
+                        <th>Qty.</th>
+                    </tr>
+
+                </thead>
+                <tbody>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td><b>TOTAL</b></td>
+                        <td><b>0</b></td>
+                        <td><b>0</b></td>
+                        <td><b>0</b></td>
+                        <td><b>0</b></td>
+                        <td><b>0</b></td>
+                        <td><b>0</b></td>
+                        <td><b>0</b></td>
+                        <td><b>0</b></td>
+                        <td><b>0</b></td>
+                        <td><b>0</b></td>
+                        <td><b>0</b></td>
+                        <td><b>0</b></td>
+                        <td><b>0</b></td>
+                        <td><b>0</b></td>
+                        <td><b>0</b></b></td>
+                        <td><b>0</b></td>
+                        <td><b>0</b></td>
+                        <td><b>0</b></td>
+                        <td><b>0</b></td>
+                        <td><b>0</b></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>

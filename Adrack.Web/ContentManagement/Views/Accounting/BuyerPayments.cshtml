@@ -1,0 +1,199 @@
+﻿<!--
+    Payment Method:
+        Cache
+        Credit Card
+        Wire
+        Check
+-->
+@model Adrack.Web.ContentManagement.Models.Accounting.BuyerPaymentModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+    Html.AddPageTitle("Payments of Buyer");
+    Html.AddPageMetaDescription("Shows all Paymnets from All buyers");
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+}
+@{
+    ViewBag.Title = "BuyerPayments";
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+}
+
+<div>
+    @if (permissionService.Authorize(PermissionProvider.AccountingAddBuyerPayment))
+    {
+    <button id="AddPaymentBtn" type="button" data-target="#modal_form_add_payment" data-toggle="modal" class="btn btn-success btn-sm">
+        <i class="icon-add-to-list position-left"></i> Add Payment
+    </button>
+    }
+    @if (permissionService.Authorize(PermissionProvider.AccountingEditBuyerPayment))
+    {
+        <button id="EditPaymentBtn" type="button" data-target="#modal_form_add_payment" data-toggle="modal" class="btn btn-info btn-sm">
+            <i class="icon-add-to-list position-left"></i> Edit
+        </button>
+    }
+</div>
+<br>
+
+<div id="GridViewPayments"></div>
+
+<script type="text/javascript" src="~/Scripts/plugins/ui/moment/moment.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/daterangepicker.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/anytime.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/pickadate/picker.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/pickadate/picker.date.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/pickadate/picker.time.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/forms/selects/select2.min.js"></script>
+
+<style> .daterangepicker.dropdown-menu{ z-index: 2000;} </style>
+
+<script src="~/Scripts/pages-js/BuyerPayments.js"></script>
+<script>
+    BuyerPaymentsParams.init('@Adrack.Web.ContentManagement.Helper.GetTimeZoneStr()');
+</script>
+
+    <div id="modal_form_add_payment" class="modal fade">
+        <div class="modal-dialog modal-s">
+            <div class="modal-content">
+
+                <div class="modal-header bg-info">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h5 class="modal-title">Add New Payment</h5>
+                </div>
+
+                <form action="#">
+                    <div class="modal-body">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <label>Buyers:</label>
+
+                                    <select id="PaymentAffiliate" data-placeholder="Select a Buyer..." class="select-search">
+                                        <option></option>
+                                        @foreach (Adrack.Core.Domain.Lead.Buyer bu in Model.BuyersList)
+                                        {
+                                            <option value="@bu.Id">@bu.Name</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <p>&nbsp;</p>
+
+                                <div class="col-sm-4">
+                                    <label>Select Payment Date:</label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+                                        <input id="PaymentDate" type="text" value="" class="form-control daterange-single">
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <label>Amount:</label>
+                                    <div class="input-group">
+                                        <div class="col-lg-9">
+                                            <input id="PaymentAmount" class="form-control" type="text" placeholder="Enter number" required="required" name="numbers" aria-required="true" aria-invalid="true">
+                                        </div>
+                                    </div>
+                                    </div>
+
+                                <div class="col-sm-4">
+                                    <label>Payment Method:</label>
+
+                                    <select id="PaymentMethodSelect" data-placeholder="Select Payment Methods..." class="select-search">
+                                        <option></option>
+                                        @{
+                                            int k = 0;
+                                            foreach (string s in @ViewBag.PaymentMethods)
+                                            {
+                                                <option value="@k">@s</option>
+                                                k++;
+                                            }
+                                            }
+                                    </select>
+                                </div>
+
+                                <p>&nbsp;</p>
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <label>Note:</label>
+                                        <textarea id="PaymentNote" class="form-control" placeholder="Leave a note" rows="4"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                        <button id="Btn_AddPayment" type="button" data-target="#modal_form_add_payment" data-toggle="modal" class="btn btn-success btn-sm">
+                            <i class="icon-add-to-list position-left"></i> Add Payment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<!--Edit Payment Modal Window-->
+<div id="modal_form_edit_payment" class="modal fade">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Edit Payment</h5>
+            </div>
+
+            <form action="#">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label>Affiliates:</label>
+                            <select id="PaymentAffiliate" data-placeholder="Select an Affiliate..." class="select-search">
+                                <option></option>
+                                <option value="1">Affiliate 1</option>
+                                <option value="2">Affiliate 2</option>
+                                <option value="3">Affiliate 3</option>
+                                <option value="4">Affiliate 4</option>
+                            </select>
+                        </div>
+
+                        <p>&nbsp;</p>
+
+                        <div class="col-sm-6">
+                            <label>Select Payment Date:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+                                <input id="PaymentDate" type="text" value="" class="form-control daterange-single">
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <label>Amount:</label>
+                            <div class="input-group">
+                                <div class="col-lg-9">
+                                    <input id="PaymentAmount" class="form-control" type="text" placeholder="Enter number" required="required" name="numbers" aria-required="true" aria-invalid="true">
+                                </div>
+                            </div>
+                        </div>
+
+                        <p>&nbsp;</p>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label>Note:</label>
+                                <textarea id="PaymentNote" class="form-control" placeholder="Leave a note" rows="4"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                    <button id="Btn_AddPayment" type="button" data-target="#modal_form_add_payment" data-toggle="modal" class="btn btn-success btn-sm">
+                        <i class="icon-add-to-list position-left"></i> Edit Payment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

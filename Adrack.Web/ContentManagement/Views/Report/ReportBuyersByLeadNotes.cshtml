@@ -1,0 +1,165 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.Reports.BuyerReportModel
+
+@{
+/* Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/core.min.js").ToLowerInvariant());
+ Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+ Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/effects.min.js").ToLowerInvariant());
+ Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+ Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/uniform.min.js").ToLowerInvariant());
+
+ Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+ Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switchery.min.js").ToLowerInvariant());
+ Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+ Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_all.min.js").ToLowerInvariant());
+ Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_childcounter.js").ToLowerInvariant());
+ Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/loaders/blockui.min.js").ToLowerInvariant());
+
+ Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/ui/moment/moment.min.js").ToLowerInvariant());
+ Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/daterangepicker.js").ToLowerInvariant());
+ Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/anytime.min.js").ToLowerInvariant());
+ Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/picker.js").ToLowerInvariant());
+ Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/picker.date.js").ToLowerInvariant());
+ Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/picker.time.js").ToLowerInvariant());
+ Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/legacy.js").ToLowerInvariant());
+
+ Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/json2.js").ToLowerInvariant());*/
+}
+
+<script>
+
+    function initReportBuyersByLeadNotes() {
+        $("#ReportBuyersByLeadNotes").fancytree({
+            extensions: ["table", "dnd"],
+            checkbox: false,
+            table: {
+                indentation: 20,      // indent 20px per node level
+                nodeColumnIdx: 0     // render the node title into the 2nd column
+            },
+            source: [],
+            lazyLoad: function (event, data) {
+                data.result = { url: "ajax-sub2.json" }
+            },
+            renderColumns: function (event, data) {
+                var node = data.node,
+                $tdList = $(node.tr).find(">td");
+
+                $tdList.eq(0).css('text-align', 'left');
+
+                $tdList.eq(0).html(node.title);
+                $tdList.eq(1).addClass('text-center').text(node.data.Quantity1);
+                $tdList.eq(2).addClass('text-center').text(node.data.Quantity2);
+                $tdList.eq(3).addClass('text-center').text(node.data.Quantity3);
+                $tdList.eq(4).addClass('text-center').text(node.data.Quantity4);
+                $tdList.eq(5).addClass('text-center').text(node.data.Quantity5);
+                $tdList.eq(6).addClass('text-center').text(node.data.Quantity6);
+                $tdList.eq(7).addClass('text-center').text(node.data.Quantity7);
+                $tdList.eq(8).addClass('text-center').text(node.data.Quantity8);
+                $tdList.eq(9).addClass('text-center').text(node.data.Quantity9);
+                $tdList.eq(10).addClass('text-center').text(node.data.Quantity10);
+                $tdList.eq(11).addClass('text-center').text(node.data.Quantity11);
+                $tdList.eq(12).addClass('text-center').text(node.data.Quantity12);
+                $tdList.eq(13).addClass('text-center').text(node.data.Quantity13);
+                $tdList.eq(14).addClass('text-center').text(node.data.Quantity14);
+                $tdList.eq(15).addClass('text-center').text(node.data.Quantity15);
+
+                //$tdList.eq(5).addClass('text-center').text(node.data.Credit);
+
+                //$(".select-search").off("select2:select").on("select2:select", function (e) { $(this).parent().data('value', e.params.data.id); console.log(e); });
+            },
+            activate: function (event, data) {
+            },
+            select: function (event, data) {
+            },
+            dnd: {
+                preventVoidMoves: true, // Prevent dropping nodes 'before self', etc.
+                preventRecursiveMoves: true, // Prevent dropping nodes on own descendants
+                autoExpandMS: 400,
+                draggable: {
+                    //zIndex: 1000,
+                    // appendTo: "body",
+                    // helper: "clone",
+                    scroll: false,
+                    revert: "invalid"
+                },
+                dragStart: function (node, data) {
+                    if (data.originalEvent.shiftKey) {
+                        console.log("dragStart with SHIFT");
+                    }
+                    // allow dragging `node`:
+                    return true;
+                },
+                dragEnter: function (node, data) {
+                    // Prevent dropping a parent below another parent (only sort
+                    // nodes under the same parent)
+                    /* 					if(node.parent !== data.otherNode.parent){
+                                            return false;
+                                        }
+                                        // Don't allow dropping *over* a node (would create a child)
+                                        return ["before", "after"];
+                    */
+                    return true;
+                },
+                dragDrop: function (node, data) {
+                    if (!data.otherNode) {
+                        // It's a non-tree draggable
+                        var title = $(data.draggable.element).text() + " (" + (count)++ + ")";
+                        node.addNode({ title: title }, data.hitMode);
+                        alert('dd');
+                        return;
+                    }
+                    data.otherNode.moveTo(node, data.hitMode);
+                    $(node.tr).data('folder', true);
+                    console.log(node.tr);
+                }
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        $('#leadNotesReportType').change(function () {
+
+            var v = $(this).val();
+
+            if (v == 1) $('#firstColumnTitle').text('Date');
+            else
+                if (v == 2) $('#firstColumnTitle').text('Channel');
+                else
+                if (v == 3) $('#firstColumnTitle').text('User');
+
+            loadReport($('#buyer-reports-tab .tab-pane.active').data('report'));
+        });
+    });
+</script>
+
+<div style="width: 200px">
+    <select class="form-control" id="leadNotesReportType">
+        <option value="1">By date</option>
+        <option value="2">By channel</option>
+        <option value="3">By user</option>
+    </select>
+</div>
+
+<div class="table-responsive">
+    <table id="ReportBuyersByLeadNotes" class="table table-bordered tree-table">
+        <thead>
+            <tr>
+                <th style="width: 80px;"><span id="firstColumnTitle">Date</span></th>
+                @foreach (SelectListItem item in Model.ListNoteTitles)
+                {
+                    <th style="width: 80px;">@item.Text</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td></td>
+                @foreach (SelectListItem item in Model.ListNoteTitles)
+                {
+                    <td></td>
+                }
+            </tr>
+        </tbody>
+    </table>
+    <br />
+    <br />
+</div>

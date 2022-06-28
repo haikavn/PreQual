@@ -1,0 +1,47 @@
+﻿@model Adrack.Web.ContentManagement.Models.Accounting.BuyerBalanceModel
+
+@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+
+    Html.AddPageTitle("Balances of Buyers");
+    Html.AddPageMetaDescription("Shows Buyers Balances for Selected Period and General Total");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/pages/datatables_basic.js").ToLowerInvariant());
+}
+<script type="text/javascript" src="~/Scripts/plugins/ui/moment/moment.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/daterangepicker.js"></script>
+
+<br>
+<div class="row">
+    <div class="toolbar-element">
+        <b>Buyers Balances for Selected Period:</b>
+    </div>
+    <div class="toolbar-element">
+        <input type="text" class="daterange" value="@ViewBag.TimeZoneNow">
+        <button id="BalanceRefresh" class="btn btn-default btn-labeled btn-xs margin-lr" type="button"><b><i class="glyphicon glyphicon-search"></i></b> Go</button>
+        <button id="ShowAll" class="btn btn-default btn-xs margin-lr" type="button">Clear All Filters</button>
+    </div>
+    <div class="toolbar-element" style="width: 300px">
+        <select id="AllBuyersList" data-placeholder="Select a Buyer..." class="select-all-buyers">
+            <option value="-1" selected="selected">Olny Buyers with Activity</option>
+            <option value="-2">Only Buyers with not Activity</option>
+            <option value="0">All Buyers</option>
+
+            @foreach (Adrack.Core.Domain.Lead.Buyer bu in ViewBag.AllBuyersList)
+            {
+                <option @if (Request["buyerid"] != null && @bu.Id.ToString() == Request["buyerid"].ToString()) { @Html.Raw("selected")    ; } value="@bu.Id">@bu.Name</option>
+            }
+        </select>
+    </div>
+    </div>
+<br>
+
+<div id="GridView_BuyersBalances"></div>
+<br>
+
+<script src="~/Scripts/pages-js/BuyersBalance.js"></script>
+<script>
+    BuyersBalanceParams.init('@Adrack.Web.ContentManagement.Helper.GetTimeZoneStr()');
+</script>

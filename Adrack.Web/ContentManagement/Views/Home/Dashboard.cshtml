@@ -1,0 +1,62 @@
+﻿@{
+    Layout = "~/ContentManagement/Views/Shared/_Master.Page.Layout.cshtml";
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    Html.AddPageTitle("Dashboard");
+    Html.AddPageMetaDescription("Shows System General Status");
+}
+
+@using Adrack.Web.ContentManagement.Models.Home;
+
+@model DashboardModel
+
+<!--
+<button type="button" id="refresh_dashboard" class="btn btn-info btn-ladda btn-ladda-spinner" data-spinner-color="#fff" data-style="zoom-in"><span class="ladda-label">Refresh</span></button>
+-->
+
+@if (Model.DisplayType == 0)
+{
+
+<div>
+    @{ Html.RenderAction("ReportByDays", "Report"); }
+</div>
+<br /><br />
+<div>
+    @{ Html.RenderAction("ReportTotals", "Report"); }
+</div>
+}
+
+@if (Model.DisplayType == 1)
+{
+    <div>
+        @if (Model.Status == 1)
+        {
+             Html.RenderAction("PartialItem", "Affiliate", new { id = Model.ParentId });
+        }
+        else
+        {
+            <h3>Your account is not yet activated</h3>
+        }
+    </div>
+}
+
+@if (Model.DisplayType == 2)
+{
+    <div>
+        @if (Model.Status == 1)
+        {
+            <div>
+                @{ Html.RenderAction("ReportByDays", "Report"); }
+            </div>
+            <br />
+            <div>
+                @{ Html.RenderAction("ReportTotals", "Report"); }
+            </div>
+            }
+            else
+            {
+            <h3>Your account is not yet activated</h3>
+        }
+    </div>
+}

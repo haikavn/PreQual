@@ -1,0 +1,69 @@
+﻿@using Adrack.Service.Helpers
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+@using Adrack.Core.Domain.Lead
+
+@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+    Html.AddPageTitle("All Buyers");
+    Html.AddPageMetaDescription("Shows All Buyers");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    var currentUser = this.AppContext.AppUser;
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+
+    List<Campaign> campaigns = (List<Campaign>)ViewBag.Campaigns;
+}
+
+<script src="~/Scripts/pages-js/BuyerList.js"></script>
+<script> BuyerListParams.init('@Html.Raw(currentUser.UserTypeId == SharedData.BuiltInUserTypeId || permissionService.Authorize(PermissionProvider.BuyersModify)  ? ",Action" : "")'); </script>
+
+@if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId ||
+    currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+{
+    <div>
+        <label>Filter by campaigns</label><br />
+        <select id="campaigns" class="form-control" style="width: 200px">
+            <option value="0">All</option>
+            @foreach (Campaign c in campaigns)
+            {
+                <option value="@c.Id">@c.Name</option>
+            }
+        </select>
+    </div>
+
+    <br />
+}
+
+@if (permissionService.Authorize(PermissionProvider.BuyersAdd))
+{
+<div>
+    <button id="add_new" type="button" class="btn btn-success btn-sm">
+        <i class="icon-add-to-list position-left"></i>Add buyer
+    </button>
+</div><br />
+}
+
+@if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || permissionService.Authorize(PermissionProvider.BuyersModify))
+{
+    <div class="status-filter">
+        <div data-toggle="buttons" class="btn-group">
+            <label class="btn btn-default active">
+                <input type="radio" checked="checked" id="status0" name="statusradio"> Show All
+            </label>
+            <label class="btn btn-default">
+                <input type="radio" id="status1" name="statusradio"> Show Deleted
+            </label>
+            <label class="btn btn-default">
+                <input type="radio" id="status-1" name="statusradio"> Show Active
+            </label>
+            <label class="btn btn-default">
+                <input type="radio" id="status-2" name="statusradio"> Show Inactive
+            </label>
+
+        </div>
+    </div>
+}
+
+<div id="GridView1"></div>

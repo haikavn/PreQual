@@ -1,0 +1,62 @@
+﻿@using Adrack.Service.Helpers
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+
+    Html.AddPageTitle("Affiliates");
+    Html.AddPageMetaDescription("Shows All Affiliates");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    var currentUser = this.AppContext.AppUser;
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+}
+
+<script src="~/Scripts/pages-js/AffiliateList.js"></script>
+<script> AffiliateListParams.init('@Html.Raw(currentUser.UserTypeId == SharedData.BuiltInUserTypeId || permissionService.Authorize(PermissionProvider.AffiliatesModify) ? ",Action" : "")'); </script>
+
+@if (permissionService.Authorize(PermissionProvider.AffiliatesAdd))
+{
+    <button id="add_new" type="button" class="btn btn-success btn-sm">
+        <i class="icon-add-to-list position-left"></i>Add affiliate
+    </button><br /><br />
+}
+<div class="min-width-1024">
+    <div>
+
+            <div class="status-filter">
+                <label>Filter by status: </label>
+                <div data-toggle="buttons" class="btn-group">
+                    <label class="btn btn-default active">
+                        <input type="radio" id="status1" name="statusradio"> Active <span class='badge bg-warning-400' style="background-color:#58c36e">@ViewBag.StatusArray[1]</span>
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" id="status0" name="statusradio"> Inactive <span class='badge bg-warning-400' style="background-color:#ff5722">@ViewBag.StatusArray[0]</span>
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" id="status3" name="statusradio"> Pending <span class='badge bg-warning-400' style="background-color:#000000">@ViewBag.StatusArray[3]</span>
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" id="status2" name="statusradio"> Blocked <span class='badge bg-warning-400' style="background-color:#ba6629">@ViewBag.StatusArray[2]</span>
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" id="status4" name="statusradio"> Rejected <span class='badge bg-warning-400' style="background-color:#910404">@ViewBag.StatusArray[4]</span>
+                    </label>
+                    @if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId)
+                    {
+                        <label class="btn btn-default">
+                            <input type="radio" id="status6" name="statusradio"> Deleted
+                        </label>
+                    }
+
+                    <label class="btn btn-default">
+                        <input type="radio" checked="checked" id="status-1" name="statusradio"> Show All <span class='badge bg-warning-400' style="background-color:#808080">@ViewBag.TotalStatuses</span>
+                    </label>
+                </div>
+            </div>
+    </div>
+
+    <div id="affiliate_list"></div>
+</div>

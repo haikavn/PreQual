@@ -1,0 +1,40 @@
+﻿    <div class="panel panel-flat">
+
+        <div class="panel-body">
+            <div class="row">
+                <table style="font-size:35px">
+                    <tr><td width="250px">IP:</td><td>@ViewBag.Ip</td></tr>
+                    <tr><td>Browser:</td><td>@ViewBag.Browser</td></tr>
+                    <tr><td>OS:</td><td>@ViewBag.OS</td></tr>
+                    <tr><td>Device:</td><td>@ViewBag.Device</td></tr>
+                </table>
+                <br>
+                User Agent:@ViewBag.UA
+                <br>
+                <br>
+                <br>
+
+                <h2>Is it Correct Information?</h2><br>
+                <button class="btn btn-success btn-xlg margin-lr" type="button" onclick="Re(1)"> YES </button>
+                <button class="btn btn-danger btn-xlg margin-lr" type="button" onclick="Re(0)"> NO </button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    var params = {};
+    location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (s, k, v) { params[k] = v })
+    if (params["yes"] != null || params["no"]) {
+        alert("Thnak You");
+        document.location = "?";
+    }
+    function Re(o)
+    {
+        if (o == 0) {
+            document.location = "?no=1";
+        }
+        else {
+            document.location = "?yes=1";
+        }
+    }
+</script>

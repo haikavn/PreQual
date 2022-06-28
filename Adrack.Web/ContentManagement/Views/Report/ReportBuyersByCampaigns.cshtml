@@ -1,0 +1,59 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.Reports.BuyerReportModel
+
+@{
+   /* Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/core.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/effects.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/uniform.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switchery.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_all.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_childcounter.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/loaders/blockui.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/ui/moment/moment.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/daterangepicker.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/anytime.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/picker.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/picker.date.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/picker.time.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/legacy.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/json2.js").ToLowerInvariant());*/
+}
+
+<script>
+    $(document).ready(function () {
+        ReportCommon.initReport("ReportBuyersByCampaigns");
+    });
+</script>
+
+<div class="table-responsive">
+    <table id="ReportBuyersByCampaigns" class="table table-bordered tree-table">
+        <thead>
+            <tr>
+                <th style="width: 80px;"><a href="#" data-col="title" data-order="asc" data-report="ReportBuyersByCampaigns" class="sortable-column">Buyer Name / Campaign name</a></th>
+                <th style="width: 80px;"><a href="#" data-col="TotalLeads" data-order="asc" data-report="ReportBuyersByCampaigns" class="sortable-column">Total leads</a></th>
+                <th style="width: 80px;"><a href="#" data-col="SoldLeads" data-order="asc" data-report="ReportBuyersByCampaigns" class="sortable-column">Sold leads</a></th>
+                <th style="width: 80px;"><a href="#" data-col="Debit" data-order="asc" data-report="ReportBuyersByCampaigns" class="sortable-column sortable-column-default">Debit</a></th>
+                <th style="width: 80px;"><a href="#" data-col="Credit" data-order="asc" data-report="ReportBuyersByCampaigns" class="sortable-column">Credit</a></th>
+                <th style="width: 80px;"><a href="#" data-col="RedirectRate" data-order="asc" data-report="ReportBuyersByCampaigns" class="sortable-column">Redirect rate</a></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+    <br />
+    <br />
+</div>

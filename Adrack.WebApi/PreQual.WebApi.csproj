@@ -1,0 +1,1267 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" />
+  <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{17D3693A-7A08-42DD-BFEA-9EB1BEA4510E}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Adrack.WebApi</RootNamespace>
+    <AssemblyName>Adrack.WebApi</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <MvcBuildViews>false</MvcBuildViews>
+    <UseIISExpress>true</UseIISExpress>
+    <Use64BitIISExpress />
+    <IISExpressSSLPort>44331</IISExpressSSLPort>
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <ApplicationInsightsResourceId>/subscriptions/78012d14-2d95-42a2-afba-6ded2bdfc5f0/resourcegroups/lead-dev/providers/microsoft.insights/components/lead-distribution</ApplicationInsightsResourceId>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>
+    </DocumentationFile>
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Autofac, Version=3.5.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
+    </Reference>
+    <Reference Include="Autofac.Integration.Mvc, Version=3.3.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.Mvc5.3.3.4\lib\net45\Autofac.Integration.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="Autofac.Integration.WebApi, Version=4.3.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.WebApi2.4.3.1\lib\net45\Autofac.Integration.WebApi.dll</HintPath>
+    </Reference>
+    <Reference Include="AutoMapper, Version=4.2.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.4.2.1\lib\net45\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.6.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+      <HintPath>..\packages\BouncyCastle.1.8.6.1\lib\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="Braintree, Version=5.1.0.0, Culture=neutral, PublicKeyToken=31b586f34d3e96c7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Braintree.5.1.0\lib\net452\Braintree.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentValidation, Version=6.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentValidation.6.2.1.0\lib\Net45\FluentValidation.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentValidation.Mvc, Version=6.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentValidation.MVC5.6.2.1.0\lib\Net45\FluentValidation.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp, Version=5.5.13.2, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\iTextSharp.5.5.13.2\lib\itextsharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.Agent.Intercept, Version=2.4.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.Agent.Intercept.2.4.0\lib\net45\Microsoft.AI.Agent.Intercept.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.DependencyCollector, Version=2.12.0.21496, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.12.0\lib\net45\Microsoft.AI.DependencyCollector.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.PerfCounterCollector, Version=2.12.0.21496, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.12.0\lib\net45\Microsoft.AI.PerfCounterCollector.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.ServerTelemetryChannel, Version=2.12.0.21496, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.12.0\lib\net45\Microsoft.AI.ServerTelemetryChannel.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.Web, Version=2.12.0.21496, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.Web.2.12.0\lib\net45\Microsoft.AI.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.WindowsServer, Version=2.12.0.21496, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.2.12.0\lib\net45\Microsoft.AI.WindowsServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ApplicationInsights, Version=2.15.0.4802, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.2.15.0-beta1\lib\net46\Microsoft.ApplicationInsights.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ApplicationInsights.TraceListener, Version=2.14.0.17971, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.TraceListener.2.14.0\lib\net45\Microsoft.ApplicationInsights.TraceListener.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.TelemetryCorrelation, Version=1.0.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.TelemetryCorrelation.1.0.7\lib\net45\Microsoft.AspNet.TelemetryCorrelation.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.1.1.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=2.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Nager.Date, Version=1.26.7.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Nager.Date.1.26.7\lib\net461\Nager.Date.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp, Version=1.50.5147.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp.1.50.5147\lib\net20\PdfSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp.Charting, Version=1.50.5147.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp.1.50.5147\lib\net20\PdfSharp.Charting.dll</HintPath>
+    </Reference>
+    <Reference Include="Swashbuckle.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cd1bb07a5ac7c7bc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Swashbuckle.Core.5.6.0\lib\net40\Swashbuckle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Diagnostics.DiagnosticSource, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Diagnostics.DiagnosticSource.4.6.0\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net" />
+    <Reference Include="System.Net.Http, Version=4.1.1.3, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.4.3.4\lib\net46\System.Net.Http.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Algorithms, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Algorithms.4.3.0\lib\net461\System.Security.Cryptography.Algorithms.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Encoding, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Encoding.4.3.0\lib\net46\System.Security.Cryptography.Encoding.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Primitives, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Primitives.4.3.0\lib\net46\System.Security.Cryptography.Primitives.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.X509Certificates, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.X509Certificates.4.3.0\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.2\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Cors, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Cors.5.2.7\lib\net45\System.Web.Cors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.Cors, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Cors.5.2.7\lib\net45\System.Web.Http.Cors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.7\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.7\lib\net45\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Abstractions" />
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.7\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest">
+    </Reference>
+    <Reference Include="System.Web.Http, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.7\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.7\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Optimization">
+      <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.1.3\lib\net40\System.Web.Optimization.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="WebActivatorEx, Version=2.0.0.0, Culture=neutral, PublicKeyToken=7b26dc2a43f6a0d4, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebActivatorEx.2.1.0\lib\net40\WebActivatorEx.dll</HintPath>
+    </Reference>
+    <Reference Include="WebGrease">
+      <Private>True</Private>
+      <HintPath>..\packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
+    </Reference>
+    <Reference Include="Antlr3.Runtime">
+      <Private>True</Private>
+      <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\BundleConfig.cs" />
+    <Compile Include="App_Start\FilterConfig.cs" />
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="App_Start\SwaggerConfig.cs" />
+    <Compile Include="App_Start\SwaggerHeader.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Areas\HelpPage\ApiDescriptionExtensions.cs" />
+    <Compile Include="Areas\HelpPage\App_Start\HelpPageConfig.cs" />
+    <Compile Include="Areas\HelpPage\Controllers\HelpController.cs" />
+    <Compile Include="Areas\HelpPage\HelpPageAreaRegistration.cs" />
+    <Compile Include="Areas\HelpPage\HelpPageConfigurationExtensions.cs" />
+    <Compile Include="Areas\HelpPage\Models\HelpPageApiModel.cs" />
+    <Compile Include="Areas\HelpPage\SampleGeneration\HelpPageSampleGenerator.cs" />
+    <Compile Include="Areas\HelpPage\SampleGeneration\HelpPageSampleKey.cs" />
+    <Compile Include="Areas\HelpPage\SampleGeneration\ImageSample.cs" />
+    <Compile Include="Areas\HelpPage\SampleGeneration\InvalidSample.cs" />
+    <Compile Include="Areas\HelpPage\SampleGeneration\ObjectGenerator.cs" />
+    <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
+    <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
+    <Compile Include="Billing.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Billing.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Controllers\AccountingController.cs" />
+    <Compile Include="Controllers\FormBuilderController.cs" />
+    <Compile Include="Controllers\CouponController.cs" />
+    <Compile Include="Controllers\PlanController.cs" />
+    <Compile Include="Controllers\StaticPagesController.cs" />
+    <Compile Include="Controllers\AddonController.cs" />
+    <Compile Include="Controllers\PublicController.cs" />
+    <Compile Include="Controllers\GeneralController.cs" />
+    <Compile Include="Controllers\FilterController.cs" />
+    <Compile Include="Controllers\EmailProcessingController.cs" />
+    <Compile Include="Controllers\BillingController.cs" />
+    <Compile Include="Controllers\MembershipController_New.cs" />
+    <Compile Include="Controllers\NotificationController.cs" />
+    <Compile Include="Controllers\ReportController.cs" />
+    <Compile Include="Controllers\ReportModels\BarchartInformationRecord.cs" />
+    <Compile Include="Controllers\ReportModels\LeadInformationRecord.cs" />
+    <Compile Include="Controllers\ReportModels\LeadsReport.cs" />
+    <Compile Include="Controllers\PingTreeController.cs" />
+    <Compile Include="FormBuilder\FormBuilderFieldGenerationOptions.cs" />
+    <Compile Include="FormBuilder\FormBuilderGenerationTemplate.cs" />
+    <Compile Include="Models\Accounting\AffiliateBalanceOutModel.cs" />
+    <Compile Include="Models\Accounting\CustomInvoiceInModel.cs" />
+    <Compile Include="Models\Addon\AddonActivationModel.cs" />
+    <Compile Include="Models\Addon\UserAddonActivationModel.cs" />
+    <Compile Include="Models\BaseModels\UserAddonsModel.cs" />
+    <Compile Include="Models\Billing\GetAddonPaymentsModel.cs" />
+    <Compile Include="Models\BuyerChannels\AttachedAffiliateChannelModel.cs" />
+    <Compile Include="Models\Buyers\BuyerBillingSettingModel.cs" />
+    <Compile Include="Models\BuyerChannels\CloneBuyerChannelModel.cs" />
+    <Compile Include="Models\Campaigns\PingTreeItemUpdateModel.cs" />
+    <Compile Include="Models\Campaigns\PingTreeItemModel.cs" />
+    <Compile Include="Models\Campaigns\PingTreeModel.cs" />
+    <Compile Include="Models\Clicks\ClickLinkModel.cs" />
+    <Compile Include="Models\Data\GenerateDataModel.cs" />
+    <Compile Include="Models\Data\RemoveEntitiesModel.cs" />
+    <Compile Include="Models\Employee\InvitedEmployeeModel.cs" />
+    <Compile Include="Models\Employee\GenerateEmployeeModel.cs" />
+    <Compile Include="Models\FormTemplate\FormTemplateItemModel.cs" />
+    <Compile Include="Models\FormTemplate\FormTemplateItemStyles.cs" />
+    <Compile Include="Models\FormTemplate\FormTemplateModel.cs" />
+    <Compile Include="Models\FormTemplate\FormTemplateUIModel.cs" />
+    <Compile Include="Models\FormTemplate\TextContentStyle.cs" />
+    <Compile Include="Models\Membership\MembershipActivationModel - Copy.cs" />
+    <Compile Include="Models\Membership\Password\FirstPasswordConfirmationModel.cs" />
+    <Compile Include="Models\Membership\Login\MasterSignInModel.cs" />
+    <Compile Include="Models\Reports\ReportSendingInModel.cs" />
+    <Compile Include="Models\Reports\AffilliateReports\AffiliatesReportClicksMainInModel.cs" />
+    <Compile Include="Models\Reports\AffilliateReports\ReportClickMainModel.cs" />
+    <Compile Include="Models\Reports\ReportSendingTimeModel.cs" />
+    <Compile Include="Models\Sendgrid\EmailParameters.cs" />
+    <Compile Include="Models\Settings\CustomSettingModel.cs" />
+    <Compile Include="Models\Support\AllTicketsModel.cs" />
+    <Compile Include="PdfBuilder\PdfReportCreators\PdfReportBuyerMontlyStatement.cs" />
+    <Compile Include="PdfBuilder\PdfReportCreators\PdfReportCreator.cs" />
+    <Compile Include="PdfBuilder\PdfReportCreators\PdfReportBuyerInvoice.cs" />
+    <Compile Include="PdfBuilder\PdfReportCreators\PdfReportInvoice.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HighCharts\HigchartsExportClient.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HighCharts\HighchartsExporters.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Adapters\Entities\RColor.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Adapters\Entities\RDashStyle.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Adapters\Entities\RFontStyle.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Adapters\Entities\RKeyEvent.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Adapters\Entities\RMouseEvent.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Adapters\Entities\RPoint.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Adapters\Entities\RRect.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Adapters\Entities\RSize.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Adapters\RAdapter.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Adapters\RBrush.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Adapters\RContextMenu.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Adapters\RControl.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Adapters\RFont.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Adapters\RFontFamily.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Adapters\RGraphics.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Adapters\RGraphicsPath.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Adapters\RImage.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Adapters\RPen.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\CssData.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\CssDefaults.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Dom\Border.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Dom\CssBox.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Dom\CssBoxFrame.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Dom\CssBoxHr.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Dom\CssBoxImage.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Dom\CssBoxProperties.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Dom\CssLayoutEngine.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Dom\CssLayoutEngineTable.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Dom\CssLength.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Dom\CssLineBox.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Dom\CssRect.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Dom\CssRectImage.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Dom\CssRectWord.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Dom\CssSpacingBox.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Dom\CssUnit.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Dom\HoverBoxBlock.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Dom\HtmlTag.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Entities\CssBlock.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Entities\CssBlockSelectorItem.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Entities\HtmlGenerationStyle.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Entities\HtmlImageLoadEventArgs.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Entities\HtmlLinkClickedEventArgs.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Entities\HtmlLinkClickedException.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Entities\HtmlRefreshEventArgs.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Entities\HtmlRenderErrorEventArgs.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Entities\HtmlRenderErrorType.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Entities\HtmlScrollEventArgs.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Entities\HtmlStylesheetLoadEventArgs.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Entities\LinkElementData.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Handlers\BackgroundImageDrawHandler.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Handlers\BordersDrawHandler.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Handlers\ContextMenuHandler.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Handlers\FontsHandler.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Handlers\ImageDownloader.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Handlers\ImageLoadHandler.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Handlers\SelectionHandler.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Handlers\StylesheetLoadHandler.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\HtmlContainerInt.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\HtmlRendererUtils.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Parse\CssParser.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Parse\CssValueParser.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Parse\DomParser.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Parse\HtmlParser.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Parse\RegexParserHelper.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Parse\RegexParserUtils.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Utils\ArgChecker.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Utils\CommonUtils.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Utils\CssConstants.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Utils\CssUtils.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Utils\DomUtils.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Utils\HtmlConstants.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Utils\HtmlUtils.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Utils\RenderUtils.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Utils\SubString.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\PdfGenerator\Adapters\BrushAdapter.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\PdfGenerator\Adapters\FontAdapter.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\PdfGenerator\Adapters\FontFamilyAdapter.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\PdfGenerator\Adapters\GraphicsAdapter.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\PdfGenerator\Adapters\GraphicsPathAdapter.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\PdfGenerator\Adapters\ImageAdapter.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\PdfGenerator\Adapters\PdfSharpAdapter.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\PdfGenerator\Adapters\PenAdapter.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\PdfGenerator\Adapters\XTextureBrush.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\PdfGenerator\HtmlContainer.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\PdfGenerator\PdfGenerateConfig.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\PdfGenerator\PdfGenerator.cs" />
+    <Compile Include="PdfBuilder\PdfReportTools\PdfGenerator\Utilities\Utils.cs" />
+    <Compile Include="Controllers\ReportModels\ReportRequestModel.cs" />
+    <Compile Include="Controllers\ReportModels\TopBarChartsModel.cs" />
+    <Compile Include="Controllers\ReportModels\TopRecordsReport.cs" />
+    <Compile Include="ErrorHandler\GlobalExceptionHandler.cs" />
+    <Compile Include="Helpers\StringPitcher.cs" />
+    <Compile Include="Helpers\Utils.cs" />
+    <Compile Include="Helpers\Validator.cs" />
+    <Compile Include="Infrastructure\Core\Interfaces\ISearchService.cs" />
+    <Compile Include="Infrastructure\Core\Services\SearchService.cs" />
+    <Compile Include="Infrastructure\Core\WrapperData\ISharedDataWrapper.cs" />
+    <Compile Include="Infrastructure\Core\WrapperData\SharedDataWrapper.cs" />
+    <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
+    <Compile Include="Controllers\AffiliateChannelController.cs" />
+    <Compile Include="Controllers\BaseController\BaseApiController.cs" />
+    <Compile Include="Controllers\BaseController\BaseApiPublicController.cs" />
+    <Compile Include="Controllers\BuyerChannelController.cs" />
+    <Compile Include="Controllers\BlackListController.cs" />
+    <Compile Include="Controllers\DataController.cs" />
+    <Compile Include="Controllers\LeadController.cs" />
+    <Compile Include="Controllers\LeadController_OLD.cs" />
+    <Compile Include="Controllers\BuyerController.cs" />
+    <Compile Include="Controllers\AffiliateController.cs" />
+    <Compile Include="Controllers\CampaignController.cs" />
+    <Compile Include="Controllers\CommonController.cs" />
+    <Compile Include="Controllers\HistoryController.cs" />
+    <Compile Include="Controllers\ProcessingController.cs" />
+    <Compile Include="Controllers\MembershipController.cs" />
+    <Compile Include="Controllers\PermissionController.cs" />
+    <Compile Include="Controllers\RoleController.cs" />
+    <Compile Include="Controllers\SettingController.cs" />
+    <Compile Include="Controllers\SupportController.cs" />
+    <Compile Include="Controllers\SupportController_OLD.cs" />
+    <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="ErrorHandler\AiHandleErrorAttribute.cs" />
+    <Compile Include="Extensions\ModelExtensions.cs" />
+    <Compile Include="Extensions\ValidationExtensions.cs" />
+    <Compile Include="Infrastructure\Constants\UserRoleKeys.cs" />
+    <Compile Include="Infrastructure\Core\DTOs\HistoryFilterDto.cs" />
+    <Compile Include="Infrastructure\Core\Interfaces\ICampaignsService.cs" />
+    <Compile Include="Infrastructure\Core\Interfaces\IRolePermissionService.cs" />
+    <Compile Include="Infrastructure\Core\Interfaces\ISupportPageService.cs" />
+    <Compile Include="Infrastructure\Core\Interfaces\IFileUploadService.cs" />
+    <Compile Include="Infrastructure\Core\Interfaces\IUsersExtensionService.cs" />
+    <Compile Include="Infrastructure\Core\Services\FileUploadService.cs" />
+    <Compile Include="Infrastructure\Core\Services\RolePermissionService.cs" />
+    <Compile Include="Infrastructure\Core\Services\SupportPageService.cs" />
+    <Compile Include="Infrastructure\Core\Services\UsersExtensionService.cs" />
+    <Compile Include="Infrastructure\Enums\ActivationStatus.cs" />
+    <Compile Include="Infrastructure\Enums\DataKey.cs" />
+    <Compile Include="Infrastructure\Enums\DoNotPresentHTTPMethod.cs" />
+    <Compile Include="Infrastructure\Enums\DoNotPresentStatus.cs" />
+    <Compile Include="Infrastructure\Enums\TicketPriority.cs" />
+    <Compile Include="Infrastructure\Enums\TicketStatus.cs" />
+    <Compile Include="Infrastructure\Enums\UserRoleType.cs" />
+    <Compile Include="Infrastructure\Enums\UserTypeEnum.cs" />
+    <Compile Include="Infrastructure\Web\Attributes\ValidateModelAttribute.cs" />
+    <Compile Include="Infrastructure\Web\Helpers\Helper.cs" />
+    <Compile Include="Managers\Enums.cs" />
+    <Compile Include="Managers\ExportManager.cs" />
+    <Compile Include="Managers\Helpers.cs" />
+    <Compile Include="Managers\ImportManager.cs" />
+    <Compile Include="Managers\RequestContext.cs" />
+    <Compile Include="Managers\RequestManager.cs" />
+    <Compile Include="Managers\RequestResult.cs" />
+    <Compile Include="Managers\ResponseManager.cs" />
+    <Compile Include="Managers\TestingModules.cs" />
+    <Compile Include="Managers\XmlHelper.cs" />
+    <Compile Include="Models\Accounting\AffiliateInvoiceModel.cs" />
+    <Compile Include="Models\Accounting\BuyerBalanceOutModel.cs" />
+    <Compile Include="Models\Accounting\AffiliateInvoicesModel.cs" />
+    <Compile Include="Models\Accounting\BuyerInvoiceModel.cs" />
+    <Compile Include="Models\Accounting\BuyerInvoicesModel.cs" />
+    <Compile Include="Models\Accounting\BuyerPaymentInModel.cs" />
+    <Compile Include="Models\AffiliateChannel\AffiliateChannelCodeSampleEmailModel.cs" />
+    <Compile Include="Models\AffiliateChannel\AffiliateChannelNoteModel.cs" />
+    <Compile Include="Models\AffiliateChannel\AffiliateChannelPostingEmailModel.cs" />
+    <Compile Include="Models\AffiliateChannel\AffiliateChannelPostingDetailsReturnModel.cs" />
+    <Compile Include="Models\AffiliateChannel\AffiliateChannelBlackListModel.cs" />
+    <Compile Include="Models\AffiliateChannel\AffiliateChannelSubFilterModel.cs" />
+    <Compile Include="Models\AffiliateChannel\AffiliateChannelFilterUpdateModel.cs" />
+    <Compile Include="Models\AffiliateChannel\AffiliateChannelNotesModel.cs" />
+    <Compile Include="Models\AffiliateChannel\CloneAffiliateChannelInpModel.cs" />
+    <Compile Include="Models\BaseModels\ColumnVisibilityUpdateModel.cs" />
+    <Compile Include="Models\Billing\PaymentsModel.cs" />
+    <Compile Include="Models\Billing\GetAllPaymentsModel.cs" />
+    <Compile Include="Models\Billing\PingReportModel.cs" />
+    <Compile Include="Models\Billing\PaymentModel.cs" />
+    <Compile Include="Models\BuyerChannels\ChannelBuyerFilterModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelGeneralInfoUpdateModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelHolidayUpdateSimpleModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelHolidayUpdateModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelScheduleTimePeriodInpModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelScheduleDayInpModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelScheduleDayModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelHolidayModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelNoteModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelHolidaySettingsModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelSubFilterModel.cs" />
+    <Compile Include="Models\BuyerChannels\AttachedBuyerChannelModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelAdvancedResponseModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelAttachOrDetachModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelFilterCreateModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelListViewModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelNameUpdateModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelStatusUpdateModel.cs" />
+    <Compile Include="Models\Buyers\BuyerContactInformationModel.cs" />
+    <Compile Include="Models\Buyers\BuyerSettingsModel.cs" />
+    <Compile Include="Models\Buyers\BuyerDNPModel.cs" />
+    <Compile Include="Models\Buyers\BuyerNameModel.cs" />
+    <Compile Include="Models\Buyers\BuyerIdentificationModel.cs" />
+    <Compile Include="Models\Buyers\BuyerModel.cs" />
+    <Compile Include="Models\Buyers\BuyerResponseModel.cs" />
+    <Compile Include="Models\Buyers\BuyerStatusUpdateModel.cs" />
+    <Compile Include="Models\Campaigns\CloneCampaignInpModel.cs" />
+    <Compile Include="Models\Campaigns\FilterSubConditionModel.cs" />
+    <Compile Include="Models\Common\DataFormatTypeModel.cs" />
+    <Compile Include="Models\Common\SearchResultModel.cs" />
+    <Compile Include="Models\Common\InpStructureModel.cs" />
+    <Compile Include="Models\Campaigns\FilterConditionValueModel.cs" />
+    <Compile Include="Models\Common\InpCampaignFieldModel.cs" />
+    <Compile Include="Models\BaseModels\ColumnsVisibilityModel.cs" />
+    <Compile Include="Models\BaseModels\ConditionModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelResponseSettingModel.cs" />
+    <Compile Include="Models\BaseModels\IdNameModel.cs" />
+    <Compile Include="Models\BaseModels\ValidatorModel.cs" />
+    <Compile Include="Models\BuyerChannels\PingTreeUpdateModel.cs" />
+    <Compile Include="Models\Campaigns\AddCampaignModel.cs" />
+    <Compile Include="Models\Campaigns\CampaignIntegrationModel.cs" />
+    <Compile Include="Models\Campaigns\FilterConditionModel.cs" />
+    <Compile Include="Models\Common\CountryViewModel.cs" />
+    <Compile Include="Models\CustomBlackList\CustomBlackListModel.cs" />
+    <Compile Include="Models\CustomBlackList\CustomBlackListValueModel.cs" />
+    <Compile Include="Models\Employee\EmployeeAdvancedModel.cs" />
+    <Compile Include="Models\Employee\EmployeeUpdateModel.cs" />
+    <Compile Include="Models\ErrorViewModel.cs" />
+    <Compile Include="Models\History\HistoryFilterModelWithPaging.cs" />
+    <Compile Include="Models\History\HistoryFilterOutModel.cs" />
+    <Compile Include="Models\History\HistoryFilterModel.cs" />
+    <Compile Include="Models\History\HistoryModel.cs" />
+    <Compile Include="Models\Employee\EmployeeModel.cs" />
+    <Compile Include="Models\Campaigns\CampaignListModel.cs" />
+    <Compile Include="Models\Campaigns\FilterModel.cs" />
+    <Compile Include="Models\History\HistoryViewModel.cs" />
+    <Compile Include="Models\Lead\AddRefundLeadsModel.cs" />
+    <Compile Include="Models\Lead\AffiliateAdvancedModel.cs" />
+    <Compile Include="Models\Lead\AffiliateFilterModel.cs" />
+    <Compile Include="Models\Lead\BuyerInvitationRoleUpdateModel.cs" />
+    <Compile Include="Models\Lead\BuyerInvitationModel.cs" />
+    <Compile Include="Models\Lead\AffiliateInvitationRoleUpdateModel.cs" />
+    <Compile Include="Models\Lead\AffiliateListItemModel.cs" />
+    <Compile Include="Models\Lead\AffiliateChannelNameUpdateModel.cs" />
+    <Compile Include="Models\Lead\AffiliateNameUpdateModel.cs" />
+    <Compile Include="Models\Lead\AffiliateCreateUpdateModel.cs" />
+    <Compile Include="Models\Lead\AffiliateInvitationModel.cs" />
+    <Compile Include="Models\Lead\AffiliateStatusUpdateModel.cs" />
+    <Compile Include="Models\AffiliateChannel\AffiliateChannelFieldModel.cs" />
+    <Compile Include="Models\AffiliateChannel\AffiliateChannelCreateModel.cs" />
+    <Compile Include="Models\AffiliateChannel\AffiliateChannelFilterCreateModel.cs" />
+    <Compile Include="Models\AffiliateChannel\AffiliateChannelIntegrationModel.cs" />
+    <Compile Include="Models\AffiliateChannel\AffiliateChannelTreeItem.cs" />
+    <Compile Include="Models\AffiliateChannel\AffiliateChannelUpdateModel.cs" />
+    <Compile Include="Models\AffiliateChannel\AffiliateChannelViewModel.cs" />
+    <Compile Include="Models\BaseModels\BaseIdentifiedItem.cs" />
+    <Compile Include="Models\BaseModels\BasePagedItemsModel.cs" />
+    <Compile Include="Models\BaseModels\BasePagedModel.cs" />
+    <Compile Include="Models\BaseModels\ScheduleItem.cs" />
+    <Compile Include="Models\BaseModels\SelectItem.cs" />
+    <Compile Include="Models\BaseModels\TreeItem.cs" />
+    <Compile Include="Models\BaseModels\ValidationModel.cs" />
+    <Compile Include="Models\BaseModels\XmlTreeItemsDataModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelFieldMatchingModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelFilterModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelLeadScheduleModel.cs" />
+    <Compile Include="Models\Lead\BuyerDeleteModel.cs" />
+    <Compile Include="Models\Lead\LeadAdvancedModel.cs" />
+    <Compile Include="Models\Lead\LeadAffiliateResponse.cs" />
+    <Compile Include="Models\Lead\LeadCommonInfoItemModel.cs" />
+    <Compile Include="Models\Lead\LeadCommonInformationModel.cs" />
+    <Compile Include="Models\Lead\LeadDuplicateMonitorModel.cs" />
+    <Compile Include="Models\Lead\LeadItemModel.cs" />
+    <Compile Include="Models\Lead\LeadJourneyModel.cs" />
+    <Compile Include="Models\Lead\LeadLogModel.cs" />
+    <Compile Include="Models\Lead\BuyersChannelViewModel.cs" />
+    <Compile Include="Models\Lead\BuyerViewModel.cs" />
+    <Compile Include="Models\Lead\LeadRequestModel.cs" />
+    <Compile Include="Models\Membership\Register\ActivationModel.cs" />
+    <Compile Include="Models\New\BuyerChannel\BuyerChannelUpdateModel.cs" />
+    <Compile Include="Models\New\BuyerChannel\BuyerChannelViewModel.cs" />
+    <Compile Include="Models\Campaigns\CampaignDynamicDataCollection.cs" />
+    <Compile Include="Models\Campaigns\CampaignDynamicDataItem.cs" />
+    <Compile Include="Models\Campaigns\CampaignExtendedModel.cs" />
+    <Compile Include="Models\Campaigns\CampaignFieldModel.cs" />
+    <Compile Include="Models\Campaigns\CampaignFieldValuesContainer.cs" />
+    <Compile Include="Models\Campaigns\CampaignTemplateModel.cs" />
+    <Compile Include="Models\Campaigns\CampaignModel.cs" />
+    <Compile Include="Models\Campaigns\CampaignsPageModel.cs" />
+    <Compile Include="Models\Campaigns\CampaignModelTreeItem.cs" />
+    <Compile Include="Models\Campaigns\CampaignTemplateFieldModel.cs" />
+    <Compile Include="Models\Interfaces\IBaseOutModel.cs" />
+    <Compile Include="Models\Interfaces\IBaseInModel.cs" />
+    <Compile Include="Models\Interfaces\IPagedData.cs" />
+    <Compile Include="Models\Interfaces\ISelectedItem.cs" />
+    <Compile Include="Models\AffiliateChannel\AffiliateChannelAddModel.cs" />
+    <Compile Include="Models\AffiliateChannel\AffiliateChannelExtendedModel.cs" />
+    <Compile Include="Models\Lead\AffiliateCampaignTemplateModel.cs" />
+    <Compile Include="Models\AffiliateChannel\AffiliateChannelModel.cs" />
+    <Compile Include="Models\AffiliateChannel\AffiliateChannelSpecificationModel.cs" />
+    <Compile Include="Models\Lead\AffiliateExtendedModel.cs" />
+    <Compile Include="Models\Lead\AffiliateModelBase.cs" />
+    <Compile Include="Models\Lead\AffiliateModel.cs" />
+    <Compile Include="Models\Lead\AffiliateNoteModel.cs" />
+    <Compile Include="Models\Lead\AffiliateResponseModel.cs" />
+    <Compile Include="Models\Lead\AffiliateResponsePagedModel.cs" />
+    <Compile Include="Models\Lead\AffiliateStatusInfo.cs" />
+    <Compile Include="Models\Lead\BlackListModel.cs" />
+    <Compile Include="Models\Lead\BuyerChannelCampaignInfoModel.cs" />
+    <Compile Include="Models\Lead\BuyerChannelInfoModel.cs" />
+    <Compile Include="Models\Lead\BuyerChannelModel.cs" />
+    <Compile Include="Models\BuyerChannels\BuyerChannelIntegrationModel.cs" />
+    <Compile Include="Models\Lead\BuyerChannelXmlFieldsModel.cs" />
+    <Compile Include="Models\Lead\BuyerReportModel.cs" />
+    <Compile Include="Models\Lead\LeadExtendedModel.cs" />
+    <Compile Include="Models\Lead\LeadFilter.cs" />
+    <Compile Include="Models\Lead\LeadFilterModel.cs" />
+    <Compile Include="Models\Lead\LeadMainContentModel.cs" />
+    <Compile Include="Models\Lead\LeadMainContentPagedModel.cs" />
+    <Compile Include="Models\Lead\LeadMainModel.cs" />
+    <Compile Include="Models\Lead\LeadModel.cs" />
+    <Compile Include="Models\Lead\LeadNoteModel.cs" />
+    <Compile Include="Models\Lead\LeadResponseModel.cs" />
+    <Compile Include="Models\Lead\LeadsErrorReportModel.cs" />
+    <Compile Include="Models\Lead\LeadsErrorReportPagedModel.cs" />
+    <Compile Include="Models\Lead\ReportBadIPClicksModel.cs" />
+    <Compile Include="Models\Lead\ReportBadIPClicksPagedModel.cs" />
+    <Compile Include="Models\Localization\LocalizedStringModel.cs" />
+    <Compile Include="Models\Membership\Login\SignInModel.cs" />
+    <Compile Include="Models\Membership\UserAddonsResultModel.cs" />
+    <Compile Include="Models\Membership\Password\ChangePasswordModel.cs" />
+    <Compile Include="Models\Membership\Password\ForgotPasswordConfirmationModel.cs" />
+    <Compile Include="Models\Membership\Password\ForgotPasswordModel.cs" />
+    <Compile Include="Models\Membership\Register\RegisterValidationModel.cs" />
+    <Compile Include="Models\Membership\Register\RegistrationModel.cs" />
+    <Compile Include="Models\Membership\Register\RegistrationRequestModel.cs" />
+    <Compile Include="Models\Membership\Login\RemoteLoginModel.cs" />
+    <Compile Include="Models\New\Lead\AffiliateResponseViewModel.cs" />
+    <Compile Include="Models\New\Lead\AffiliateViewModel.cs" />
+    <Compile Include="Models\New\Lead\BuyerViewModel.cs" />
+    <Compile Include="Models\New\Lead\CampaignViewModel.cs" />
+    <Compile Include="Models\New\Lead\LeadContentDuplicateViewModel.cs" />
+    <Compile Include="Models\New\Lead\LeadMainContentDetailsViewModel.cs" />
+    <Compile Include="Models\New\Lead\LeadMainContentItemViewModel.cs" />
+    <Compile Include="Models\New\Lead\LeadResponseViewModel.cs" />
+    <Compile Include="Models\New\Membership\RegisterModel.cs" />
+    <Compile Include="Models\New\Membership\RegisterValidationModel.cs" />
+    <Compile Include="Models\New\Membership\RegistrationRequestCreateModel.cs" />
+    <Compile Include="Models\New\Support\SupportTicketMessageCreateModel.cs" />
+    <Compile Include="Models\New\Support\SupportTicketMessageViewModel.cs" />
+    <Compile Include="Models\New\Support\GetSupportTicketsInModel.cs" />
+    <Compile Include="Models\New\Support\SupportTicketsCreateModel.cs" />
+    <Compile Include="Models\New\Support\SupportTicketsMessagesViewViewModel.cs" />
+    <Compile Include="Models\New\Support\SupportTicketsViewViewModel.cs" />
+    <Compile Include="Models\New\Support\SupportTicketsViewModel.cs" />
+    <Compile Include="Models\Notification\SendBulkNotificationModel.cs" />
+    <Compile Include="Models\Notification\SendNotificationModel.cs" />
+    <Compile Include="Models\Reports\AffilliateReports\AffiliateReportByAffiliateChannelModel.cs" />
+    <Compile Include="Models\Reports\AffilliateReports\AffiliateReportByCampaignModel.cs" />
+    <Compile Include="Models\Reports\AffilliateReports\AffiliateReportByStatesModel.cs" />
+    <Compile Include="Models\Reports\AffilliateReports\AffiliateReportClicksModel.cs" />
+    <Compile Include="Models\Reports\AffilliateReports\AffiliatesReportClicksFilterModel.cs" />
+    <Compile Include="Models\Reports\AffilliateReports\AffiliatesReportRequestModel.cs" />
+    <Compile Include="Models\Reports\AffilliateReports\ErrorLeadsReportAffiliateFilterModel.cs" />
+    <Compile Include="Models\Reports\BuyerReports\AffiliateChannelModelResponse.cs" />
+    <Compile Include="Models\Reports\BuyerReports\BuyerChanneModelResponse.cs" />
+    <Compile Include="Models\Reports\BuyerReports\BuyersReportByHourFilterModel.cs" />
+    <Compile Include="Models\Reports\BuyerReports\BuyersReportByHourModel.cs" />
+    <Compile Include="Models\Reports\BuyerReports\BuyersReportByPricesFilterModel.cs" />
+    <Compile Include="Models\Reports\BuyerReports\BuyersReportByPricesModel.cs" />
+    <Compile Include="Models\Reports\BuyerReports\BuyersReportByStatesRequestModel.cs" />
+    <Compile Include="Models\Reports\BuyerReports\BuyersReportByStatesResponseModel.cs" />
+    <Compile Include="Models\Reports\BuyerReports\BuyersReportRequestModel.cs" />
+    <Compile Include="Models\Reports\BuyerReports\BuyersReportResponseModel.cs" />
+    <Compile Include="Models\Reports\BuyerReports\BuyerReportStatementFilterModel.cs" />
+    <Compile Include="Models\Reports\BuyerReports\BuyersReportWinRateFilterModel.cs" />
+    <Compile Include="Models\Reports\BuyerReports\BuyersReportWinRateModel.cs" />
+    <Compile Include="Models\Reports\BuyerReports\ErrorLeadsReportBuyerFilterModel.cs" />
+    <Compile Include="Models\Reports\BuyerReports\ErrorLeadsReportResponseModel.cs" />
+    <Compile Include="Models\Reports\CustomReports\UpdateCustomReportModel.cs" />
+    <Compile Include="Models\Reports\CustomReports\CreateCustomReportViewModel.cs" />
+    <Compile Include="Models\Reports\CustomReports\ReportCloneModel.cs" />
+    <Compile Include="Models\Reports\CustomReports\ShareCustomReportModel.cs" />
+    <Compile Include="Models\Reports\CustomReports\UserReportModel.cs" />
+    <Compile Include="Models\Reports\CustomReports\ReportTypeModel.cs" />
+    <Compile Include="Models\Reports\CustomReports\ReportVariable.cs" />
+    <Compile Include="Models\Reports\CustomReports\ReportVariableTypeModel .cs" />
+    <Compile Include="Models\Reports\CustomReports\UpdateCustomReportCommentModel.cs" />
+    <Compile Include="Models\Reports\CustomReports\UpdateCustomReportNameModel.cs" />
+    <Compile Include="Models\Reports\CustomReports\CustomReportSettingModel.cs" />
+    <Compile Include="Models\Reports\CustomReports\CustomReportModel.cs" />
+    <Compile Include="Models\Reports\LeadReports\BarChartItemModel.cs" />
+    <Compile Include="Models\Reports\LeadReports\DashboardLeadsReportFilterModel.cs" />
+    <Compile Include="Models\Reports\LeadReports\PieChartItemsModel.cs" />
+    <Compile Include="Models\Reports\LeadReports\ReportBadIpClickFilterModel.cs" />
+    <Compile Include="Models\Reports\LeadReports\ReportBadIpClickModel.cs" />
+    <Compile Include="Models\Reports\ReportModelBase.cs" />
+    <Compile Include="Models\Reports\NetworkReports\ReportBuyersByTrafficEstimatorModel.cs" />
+    <Compile Include="Models\Reports\NetworkReports\ReportBuyersTrafficEstimatorFilterModel.cs" />
+    <Compile Include="Models\Reports\NetworkReports\ReportBuyersComparisonFilterModel.cs" />
+    <Compile Include="Models\Reports\NetworkReports\ReportBuyersComparisonModel.cs" />
+    <Compile Include="Models\Security\PermissionModel.cs" />
+    <Compile Include="Models\Security\PermissionSimpleModel.cs" />
+    <Compile Include="Models\Security\RoleModel.cs" />
+    <Compile Include="Models\Security\RoleRequestModel.cs" />
+    <Compile Include="Models\Settings\CompanyInfoModel.cs" />
+    <Compile Include="Models\Settings\EmailTemplateModel.cs" />
+    <Compile Include="Models\Settings\PostingDetailsModel.cs" />
+    <Compile Include="Models\Settings\SettingEmailsTemplateModel.cs" />
+    <Compile Include="Models\Settings\SettingModel.cs" />
+    <Compile Include="Models\Settings\SettingSmtpModel.cs" />
+    <Compile Include="Models\Settings\SystemSettingsModel.cs" />
+    <Compile Include="Models\Settings\SettingTimeZoneInsertModel.cs" />
+    <Compile Include="Models\Settings\SettingTimeZoneModel.cs" />
+    <Compile Include="Controllers\VerticalController.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Infrastructure\AppDependency.cs" />
+    <Compile Include="Infrastructure\Enums\ResponseStatusCode.cs" />
+    <Compile Include="Infrastructure\Constants\SettingConstants.cs" />
+    <Compile Include="Models\BaseModel.cs" />
+    <Compile Include="Models\Support\TicketAddModel.cs" />
+    <Compile Include="Models\Support\TicketMessageViewItem.cs" />
+    <Compile Include="Models\Support\TicketsUsersInfoModel.cs" />
+    <Compile Include="Models\Users\UserInfoViewModel.cs" />
+    <Compile Include="Models\Users\UserInviteModel.cs" />
+    <Compile Include="Models\Users\UserModel.cs" />
+    <Compile Include="Models\Users\UserProfileByEmailModel.cs" />
+    <Compile Include="Models\Users\UserProfileModel.cs" />
+    <Compile Include="Models\Users\UserSimpleModel.cs" />
+    <Compile Include="Models\Support\TicketMessagesModel.cs" />
+    <Compile Include="Models\Support\TicketsModel.cs" />
+    <Compile Include="Models\Vertical\VerticalFieldModel.cs" />
+    <Compile Include="Models\Vertical\VerticalListModel.cs" />
+    <Compile Include="Models\Vertical\VerticalModel.cs" />
+    <Compile Include="PlainTextFormatter.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="TextMediaTypeFormatter.cs" />
+    <Compile Include="XMLImportExport\FileUtils.cs" />
+    <Compile Include="XMLImportExport\RepositoryItem.cs" />
+    <Compile Include="XMLImportExport\RepositoryManager.cs" />
+    <Compile Include="XMLImportExport\RepositoryParams.cs" />
+    <Compile Include="XMLImportExport\RepositoryRule.cs" />
+    <Compile Include="XMLImportExport\RepositorySource.cs" />
+    <Compile Include="XMLImportExport\XmlAPIWrapper.cs" />
+    <Compile Include="XMLImportExport\XmlCabManager.cs" />
+    <Compile Include="XMLImportExport\XmlCabRecord.cs" />
+    <Compile Include="XMLImportExport\XMLDataProcessor.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_Data\ConnectionStringDebug.txt" />
+    <Content Include="App_Data\ConnectionStringRelease.txt" />
+    <Content Include="App_Data\StaticContent\PostingDetails\ResponseExamples\Test.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="App_Data\StaticContent\PostingDetails\ResponseExamples\Error.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="App_Data\StaticContent\PostingDetails\ResponseExamples\Reject.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="App_Data\StaticContent\PostingDetails\ResponseExamples\Sold.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="App_Data\StaticContent\PostingDetails\CodeSamples\PHP Sample 2.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="App_Data\StaticContent\PostingDetails\CodeSamples\PHP Sample 1.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Areas\HelpPage\HelpPage.css" />
+    <Content Include="Content\bootstrap-theme.css" />
+    <Content Include="Content\bootstrap-theme.min.css" />
+    <Content Include="Content\bootstrap.css" />
+    <Content Include="Content\bootstrap.min.css" />
+    <Content Include="FormBuilder\JS\common.js" />
+    <Content Include="FormBuilder\JS\form.js" />
+    <Content Include="FormBuilder\JS\info.js" />
+    <Content Include="FormBuilder\JS\page.js" />
+    <Content Include="FormBuilder\JS\field.js" />
+    <Content Include="FormBuilder\JS\formbuilder.js" />
+    <Content Include="FormBuilder\JS\libs\bootstrap-multiselect.css" />
+    <Content Include="FormBuilder\JS\libs\bootstrap-multiselect.js" />
+    <Content Include="FormBuilder\JS\libs\bootstrapmultiselect.js" />
+    <Content Include="FormBuilder\JS\libs\datetimepicker.js" />
+    <Content Include="FormBuilder\JS\libs\downloadify.min.js" />
+    <Content Include="FormBuilder\JS\libs\excel-builder.dist.js" />
+    <Content Include="FormBuilder\JS\libs\jsPDF.js" />
+    <Content Include="FormBuilder\JS\libs\jspdf.plugin.autotable.js" />
+    <Content Include="FormBuilder\JS\libs\moment.js" />
+    <Content Include="FormBuilder\JS\libs\resizesensor.js" />
+    <Content Include="FormBuilder\JS\libs\scroll.js" />
+    <Content Include="FormBuilder\JS\libs\simpleXML.js" />
+    <Content Include="FormBuilder\JS\libs\swfobject.js" />
+    <Content Include="FormBuilder\JS\libs\treeview.js" />
+    <Content Include="FormBuilder\JS\libs\zip.js" />
+    <Content Include="FormBuilder\JS\loader.js" />
+    <Content Include="FormBuilder\Templates\bootstrap\3.3.6\js\bootstrap.min.js" />
+    <Content Include="FormBuilder\Templates\bootstrap\3.3.7\css\bootstrap-theme.min.css" />
+    <Content Include="FormBuilder\Templates\bootstrap\3.3.7\css\bootstrap.min.css" />
+    <Content Include="FormBuilder\Templates\css\bootstrap-multiselect.css" />
+    <Content Include="FormBuilder\Templates\css\style_demoform.css" />
+    <Content Include="FormBuilder\Templates\demo_forms.html" />
+    <Content Include="FormBuilder\Templates\demo_wizard.html" />
+    <Content Include="FormBuilder\Templates\demo_wizard_steps.html" />
+    <Content Include="FormBuilder\Templates\font-awesome\4.7.0\css\font-awesome.min.css" />
+    <Content Include="FormBuilder\Templates\result.html" />
+    <Content Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Utils\ImageError.png" />
+    <Content Include="PdfBuilder\PdfReportTools\HtmlRenderer\Core\Utils\ImageLoad.png" />
+    <Content Include="Controllers\ReportModels\TestPages\LeadDashboard\css\font-awesome.min.css" />
+    <Content Include="Controllers\ReportModels\TestPages\LeadDashboard\css\styles2.css" />
+    <Content Include="Controllers\ReportModels\TestPages\LeadDashboard\js\scripts.js" />
+    <Content Include="Controllers\ReportModels\TestPages\LeadDashboard\lead-dashboard.html" />
+    <Content Include="Controllers\ReportModels\TestPages\LeadDashboard\script\api\leads\leads-api.js" />
+    <Content Include="Controllers\ReportModels\TestPages\LeadDashboard\script\libs\bootstrap-multiselect.css" />
+    <Content Include="Controllers\ReportModels\TestPages\LeadDashboard\script\libs\bootstrap-multiselect.js" />
+    <Content Include="Controllers\ReportModels\TestPages\LeadDashboard\script\libs\bootstrapmultiselect.js" />
+    <Content Include="Controllers\ReportModels\TestPages\LeadDashboard\script\libs\datetimepicker.js" />
+    <Content Include="Controllers\ReportModels\TestPages\LeadDashboard\script\libs\jsPDF.js" />
+    <Content Include="Controllers\ReportModels\TestPages\LeadDashboard\script\libs\jspdf.plugin.autotable.js" />
+    <Content Include="Controllers\ReportModels\TestPages\LeadDashboard\script\libs\moment.js" />
+    <Content Include="Controllers\ReportModels\TestPages\LeadDashboard\script\libs\resizesensor.js" />
+    <Content Include="Controllers\ReportModels\TestPages\LeadDashboard\script\libs\scroll.js" />
+    <Content Include="Controllers\ReportModels\TestPages\LeadDashboard\script\libs\simpleXML.js" />
+    <Content Include="Controllers\ReportModels\TestPages\LeadDashboard\script\libs\treeview.js" />
+    <Content Include="Controllers\ReportModels\TestPages\LeadDashboard\script\libs\zip.js" />
+    <Content Include="Controllers\ReportModels\TestPages\LeadDashboard\script\lead\lead_graph.js" />
+    <Content Include="Controllers\ReportModels\TestPages\LeadDashboard\script\lead\lead_overview.js" />
+    <Content Include="Controllers\ReportModels\TestPages\PlanControl\css\font-awesome.min.css" />
+    <Content Include="Controllers\ReportModels\TestPages\PlanControl\css\styles2.css" />
+    <Content Include="Controllers\ReportModels\TestPages\PlanControl\js\scripts.js" />
+    <Content Include="Controllers\ReportModels\TestPages\PlanControl\plan-testing.html" />
+    <Content Include="Controllers\ReportModels\TestPages\PlanControl\script\api\plans\plan-api.js" />
+    <Content Include="Controllers\ReportModels\TestPages\PlanControl\script\libs\bootstrap-multiselect.css" />
+    <Content Include="Controllers\ReportModels\TestPages\PlanControl\script\libs\bootstrap-multiselect.js" />
+    <Content Include="Controllers\ReportModels\TestPages\PlanControl\script\libs\bootstrapmultiselect.js" />
+    <Content Include="Controllers\ReportModels\TestPages\PlanControl\script\libs\datetimepicker.js" />
+    <Content Include="Controllers\ReportModels\TestPages\PlanControl\script\libs\jsPDF.js" />
+    <Content Include="Controllers\ReportModels\TestPages\PlanControl\script\libs\jspdf.plugin.autotable.js" />
+    <Content Include="Controllers\ReportModels\TestPages\PlanControl\script\libs\moment.js" />
+    <Content Include="Controllers\ReportModels\TestPages\PlanControl\script\libs\resizesensor.js" />
+    <Content Include="Controllers\ReportModels\TestPages\PlanControl\script\libs\scroll.js" />
+    <Content Include="Controllers\ReportModels\TestPages\PlanControl\script\libs\simpleXML.js" />
+    <Content Include="Controllers\ReportModels\TestPages\PlanControl\script\libs\treeview.js" />
+    <Content Include="Controllers\ReportModels\TestPages\PlanControl\script\libs\zip.js" />
+    <Content Include="favicon.ico" />
+    <Content Include="fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="forms\templates\1\css\style.css" />
+    <Content Include="forms\templates\1\css\TimeCircles.css" />
+    <Content Include="forms\templates\1\demo.html" />
+    <Content Include="forms\templates\1\form.html" />
+    <Content Include="forms\templates\1\FormGeneration.js" />
+    <Content Include="forms\templates\1\img\step1.png" />
+    <Content Include="forms\templates\1\img\step10-1.png" />
+    <Content Include="forms\templates\1\img\step10-2.png" />
+    <Content Include="forms\templates\1\img\step12-1.png" />
+    <Content Include="forms\templates\1\img\step12-2.png" />
+    <Content Include="forms\templates\1\img\step12-3.png" />
+    <Content Include="forms\templates\1\img\step12-4.png" />
+    <Content Include="forms\templates\1\img\step12-5.png" />
+    <Content Include="forms\templates\1\img\step12-6.png" />
+    <Content Include="forms\templates\1\img\step12-7.png" />
+    <Content Include="forms\templates\1\img\step12-8.png" />
+    <Content Include="forms\templates\1\img\step13-1.png" />
+    <Content Include="forms\templates\1\img\step13-2.png" />
+    <Content Include="forms\templates\1\img\step13-3.png" />
+    <Content Include="forms\templates\1\img\step13-4.png" />
+    <Content Include="forms\templates\1\img\step17-1.png" />
+    <Content Include="forms\templates\1\img\step17-2.png" />
+    <Content Include="forms\templates\1\img\step17-3.png" />
+    <Content Include="forms\templates\1\img\step17-4.png" />
+    <Content Include="forms\templates\1\img\step17-5.png" />
+    <Content Include="forms\templates\1\img\step18-1.png" />
+    <Content Include="forms\templates\1\img\step19.png" />
+    <Content Include="forms\templates\1\img\step20-1.png" />
+    <Content Include="forms\templates\1\img\step20-2.png" />
+    <Content Include="forms\templates\1\img\step23-1.png" />
+    <Content Include="forms\templates\1\img\step23-2.png" />
+    <Content Include="forms\templates\1\img\step4-1.png" />
+    <Content Include="forms\templates\1\img\step4-2.png" />
+    <Content Include="forms\templates\1\img\step5-1.png" />
+    <Content Include="forms\templates\1\img\step5-2.png" />
+    <Content Include="forms\templates\1\img\step9-1.png" />
+    <Content Include="forms\templates\1\img\step9-2.png" />
+    <Content Include="forms\templates\1\img\step9-3.png" />
+    <Content Include="forms\templates\1\img\step9-4.png" />
+    <Content Include="forms\templates\1\js\api-canada.js" />
+    <Content Include="forms\templates\1\js\api.js" />
+    <Content Include="forms\templates\1\js\jquery.waypoints.min.js" />
+    <Content Include="forms\templates\1\js\main-canada.js" />
+    <Content Include="forms\templates\1\js\main.js" />
+    <Content Include="forms\templates\1\js\moment.js" />
+    <Content Include="forms\templates\1\js\TimeCircles.js" />
+    <Content Include="Global.asax" />
+    <Content Include="PdfBuilder\Templates\BuyerInvoiceTemplate\contactlogo.png" />
+    <Content Include="PdfBuilder\Templates\BuyerInvoiceTemplate\footer.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\BuyerInvoiceTemplate\graph1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\BuyerInvoiceTemplate\graph2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\BuyerInvoiceTemplate\graph3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\BuyerInvoiceTemplate\header.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\BuyerInvoiceTemplate\header.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\BuyerInvoiceTemplate\notes.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\BuyerInvoiceTemplate\second.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\BuyerInvoiceTemplate\template.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\InvoiceTemplateAddon\contactlogo.png" />
+    <Content Include="PdfBuilder\Templates\InvoiceTemplateAddon\footer.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\InvoiceTemplateAddon\graph1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\InvoiceTemplateAddon\graph2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\InvoiceTemplateAddon\graph3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\InvoiceTemplateAddon\header.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\InvoiceTemplateAddon\header.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\InvoiceTemplateAddon\notes.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\InvoiceTemplateAddon\second.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\InvoiceTemplateAddon\template.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\InvoiceTemplate\contactlogo.png" />
+    <Content Include="PdfBuilder\Templates\InvoiceTemplate\footer.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\InvoiceTemplate\graph1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\InvoiceTemplate\graph2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\InvoiceTemplate\graph3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\InvoiceTemplate\header.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\InvoiceTemplate\header.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\InvoiceTemplate\notes.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\InvoiceTemplate\second.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\InvoiceTemplate\template.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\BuyerMontlyReportTemplate\contactlogo.png" />
+    <Content Include="PdfBuilder\Templates\BuyerMontlyReportTemplate\template.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\BuyerMontlyReportTemplate\footer.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\BuyerMontlyReportTemplate\graph1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\BuyerMontlyReportTemplate\graph2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\BuyerMontlyReportTemplate\graph3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\BuyerMontlyReportTemplate\header.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\BuyerMontlyReportTemplate\header.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\BuyerMontlyReportTemplate\notes.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PdfBuilder\Templates\BuyerMontlyReportTemplate\second.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Scripts\bootstrap.js" />
+    <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Areas\HelpPage\Views\Web.config" />
+    <Content Include="Areas\HelpPage\Views\Shared\_Layout.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\Index.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\TextSample.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\Samples.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\Parameters.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\InvalidSample.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ImageSample.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\HelpPageApiModel.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ApiGroup.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\Api.cshtml" />
+    <Content Include="ApplicationInsights.config" />
+    <Content Include="Connected Services\Application Insights\ConnectedService.json" />
+    <Content Include="ClassDiagram1.cd" />
+    <Content Include="Billing.xsc">
+      <DependentUpon>Billing.xsd</DependentUpon>
+    </Content>
+    <None Include="Billing.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>Billing.Designer.cs</LastGenOutput>
+    </None>
+    <Content Include="Billing.xss">
+      <DependentUpon>Billing.xsd</DependentUpon>
+    </Content>
+    <Content Include="PdfBuilder\Templates\BuyerMontlyReportTemplate\Buyer Monthly Statement Template %281%29.pdf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Uploads\Pdf\96_MontlyStatement_2021-4-12.pdf" />
+    <None Include="Properties\PublishProfiles\adrackdemo-back - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\adrackdemo-back - ReadOnly - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\adrackdemo-back - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\dev-lead-distribution-api - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\dev-lead-distribution-api - ReadOnly - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\dev-lead-distribution-api - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\lead-distribution - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\lead-distribution - ReadOnly - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\lead-distribution - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\lead-distribution-dev - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\lead-distribution-dev - ReadOnly - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\lead-distribution-dev - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\leads-adrack-api - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\leads-adrack-api - ReadOnly - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\leads-adrack-api - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\newleadadrack - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\newleadadrack - ReadOnly - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\post-proffiliant-api - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\post-proffiliant-api - ReadOnly - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\post-proffiliant-api - Web Deploy.pubxml" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Scripts\jquery-3.3.1.intellisense.js" />
+    <Content Include="Scripts\jquery-3.3.1.js" />
+    <Content Include="Scripts\jquery-3.3.1.min.js" />
+    <Content Include="Scripts\jquery-3.3.1.slim.js" />
+    <Content Include="Scripts\jquery-3.3.1.slim.min.js" />
+    <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Uploads\adrack-logo.png" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Areas\HelpPage\Views\_ViewStart.cshtml" />
+    <Content Include="Content\Site.css" />
+    <Content Include="Views\Web.config" />
+    <Content Include="Views\_ViewStart.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Shared\Error.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Uploads\1_MontlyStatement_2021-03-10.pdf" />
+    <Content Include="Uploads\1_MontlyStatement_2021-03-11.pdf" />
+    <Content Include="Uploads\Invoice_1.1.pdf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Data\Uploads\Avatars\" />
+    <Folder Include="App_Data\Uploads\Icons\Affiliate\" />
+    <Folder Include="App_Data\Uploads\Icons\Buyer\" />
+    <Folder Include="Content\Uploads\Avatars\" />
+    <Folder Include="Content\Uploads\Icons\Affiliate\" />
+    <Folder Include="Content\Uploads\Icons\Buyer\" />
+    <Folder Include="Controllers\ReportModels\TestPages\PlanControl\css\font\" />
+    <Folder Include="Infrastructure\Extensions\" />
+    <Folder Include="Infrastructure\Web\Validators\" />
+    <Folder Include="Models\Export\" />
+    <Folder Include="Models\Reports\DashboardReports\" />
+    <Folder Include="TableArchitecture\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="fonts\glyphicons-halflings-regular.woff2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="fonts\glyphicons-halflings-regular.woff" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="fonts\glyphicons-halflings-regular.eot" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\bootstrap.min.css.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\bootstrap.css.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\bootstrap-theme.min.css.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\bootstrap-theme.css.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <Content Include="Scripts\jquery-3.3.1.slim.min.map" />
+    <Content Include="Scripts\jquery-3.3.1.min.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AdRack.Buffering\PreQual.Buffering.csproj">
+      <Project>{4F15A984-84B5-4848-8EE8-A0886744ACE4}</Project>
+      <Name>PreQual.Buffering</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Adrack.Core\PreQual.Core.csproj">
+      <Project>{5F57182E-10B9-4395-A9F3-F9A8FAD05E85}</Project>
+      <Name>PreQual.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Adrack.Data\PreQual.Data.csproj">
+      <Project>{7A8E61CE-45C9-402D-B2BF-EABD71014442}</Project>
+      <Name>PreQual.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Adrack.PlanManagement\PreQual.PlanManagement.csproj">
+      <Project>{eb8d3251-9cc6-450b-9576-76399f1f12ce}</Project>
+      <Name>PreQual.PlanManagement</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Adrack.Service\PreQual.Service.csproj">
+      <Project>{792F44C7-3033-417E-9B13-3916D7C6F95B}</Project>
+      <Name>PreQual.Service</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Adrack.Web.Framework\PreQual.Web.Framework.csproj">
+      <Project>{53124CE6-5B5E-4E77-BA30-A1FE7890785B}</Project>
+      <Name>PreQual.Web.Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Arack.Encryption\PreQual.Encryption.csproj">
+      <Project>{1ddd61b6-9673-447e-84c1-557918f1a67f}</Project>
+      <Name>PreQual.Encryption</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
+    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>57122</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:4444/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.12.0\build\Microsoft.ApplicationInsights.DependencyCollector.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.12.0\build\Microsoft.ApplicationInsights.DependencyCollector.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.12.0\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.12.0\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.12.0\build\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.12.0\build\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.WindowsServer.2.12.0\build\Microsoft.ApplicationInsights.WindowsServer.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.WindowsServer.2.12.0\build\Microsoft.ApplicationInsights.WindowsServer.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.Web.2.12.0\build\Microsoft.ApplicationInsights.Web.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.Web.2.12.0\build\Microsoft.ApplicationInsights.Web.targets'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.targets'))" />
+  </Target>
+  <Import Project="..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.12.0\build\Microsoft.ApplicationInsights.DependencyCollector.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.12.0\build\Microsoft.ApplicationInsights.DependencyCollector.targets')" />
+  <Import Project="..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.12.0\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.12.0\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets')" />
+  <Import Project="..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.12.0\build\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.12.0\build\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets')" />
+  <Import Project="..\packages\Microsoft.ApplicationInsights.WindowsServer.2.12.0\build\Microsoft.ApplicationInsights.WindowsServer.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.WindowsServer.2.12.0\build\Microsoft.ApplicationInsights.WindowsServer.targets')" />
+  <Import Project="..\packages\Microsoft.ApplicationInsights.Web.2.12.0\build\Microsoft.ApplicationInsights.Web.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.Web.2.12.0\build\Microsoft.ApplicationInsights.Web.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target> -->
+  <Target Name="CopyRoslynFiles" AfterTargets="AfterBuild" Condition="!$(Disable_CopyWebApplication) And '$(OutDir)' != '$(OutputPath)'">
+    <ItemGroup>
+      <RoslynFiles Include="$(CscToolPath)\*" />
+    </ItemGroup>
+    <MakeDir Directories="$(WebProjectOutputDir)\bin\roslyn" />
+    <Copy SourceFiles="@(RoslynFiles)" DestinationFolder="$(WebProjectOutputDir)\bin\roslyn" SkipUnchangedFiles="true" Retries="$(CopyRetryCount)" RetryDelayMilliseconds="$(CopyRetryDelayMilliseconds)" />
+  </Target>
+  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" />
+</Project>

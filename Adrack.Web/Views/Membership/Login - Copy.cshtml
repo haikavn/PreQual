@@ -1,0 +1,96 @@
+﻿@using Adrack.Core
+@using Adrack.Core.Infrastructure
+@model LoginModel
+@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+
+    Html.AddPageTitle(T("PageTitle.Login").Text);
+
+    Html.AppendPageScript(PageLayoutPosition.Body, "~/Scripts/plugins/forms/styling/uniform.min.js".ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, "~/Scripts/core/domain/membership/login.js".ToLowerInvariant());
+    Html.AppendPageCustom(PageLayoutPosition.ContainerAttribute, "login-container");
+
+    var appSetting = AppEngineContext.Current.Resolve<AppSetting>();
+
+    var registrationRequestUrl = "/registrationrequest"; //Url.RouteUrl("RegisterAffiliate");
+
+    var registerAffiliateUrl = "/registeraffiliate"; //Url.RouteUrl("RegisterAffiliate");
+    var registerBuyerUrl = "/registebuyer"; //Url.RouteUrl("RegisterBuyer");
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="panel panel-body login-form">
+        <div class="text-center">
+            <div class="icon-object border-slate-300 text-slate-300">
+                <i class="icon-reading"></i>
+            </div>
+            <h5 class="content-group">Login to your account <small class="display-block">Your credentials</small></h5>
+        </div>
+
+        <div class="form-group has-feedback has-feedback-left">
+            @if (Model.UsernameEnabled)
+            {
+                @Html.TextBoxFor(x => x.Username, new {@class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Username", required = "required"})
+                @Html.ValidationMessageFor(x => x.Username)
+            }
+            else
+            {
+                @Html.TextBoxFor(x => x.Email, new {@class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Email", required = "required"})
+                @Html.ValidationMessageFor(x => x.Email)
+            }
+            <div class="form-control-feedback">
+                <i class="@(Model.UsernameEnabled ? "icon-user" : "icon-mail5") text-muted"></i>
+            </div>
+        </div>
+
+        <div class="form-group has-feedback has-feedback-left">
+            @Html.PasswordFor(x => x.Password, new {@class = "form-control", tabindex = 2, placeholder = "Password", required = "required"})
+            @Html.ValidationMessageFor(x => x.Password)
+            <div class="form-control-feedback">
+                <i class="icon-lock2 text-muted"></i>
+            </div>
+        </div>
+
+        <div class="form-group login-options">
+            <div class="row">
+                <div class="col-sm-6 text-right">
+                    @Html.RouteLink(T("Membership.Login.ForgotPassword").Text, "ForgotPassword", null, new {tabindex = 5})
+                </div>
+            </div>
+        </div>
+
+        @if (Model.DisplayCaptcha)
+        {
+            <div class="row">
+                <div class="col-sm-6">
+                    @Html.Raw(Html.GenerateCaptcha())
+                </div>
+            </div>
+        }
+
+        <div class="form-group">
+            <button type="submit" class="btn bg-blue btn-block" tabindex="4">
+                @T("Membership.Login.Button") <i class="icon-arrow-right14 position-right"></i>
+            </button>
+        </div>
+
+        <div style="color: red">
+            @Html.ValidationSummary(true, T("Membership.Login.Unsuccessful").Text)
+        </div>
+
+        @*<div class="content-divider text-muted form-group"><span>or sign in with</span></div>
+        <ul class="list-inline form-group list-inline-condensed text-center">
+            <li><a href="@appSetting.FacebookLink" class="btn border-indigo text-indigo btn-flat btn-icon btn-rounded"><i class="icon-facebook"></i></a></li>
+            <li><a href="@appSetting.TwitterLink" class="btn border-info text-info btn-flat btn-icon btn-rounded"><i class="icon-twitter"></i></a></li>
+            <li><a href="@appSetting.YoutubeLink" class="btn border-pink-300 text-pink-300 btn-flat btn-icon btn-rounded"><i class="icon-youtube"></i></a></li>
+        </ul>*@
+
+        <div class="content-divider text-muted form-group">
+            <span>Don't have an account?</span>
+        </div>
+        <a href="@registrationRequestUrl" class="btn btn-default btn-block content-group" tabindex="4">@T("Membership.RegisterAffiliate")</a>
+        <span class="help-block text-center no-margin">By continuing, you're confirming that you've read our <a href="#">Terms &amp; Conditions</a> and <a href="#">Cookie Policy</a></span>
+    </div>
+}

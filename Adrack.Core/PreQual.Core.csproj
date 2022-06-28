@@ -1,0 +1,447 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5F57182E-10B9-4395-A9F3-F9A8FAD05E85}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Adrack.Core</RootNamespace>
+    <AssemblyName>Adrack.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\Adrack.Core.xml</DocumentationFile>
+    <NoWarn>CS1584,CS1658</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>bin\Debug\Adrack.Core.xml</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <NoWarn>CS1584,CS1658</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Autofac, Version=3.5.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Autofac.Integration.Mvc, Version=3.3.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.Mvc5.3.3.4\lib\net45\Autofac.Integration.Mvc.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FluentScheduler, Version=5.1.4.0, Culture=neutral, PublicKeyToken=b76503528a14ebd1, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentScheduler.5.1.4\lib\net40\FluentScheduler.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="StackExchange.Redis.StrongName, Version=1.1.0.0, Culture=neutral, PublicKeyToken=c219ff1ca8c2ce46, processorArchitecture=MSIL">
+      <HintPath>..\packages\StackExchange.Redis.StrongName.1.1.603\lib\net46\StackExchange.Redis.StrongName.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http, Version=4.1.1.3, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.4.3.4\lib\net46\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Security.Cryptography.Algorithms, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Algorithms.4.3.0\lib\net461\System.Security.Cryptography.Algorithms.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Encoding, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Encoding.4.3.0\lib\net46\System.Security.Cryptography.Encoding.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Primitives, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Primitives.4.3.0\lib\net46\System.Security.Cryptography.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.X509Certificates, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.X509Certificates.4.3.0\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Channels" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.3\lib\net45\System.Web.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AppException.cs" />
+    <Compile Include="Attributes\TrackedAttribute.cs" />
+    <Compile Include="BaseEntity.cs" />
+    <Compile Include="Cache\AppNullCache.cs" />
+    <Compile Include="Cache\CacheExtensions.cs" />
+    <Compile Include="Cache\ICacheManager.cs" />
+    <Compile Include="Cache\IRedisConnectionWrapper.cs" />
+    <Compile Include="Cache\MemoryCacheManager.cs" />
+    <Compile Include="Cache\PerRequestCacheManager.cs" />
+    <Compile Include="Cache\RedisCacheManager.cs" />
+    <Compile Include="Cache\RedisConnectionWrapper.cs" />
+    <Compile Include="CommonHelper.cs" />
+    <Compile Include="ComponentModel\GenericListTypeConverter.cs" />
+    <Compile Include="ComponentModel\WriteLockDisposable.cs" />
+    <Compile Include="CustomReports\ReportFilterSetting.cs" />
+    <Compile Include="CustomReports\ReportVariable.cs" />
+    <Compile Include="CustomReports\UserReports.cs" />
+    <Compile Include="CustomReports\ReportVariableType.cs" />
+    <Compile Include="CustomReports\ReportType.cs" />
+    <Compile Include="Domain\Accounting\CustomInvoiceRow.cs" />
+    <Compile Include="Domain\Accounting\CustomInvoice.cs" />
+    <Compile Include="Domain\Accounting\AffiliateInvoiceAdjustment.cs" />
+    <Compile Include="Domain\Accounting\AffiliateInvoiceDetails.cs" />
+    <Compile Include="Domain\Accounting\AffiliatePaymentsView.cs" />
+    <Compile Include="Domain\Accounting\BuyerBalance.cs" />
+    <Compile Include="Domain\Accounting\BuyerBalanceView.cs" />
+    <Compile Include="Domain\Accounting\BuyerInvoice.cs" />
+    <Compile Include="Domain\Accounting\BuyerInvoiceAdjustment.cs" />
+    <Compile Include="Domain\Accounting\BuyerInvoiceDetails.cs" />
+    <Compile Include="Domain\Accounting\BuyerPayment.cs" />
+    <Compile Include="Domain\Accounting\BuyerPaymentsView.cs" />
+    <Compile Include="Domain\Billing\Payment.cs" />
+    <Compile Include="Domain\Click\ClickChannel.cs" />
+    <Compile Include="Domain\Click\ClickContent.cs" />
+    <Compile Include="Domain\Click\ClickMain.cs" />
+    <Compile Include="Domain\Click\ClickPostBackUrl.cs" />
+    <Compile Include="Domain\Click\ClickPostbackUrlLog.cs" />
+    <Compile Include="Domain\Common\EntityOwnership.cs" />
+    <Compile Include="Domain\Common\GeoZip.cs" />
+    <Compile Include="Domain\Common\CommonSetting.cs" />
+    <Compile Include="Domain\Common\AbaNumber.cs" />
+    <Compile Include="Domain\Common\SearchSetting.cs" />
+    <Compile Include="Domain\Content\AddressSetting.cs" />
+    <Compile Include="Domain\Common\GlobalAttribute.cs" />
+    <Compile Include="Domain\Common\GlobalAttributeBuiltIn.cs" />
+    <Compile Include="Domain\Content\Bank.cs" />
+    <Compile Include="Domain\Content\Document.cs" />
+    <Compile Include="Domain\Content\EntityChangeHistory.cs" />
+    <Compile Include="Domain\Content\GetHistory.cs" />
+    <Compile Include="Domain\Content\History.cs" />
+    <Compile Include="Domain\Content\PropertyChangeHistory.cs" />
+    <Compile Include="Domain\Content\StaticPageCategoryRelation.cs" />
+    <Compile Include="Domain\Content\StaticPageCategory.cs" />
+    <Compile Include="Domain\Content\SupportTickets.cs" />
+    <Compile Include="Domain\Content\SupportTicketsMessages.cs" />
+    <Compile Include="Domain\Content\SupportTicketsMessagesView.cs" />
+    <Compile Include="Domain\Content\StaticPages.cs" />
+    <Compile Include="Domain\Dashboard\DashboardBarChartInsightModel.cs" />
+    <Compile Include="Domain\Dashboard\DashboardPieChartInsightModel.cs" />
+    <Compile Include="Domain\Data\Entity.cs" />
+    <Compile Include="Domain\Directory\CurrencySetting.cs" />
+    <Compile Include="Domain\Directory\ExchangeRate.cs" />
+    <Compile Include="Domain\Directory\UserTypeBuiltIn.cs" />
+    <Compile Include="Domain\Discount\Coupon.cs" />
+    <Compile Include="Domain\Lead\AttachedChannel.cs" />
+    <Compile Include="Domain\Lead\BuyerChannelNote.cs" />
+    <Compile Include="Domain\Lead\BuyerChannelScheduleTimePeriod.cs" />
+    <Compile Include="Domain\Lead\BuyerChannelScheduleDay.cs" />
+    <Compile Include="Domain\Lead\BuyerChannelHoliday.cs" />
+    <Compile Include="Domain\Lead\BuyerInivations.cs" />
+    <Compile Include="Domain\Lead\AffiliateInivations.cs" />
+    <Compile Include="Domain\Lead\AffiliateChannelNote.cs" />
+    <Compile Include="Domain\Lead\BuyerChannelTemplateMatching.cs" />
+    <Compile Include="Domain\Lead\CachedUrl.cs" />
+    <Compile Include="Domain\Lead\CampaignList.cs" />
+    <Compile Include="Domain\Lead\FormTemplateItem.cs" />
+    <Compile Include="Domain\Lead\PingTree.cs" />
+    <Compile Include="Domain\Lead\PingTreeItem.cs" />
+    <Compile Include="Domain\Lead\Reports\GlobalReport.cs" />
+    <Compile Include="Domain\Lead\Reports\LeadsReportByDay.cs" />
+    <Compile Include="Domain\Lead\Reports\LeadsReportTotal.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportClickCount.cs" />
+    <Compile Include="Domain\Lead\Reports\TotalRemainingEntity.cs" />
+    <Compile Include="Domain\Lead\Reports\TotalRemaining.cs" />
+    <Compile Include="Domain\Lead\Reports\LeadsReportByHour.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportBuyersByPricesAndStates.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportByDays.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportByHourTotal.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportByWeekdayTotal.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportsViewed.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportClickMain.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportBuyersConversionAnalysys.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportSendingTime.cs" />
+    <Compile Include="Domain\Lead\SubIdWhiteList.cs" />
+    <Compile Include="Domain\Lead\DoNotPresent.cs" />
+    <Compile Include="Domain\Lead\LeadFieldsContent.cs" />
+    <Compile Include="Domain\Lead\LeadSensitiveData.cs" />
+    <Compile Include="Domain\Lead\LeadNote.cs" />
+    <Compile Include="Domain\Lead\NoteTitle.cs" />
+    <Compile Include="Domain\Lead\Reports\BuyerReportByHour.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportAffiliatesByEpl.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportBuyersWinRateReport.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportBuyersByTrafficEstimate.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportBuyersByPrices.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportBuyersComparison.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportBuyersByLeadNotes.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportBuyersByDates.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportBuyersByReactionTime.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportBySubId.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportErrorLeads.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportByStatuses.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportTopStates.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportTotalsByDate.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportTotalsBuyer.cs" />
+    <Compile Include="Domain\Lead\FormTemplate.cs" />
+    <Compile Include="Domain\Lead\UserSubscription.cs" />
+    <Compile Include="Domain\Lead\VerticalField.cs" />
+    <Compile Include="Domain\Lead\VerticalFieldType.cs" />
+    <Compile Include="Domain\Lead\VerticalType.cs" />
+    <Compile Include="Domain\Lead\ZipCodeRedirect.cs" />
+    <Compile Include="Domain\Lead\ProcessingLog.cs" />
+    <Compile Include="Domain\Lead\CustomBlackListValue.cs" />
+    <Compile Include="Domain\Lead\BuyerResponse.cs" />
+    <Compile Include="Domain\Lead\RedirectUrl.cs" />
+    <Compile Include="Domain\Lead\PostedData.cs" />
+    <Compile Include="Domain\Lead\AffiliateResponse.cs" />
+    <Compile Include="Domain\Lead\GeoLocation.cs" />
+    <Compile Include="Domain\Lead\LeadGeoData.cs" />
+    <Compile Include="Domain\Lead\PaymentMethod.cs" />
+    <Compile Include="Domain\Lead\Affiliate.cs" />
+    <Compile Include="Domain\Accounting\AffiliatePayment.cs" />
+    <Compile Include="Domain\Lead\BlackListValue.cs" />
+    <Compile Include="Domain\Lead\BlackListType.cs" />
+    <Compile Include="Domain\Lead\BuyerChannel.cs" />
+    <Compile Include="Domain\Lead\AffiliateChannel.cs" />
+    <Compile Include="Domain\Lead\AffiliateChannelFilterCondition.cs" />
+    <Compile Include="Domain\Lead\BuyerChannelTemplate.cs" />
+    <Compile Include="Domain\Lead\AffiliateChannelTemplate.cs" />
+    <Compile Include="Domain\Lead\Buyer.cs" />
+    <Compile Include="Domain\Lead\Campaign.cs" />
+    <Compile Include="Domain\Accounting\AffiliateInvoice.cs" />
+    <Compile Include="Domain\Lead\CampaignField.cs" />
+    <Compile Include="Domain\Lead\Department.cs" />
+    <Compile Include="Domain\Lead\Filter.cs" />
+    <Compile Include="Domain\Lead\BuyerChannelFilterCondition.cs" />
+    <Compile Include="Domain\Lead\FilterCondition.cs" />
+    <Compile Include="Domain\Lead\LeadMainContent.cs" />
+    <Compile Include="Domain\Lead\LeadMainResponse.cs" />
+    <Compile Include="Domain\Lead\LeadContentDublicate.cs" />
+    <Compile Include="Domain\Lead\LeadMain.cs" />
+    <Compile Include="Domain\Lead\LeadContent.cs" />
+    <Compile Include="Domain\Lead\LeadResponse.cs" />
+    <Compile Include="Domain\Lead\BuyerChannelSchedule.cs" />
+    <Compile Include="Domain\Lead\RefundedLeads.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportAffiliatesByAffiliateChannels.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportBadIPClicks.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportBuyersByAffiliateChannels.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportAffiliatesByCampaigns.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportAffiliatesByStates.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportByYear.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportByHour.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportByMinutes.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportTotals.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportBuyersByStates.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportBuyersByCampaigns.cs" />
+    <Compile Include="Domain\Lead\Reports\BuyerReportByBuyerChannel.cs" />
+    <Compile Include="Domain\Lead\AffiliateNote.cs" />
+    <Compile Include="Domain\Lead\Vertical.cs" />
+    <Compile Include="Domain\Localization\ILocalizedEnum.cs" />
+    <Compile Include="Domain\Localization\LocalizationSetting.cs" />
+    <Compile Include="Domain\Membership\Feature.cs" />
+    <Compile Include="Domain\Membership\PermissionAddon.cs" />
+    <Compile Include="Domain\Membership\PlanModel.cs" />
+    <Compile Include="Domain\Membership\PlanFeature.cs" />
+    <Compile Include="Domain\Membership\UserPlan.cs" />
+    <Compile Include="Domain\Membership\UserAddons.cs" />
+    <Compile Include="Domain\Membership\Authentication.cs" />
+    <Compile Include="Domain\Membership\AuthenticationSetting.cs" />
+    <Compile Include="Domain\Membership\RegistrationRequest.cs" />
+    <Compile Include="Domain\Membership\ProfileSetting.cs" />
+    <Compile Include="Domain\Membership\Addon.cs" />
+    <Compile Include="Domain\Membership\UserBuyerChannel.cs" />
+    <Compile Include="Domain\Membership\UserProfileResult.cs" />
+    <Compile Include="Domain\Membership\VerifyAccount.cs" />
+    <Compile Include="Domain\Membership\VerifySecurity.cs" />
+    <Compile Include="Domain\Membership\UserLoginResult.cs" />
+    <Compile Include="Domain\Membership\UserExtensions.cs" />
+    <Compile Include="Domain\Membership\UserRegistrationType.cs" />
+    <Compile Include="Domain\Membership\UserSetting.cs" />
+    <Compile Include="AppSetting.cs" />
+    <Compile Include="Domain\Message\EmailQueueSetting.cs" />
+    <Compile Include="Domain\Message\EmailSubscriptionSetting.cs" />
+    <Compile Include="Domain\Message\EventPublisher.cs" />
+    <Compile Include="Domain\Notification\Notification.cs" />
+    <Compile Include="Domain\Notification\UserNotification.cs" />
+    <Compile Include="Domain\Payment\PaymentPastDays.cs" />
+    <Compile Include="Domain\Payment\PaymentSetting.cs" />
+    <Compile Include="Domain\Payment\PaymentStatus.cs" />
+    <Compile Include="Domain\Security\CustomPrincipal.cs" />
+    <Compile Include="Domain\Security\EntityType.cs" />
+    <Compile Include="Domain\Security\IAclSupported.cs" />
+    <Compile Include="Domain\Common\Navigation.cs" />
+    <Compile Include="Domain\Security\PermissionBuiltIn.cs" />
+    <Compile Include="Domain\Security\PermissionState.cs" />
+    <Compile Include="Domain\Security\RoleBuiltIn.cs" />
+    <Compile Include="Domain\Security\RolePermission.cs" />
+    <Compile Include="Domain\Security\SecuritySetting.cs" />
+    <Compile Include="Domain\SendGrid\SendgridDataModel.cs" />
+    <Compile Include="Domain\Seo\IPageSlugSupported.cs" />
+    <Compile Include="Domain\Seo\PageTitleAdjustment.cs" />
+    <Compile Include="Domain\Seo\SeoSetting.cs" />
+    <Compile Include="Domain\Seo\WwwRequirement.cs" />
+    <Compile Include="Dynamic.cs" />
+    <Compile Include="Enums.cs" />
+    <Compile Include="Helpers\WebHelper.cs" />
+    <Compile Include="Infrastructure\ApplicationEvent\EntityDeleted.cs" />
+    <Compile Include="Infrastructure\ApplicationEvent\EntityInserted.cs" />
+    <Compile Include="Infrastructure\ApplicationEvent\EntityUpdated.cs" />
+    <Compile Include="Fakes\FakeHttpContext.cs" />
+    <Compile Include="Fakes\FakeHttpRequest.cs" />
+    <Compile Include="Fakes\FakeHttpResponse.cs" />
+    <Compile Include="Fakes\FakeHttpSessionState.cs" />
+    <Compile Include="Fakes\FakeIdentity.cs" />
+    <Compile Include="Fakes\FakePrincipal.cs" />
+    <Compile Include="IAppContext.cs" />
+    <Compile Include="ICommonHelper.cs" />
+    <Compile Include="Infrastructure\Configuration\AppConfiguration.cs" />
+    <Compile Include="Infrastructure\Configuration\ISetting.cs" />
+    <Compile Include="Infrastructure\Data\BaseDataProviderManager.cs" />
+    <Compile Include="Infrastructure\Data\DataSetting.cs" />
+    <Compile Include="Infrastructure\Data\DataSettingManager.cs" />
+    <Compile Include="Infrastructure\Data\IDataProvider.cs" />
+    <Compile Include="Domain\Agent\ScheduleTask.cs" />
+    <Compile Include="Domain\Audit\Log.cs" />
+    <Compile Include="Domain\Audit\LogLevel.cs" />
+    <Compile Include="Domain\Configuration\Setting.cs" />
+    <Compile Include="Domain\Content\Address.cs" />
+    <Compile Include="Domain\Directory\StateProvince.cs" />
+    <Compile Include="Domain\Directory\UserType.cs" />
+    <Compile Include="Domain\Localization\ILocalizedEntity.cs" />
+    <Compile Include="Domain\Message\SmtpAccount.cs" />
+    <Compile Include="Domain\Message\EmailQueue.cs" />
+    <Compile Include="Domain\Message\EmailTemplate.cs" />
+    <Compile Include="Domain\Message\EmailSubscription.cs" />
+    <Compile Include="Domain\Directory\AddressType.cs" />
+    <Compile Include="Domain\Directory\Category.cs" />
+    <Compile Include="Domain\Directory\Country.cs" />
+    <Compile Include="Domain\Directory\Currency.cs" />
+    <Compile Include="Domain\Localization\Language.cs" />
+    <Compile Include="Domain\Localization\LocalizedString.cs" />
+    <Compile Include="Domain\Localization\LocalizedProperty.cs" />
+    <Compile Include="Domain\Membership\Profile.cs" />
+    <Compile Include="Domain\Membership\User.cs" />
+    <Compile Include="Domain\Security\Acl.cs" />
+    <Compile Include="Domain\Security\Permission.cs" />
+    <Compile Include="Domain\Security\Role.cs" />
+    <Compile Include="Domain\Seo\PageSlug.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="Infrastructure\AppDomainTypeFinder.cs" />
+    <Compile Include="Infrastructure\AppEngine.cs" />
+    <Compile Include="Infrastructure\ApplicationDependency\ContainerManager.cs" />
+    <Compile Include="Infrastructure\AppEngineContext.cs" />
+    <Compile Include="Infrastructure\ApplicationDependency\IAppDependency.cs" />
+    <Compile Include="Infrastructure\IAppEngine.cs" />
+    <Compile Include="Infrastructure\IStartupScheduleTask.cs" />
+    <Compile Include="Infrastructure\IAppStartupTask.cs" />
+    <Compile Include="Infrastructure\ITypeFinder.cs" />
+    <Compile Include="Infrastructure\Singleton.cs" />
+    <Compile Include="Infrastructure\WebAppTypeFinder.cs" />
+    <Compile Include="IPagination.cs" />
+    <Compile Include="Pagination.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="ClassDiagram1.cd" />
+    <None Include="ClassDiagram2.cd" />
+    <None Include="ClassDiagram3.cd" />
+    <None Include="ClassDiagram4.cd" />
+    <None Include="Packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

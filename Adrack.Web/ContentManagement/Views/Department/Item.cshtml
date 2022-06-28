@@ -1,0 +1,43 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.DepartmentModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+}
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-validation" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="panel-body">
+        <fieldset>
+            <div class="collapse in" id="general">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group has-feedback">
+                            @Html.LabelFor(x => x.Name)
+                            @Html.TextBoxFor(x => x.Name, new { @class = "form-control", tabindex = 1, placeholder = "Role name", required = "required" })
+                            <div class="form-control-feedback">
+                                <i class="icon-user-plus text-muted"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <div style="color:red">
+            @Html.ValidationSummary()
+        </div>
+        @if (permissionService.Authorize(PermissionProvider.SettingsBlackListsModify))
+        {
+        <div>
+            @Html.HiddenFor(x => x.DepartmentId)
+            <input class="btn btn-info" id="validation-next" value="Submit" type="submit">
+        </div>
+        }
+    </div>
+}

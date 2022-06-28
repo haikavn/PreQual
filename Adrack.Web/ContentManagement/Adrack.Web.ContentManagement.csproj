@@ -1,0 +1,682 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.1\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.1\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="..\..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A2418AA7-C122-4C76-A0B3-F87005A34368}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Adrack.Web.ContentManagement</RootNamespace>
+    <AssemblyName>Adrack.Web.ContentManagement</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <MvcBuildViews>false</MvcBuildViews>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <TargetFrameworkProfile />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <Use64BitIISExpress />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>..\bin\Adrack.Web.ContentManagement.xml</DocumentationFile>
+    <ExcludeGeneratedDebugSymbol>false</ExcludeGeneratedDebugSymbol>
+    <NoWarn>CS1584,CS1658,CS8032</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Adrack.Web.ContentManagement.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Autofac, Version=3.5.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="AutoMapper, Version=4.2.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\AutoMapper.4.2.1\lib\net45\AutoMapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Castle.Core.4.4.0\lib\net45\Castle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentScheduler, Version=5.1.4.0, Culture=neutral, PublicKeyToken=b76503528a14ebd1, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentScheduler.5.1.4\lib\net40\FluentScheduler.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FluentValidation, Version=6.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentValidation.6.2.1.0\lib\Net45\FluentValidation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="itextsharp, Version=5.5.9.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\iTextSharp.5.5.9\lib\itextsharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.1\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp, Version=1.32.3057.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\PDFsharp.1.32.3057.0\lib\net20\PdfSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PdfSharp.Charting, Version=1.32.3057.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\PDFsharp.1.32.3057.0\lib\net20\PdfSharp.Charting.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data.Linq" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web.Abstractions" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Optimization, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.Web.Optimization.1.1.3\lib\net40\System.Web.Optimization.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.Razor.3.2.3\lib\net45\System.Web.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="WebGrease, Version=1.6.5135.21930, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\core\Base.Component.css" />
+    <Content Include="Content\core\Base.css" />
+    <Content Include="Content\core\Base.Responsive.css" />
+    <Content Include="Content\core\Base.Rtl.css" />
+    <Content Include="Content\core\library\bootstrap.css" />
+    <Content Include="Content\core\library\bootstrap.min.css" />
+    <Content Include="Content\core\library\font-awesome.min.css" />
+    <Content Include="Content\core\library\font\bootstrap\glyphicons-halflings-regular.svg" />
+    <Content Include="Content\core\library\font\fontawesome\fontawesome-webfont.svg" />
+    <Content Include="Content\core\library\font\icomoon\icomoon.svg" />
+    <Content Include="Content\core\library\font\ionicons\ionicons.svg" />
+    <Content Include="Content\core\library\icomoon.css" />
+    <Content Include="Content\core\library\ionicons.css" />
+    <Content Include="Content\core\Main.css" />
+    <Content Include="Content\images\cache.png" />
+    <Content Include="Content\images\logo_icon_light.png" />
+    <Content Include="Scripts\pages\dashboard2.js" />
+    <Content Include="Scripts\plugins\notifications\bootbox.min.js" />
+    <Content Include="Scripts\plugins\notifications\jgrowl.min.js" />
+    <Content Include="Scripts\plugins\notifications\noty.min.js" />
+    <Content Include="Scripts\plugins\notifications\pnotify.min.js" />
+    <Content Include="Scripts\plugins\notifications\sweet_alert.min.js" />
+    <Content Include="Scripts\___bchannel.js" />
+    <Content Include="Scripts\campaign.js" />
+    <Content Include="Scripts\common.js" />
+    <Content Include="Scripts\core\app.data.service.js" />
+    <Content Include="Scripts\core\app.js" />
+    <Content Include="Scripts\core\app.navigation.js" />
+    <Content Include="Scripts\core\library\Empty.txt" />
+    <Content Include="Scripts\core\library\jquery.min.js" />
+    <Content Include="Scripts\jquery.validate.js" />
+    <Content Include="Scripts\jquery.validate.min.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
+    <Content Include="Scripts\main.js" />
+    <Content Include="Scripts\plugins\blockui.min.js" />
+    <Content Include="Scripts\plugins\cropper\cropper.common.js" />
+    <Content Include="Scripts\plugins\cropper\cropper.esm.js" />
+    <Content Include="Scripts\plugins\cropper\cropper.js" />
+    <Content Include="Scripts\plugins\cropper\cropper.min.js" />
+    <Content Include="Scripts\plugins\duallistbox.min.js" />
+    <Content Include="Scripts\plugins\form.wizard.min.js" />
+    <Content Include="Scripts\plugins\jasny.bootstrap.min.js" />
+    <Content Include="Scripts\plugins\jquery.creditCardValidator.js" />
+    <Content Include="Scripts\plugins\nicescroll.min.js" />
+    <Content Include="Scripts\plugins\pace.min.js" />
+    <Content Include="Scripts\plugins\select2.min.js" />
+    <Content Include="Scripts\plugins\steps.min.js" />
+    <Content Include="Scripts\plugins\uniform.min.js" />
+    <Content Include="Scripts\plugins\validate.min.js" />
+    <Content Include="Uploads\adrack_logo3.png" />
+    <Content Include="Uploads\arrowshade-bg.jpg" />
+    <Content Include="Uploads\Demo.txt" />
+    <Content Include="Uploads\logo-1.png" />
+    <Content Include="Uploads\User.png" />
+    <Content Include="Views\Web.config" />
+    <Content Include="Views\_ViewStart.cshtml" />
+    <Content Include="Views\Buyer\Item.cshtml" />
+    <Content Include="Views\Support\Tickets.cshtml" />
+    <Content Include="Views\Role\Item.cshtml" />
+    <Content Include="Views\Role\List.cshtml" />
+    <Content Include="Views\Department\Item.cshtml" />
+    <Content Include="Views\Department\List.cshtml" />
+    <Content Include="Views\User\AffiliateList.cshtml" />
+    <Content Include="Views\User\BuyerList.cshtml" />
+    <Content Include="Views\Setting\EMailTemplateItem.cshtml" />
+    <Content Include="Views\Setting\EMailTemplates.cshtml" />
+    <Content Include="Views\Setting\Index.cshtml" />
+    <Content Include="Views\Setting\Smtp.cshtml" />
+    <Content Include="Views\Vertical\List.cshtml" />
+    <Content Include="Views\Vertical\Item.cshtml" />
+    <Content Include="Views\Campaign\List.cshtml" />
+    <Content Include="Views\AffiliateChannel\Item.cshtml" />
+    <Content Include="Views\AffiliateChannel\List.cshtml" />
+    <Content Include="Views\Lead\Index.cshtml" />
+    <Content Include="Views\Campaign\TemplateItem.cshtml" />
+    <Content Include="Views\Campaign\TemplateList.cshtml" />
+    <Content Include="Views\BuyerChannel\List.cshtml" />
+    <Content Include="Views\Accounting\RefundedLeads.cshtml" />
+    <Content Include="Views\Accounting\BuyerInvoices.cshtml" />
+    <Content Include="Views\Accounting\BuyerInvoiceItem.cshtml" />
+    <Content Include="Views\Accounting\GenerateCustomInvoices.cshtml" />
+    <Content Include="Views\Accounting\GenerateInvoices.cshtml" />
+    <Content Include="Views\Accounting\BuyersBalance.cshtml" />
+    <Content Include="Views\Report\BuyerReportByBuyerChannel.cshtml" />
+    <Content Include="Views\Setting\TimeZone.cshtml" />
+    <Content Include="Views\Profile\Item.cshtml" />
+    <Content Include="Views\Filter\Item.cshtml" />
+    <Content Include="Views\Filter\List.cshtml" />
+    <Content Include="Views\Lead\Item.cshtml" />
+    <Content Include="Views\Accounting\AffiliateInvoiceItem.cshtml" />
+    <Content Include="Views\Accounting\Pdf.cshtml" />
+    <Content Include="Views\Accounting\PdfAffiliate.cshtml" />
+    <Content Include="Views\Report\ReportBuyersByCampaigns.cshtml" />
+    <Content Include="Views\Report\ReportBuyersByAffiliateChannels.cshtml" />
+    <Content Include="Views\Report\ReportBuyersByStates.cshtml" />
+    <Content Include="Views\Report\ReportBuyers.cshtml" />
+    <Content Include="Views\Report\ReportAffiliatesByAffiliateChannels.cshtml" />
+    <Content Include="Views\Report\ReportAffiliatesByCampaigns.cshtml" />
+    <Content Include="Views\Report\ReportAffiliatesByStates.cshtml" />
+    <Content Include="Views\Report\ReportAffiliates.cshtml" />
+    <Content Include="Views\BlackList\Item.cshtml" />
+    <Content Include="Views\BlackList\List.cshtml" />
+    <Content Include="Views\History\Index.cshtml" />
+    <Content Include="Views\History\Item.cshtml" />
+    <Content Include="Views\Report\ReportByDays.cshtml" />
+    <Content Include="Views\Report\ReportTotals.cshtml" />
+    <Content Include="Views\Accounting\BuyerInvoicesPartial.cshtml" />
+    <Content Include="Views\Accounting\AffiliateInvoicesPartial.cshtml" />
+    <Content Include="Views\Support\TicketsPartial.cshtml" />
+    <Content Include="Views\PaymentMethod\Item.cshtml" />
+    <Content Include="Views\PaymentMethod\List.cshtml" />
+    <Content Include="Views\Lead\IndexPartial.cshtml" />
+    <Content Include="Views\Document\Index.cshtml" />
+    <Content Include="Views\History\IndexPartial.cshtml" />
+    <Content Include="Views\Affiliate\Register.cshtml" />
+    <Content Include="Views\AffiliateChannel\PostSpecification.cshtml" />
+    <Content Include="Views\Lead\BadIPClicksReport.cshtml" />
+    <Content Include="Views\Lead\ErrorLeadsReportBuyer.cshtml" />
+    <Content Include="Views\ZipCodeRedirect\Item.cshtml" />
+    <Content Include="Views\ZipCodeRedirect\List.cshtml" />
+    <Content Include="Views\Report\ReportTotalsBuyer.cshtml" />
+    <Content Include="Views\Report\ReportBuyersByDates.cshtml" />
+    <Content Include="Views\Buyer\PartialItem.cshtml" />
+    <Content Include="Views\Accounting\BuyerPaymentsPartial.cshtml" />
+    <Content Include="Views\Report\ReportBuyersByLeadNotes.cshtml" />
+    <Content Include="Views\Report\ReportBuyersByReactionTime.cshtml" />
+    <Content Include="Views\Setting\BrowserTest.cshtml" />
+    <Content Include="Views\Accounting\Invoices.cshtml" />
+    <Content Include="Views\Buyer\Dashboard.cshtml" />
+    <Content Include="Views\Buyer\Channels.cshtml" />
+    <Content Include="Views\Buyer\Users.cshtml" />
+    <Content Include="Views\Buyer\Reports.cshtml" />
+    <Content Include="Views\Shared\BuyerSubMenu.cshtml" />
+    <Content Include="Views\Buyer\PartialDashboard.cshtml" />
+    <Content Include="Views\Lead\IndexPartialAff.cshtml" />
+    <Content Include="Views\Affiliate\Channels.cshtml" />
+    <Content Include="Views\Affiliate\Reports.cshtml" />
+    <Content Include="Views\Affiliate\Users.cshtml" />
+    <Content Include="Views\Affiliate\Dashboard.cshtml" />
+    <Content Include="Views\Shared\AffiliateSubMenu.cshtml" />
+    <Content Include="Views\Buyer\Billing.cshtml" />
+    <Content Include="Views\Campaign\Create.cshtml" />
+    <Content Include="Views\AffiliateChannel\Create.cshtml" />
+    <Content Include="Views\Affiliate\Campaigns.cshtml" />
+    <Content Include="Views\Affiliate\History.cshtml" />
+    <Content Include="Views\Buyer\History.cshtml" />
+    <Content Include="Views\Affiliate\PaymentOptions.cshtml" />
+    <Content Include="Views\BuyerChannel\Create.cshtml" />
+    <Content Include="Views\Accounting\AffiliatesBalance.cshtml" />
+    <Content Include="Views\Buyer\Create.cshtml" />
+    <Content Include="Views\Lead\ValidationErrorLeads.cshtml" />
+    <Content Include="Views\ValidatorType\DateTimeFormats.cshtml" />
+    <Content Include="Views\ValidatorType\Regexp.cshtml" />
+    <Content Include="Views\ValidatorType\MinMax.cshtml" />
+    <Content Include="Views\ValidatorType\Decimal.cshtml" />
+    <Content Include="Views\BuyerChannel\Item.cshtml" />
+    <Content Include="Views\Campaign\Form.cshtml" />
+    <Content Include="Views\Campaign\HtmlForm.cshtml" />
+    <Content Include="Views\User\PasswordStrength.cshtml" />
+    <Content Include="Views\AffiliateChannel\Integration.cshtml" />
+    <Content Include="Views\Report\ReportAdmin.cshtml" />
+    <Content Include="Views\Report\ReportAffiliatesByEpl.cshtml" />
+    <Content Include="Views\Report\BuyerReportByBuyer.cshtml" />
+    <Content Include="Views\Lead\ItemEmail.cshtml" />
+    <Content Include="Views\Report\ReportBuyersComparisonPartial.cshtml" />
+    <Content Include="Views\Report\ReportBuyersComparison.cshtml" />
+    <Content Include="Views\Report\SubIdConverter.cshtml" />
+    <Content Include="Views\Report\ReportBuyersByTrafficEstimator.cshtml" />
+    <Content Include="Views\Report\ReportBuyersByPrices.cshtml" />
+    <Content Include="Views\Buyer\BulkFilterChanges.cshtml" />
+    <Content Include="Views\Lead\ErrorLeadsReportAffiliate.cshtml" />
+    <Content Include="Views\Report\ReportBuyersByHour.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controllers\AccountingController.cs" />
+    <Compile Include="Controllers\AffiliateChannelController.cs" />
+    <Compile Include="Controllers\ValidatorTypeController.cs" />
+    <Compile Include="Controllers\ZipCodeRedirectController.cs" />
+    <Compile Include="Controllers\DocumentController.cs" />
+    <Compile Include="Controllers\PaymentMethodController.cs" />
+    <Compile Include="Controllers\BuyerChannelController.cs" />
+    <Compile Include="Controllers\AffiliateController.cs" />
+    <Compile Include="Controllers\BuyerController.cs" />
+    <Compile Include="Controllers\CampaignController.cs" />
+    <Compile Include="Controllers\CommonController.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controllers\ContentController.cs" />
+    <Compile Include="Controllers\DepartmentController.cs" />
+    <Compile Include="Controllers\HistoryController.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\LeadController.cs" />
+    <Compile Include="Controllers\ProfileController.cs" />
+    <Compile Include="Controllers\ReportController.cs" />
+    <Compile Include="Controllers\RoleController.cs" />
+    <Compile Include="Controllers\SettingController.cs" />
+    <Compile Include="Controllers\SupportController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="Controllers\FilterController.cs" />
+    <Compile Include="Controllers\BlackListController.cs" />
+    <Compile Include="Controllers\AffiliateNoteController.cs" />
+    <Compile Include="Controllers\VerticalController.cs" />
+    <Compile Include="Helper.cs" />
+    <Compile Include="Infrastructure\AutoMapperConfiguration.cs" />
+    <Compile Include="Infrastructure\AutoMapperStartupTask.cs" />
+    <Compile Include="Infrastructure\ContentManagementAreaRegistration.cs" />
+    <Compile Include="Infrastructure\AppDependency.cs" />
+    <Compile Include="Controllers\BaseContentManagementController.cs" />
+    <Compile Include="Infrastructure\Extensions\MappingExtension.cs" />
+    <Compile Include="Models\Accounting\AffiliateInvoiceModel.cs" />
+    <Compile Include="Models\Accounting\BuyerBalanceModel.cs" />
+    <Compile Include="Models\Accounting\BuyerInvoiceModel.cs" />
+    <Compile Include="Models\Accounting\BuyerPaymentModel.cs" />
+    <Compile Include="Models\Accounting\GenerateInvoiceModel.cs" />
+    <Compile Include="Models\Accounting\RefundedLeadModel.cs" />
+    <Compile Include="Models\Audit\LogModel.cs" />
+    <Compile Include="Models\Common\SearchBarModel.cs" />
+    <Compile Include="Models\Common\SearchModel.cs" />
+    <Compile Include="Models\Content\BlackListTypeModel.cs" />
+    <Compile Include="Models\Content\EmailTemplateModel.cs" />
+    <Compile Include="Models\Content\SettingModel.cs" />
+    <Compile Include="Models\Home\DashboardModel.cs" />
+    <Compile Include="Models\Lead\PaymentSourceCardModel.cs" />
+    <Compile Include="Models\Lead\Reports\AdminReportModel.cs" />
+    <Compile Include="Models\Lead\Reports\BuyerReportByHourModel.cs" />
+    <Compile Include="Models\Lead\Reports\ClickReportByBuyerChannelsModel.cs" />
+    <Compile Include="Models\Lead\Reports\ClickReportByAffiliateChannelsModel.cs" />
+    <Compile Include="Models\Lead\Reports\ClickReportByConversionTypeModel.cs" />
+    <Compile Include="Models\Lead\Reports\ClickReportByCampaignsModel.cs" />
+    <Compile Include="Models\Lead\Reports\ReportClickMainModel.cs" />
+    <Compile Include="Models\Lead\Reports\ReportAffiliatesByEplModel.cs" />
+    <Compile Include="Models\Lead\Reports\ReportBuyersConversionAnalysysModel.cs" />
+    <Compile Include="Models\Lead\Reports\ReportSendingTimeModel.cs" />
+    <Compile Include="Models\Lead\Reports\ReportBuyersWinRateReportModel.cs" />
+    <Compile Include="Models\Lead\Reports\ReportBuyersByTrafficEstimatorModel.cs" />
+    <Compile Include="Models\Lead\Reports\ReportBuyersByPricesModel.cs" />
+    <Compile Include="Models\Lead\Reports\ReportBuyersComparisonModel.cs" />
+    <Compile Include="Models\Lead\Reports\ReportBuyersByLeadNotesModel.cs" />
+    <Compile Include="Models\Lead\Reports\ReportBuyersByDatesModel.cs" />
+    <Compile Include="Models\Lead\Reports\ReportBuyersByReactionTimeModel.cs" />
+    <Compile Include="Models\Lead\LeadJourneyModel.cs" />
+    <Compile Include="Models\Lead\ZipCodeRedirectModel.cs" />
+    <Compile Include="Models\Lead\PaymentMethodModel.cs" />
+    <Compile Include="Models\Lead\BuyerChannelModel.cs" />
+    <Compile Include="Models\Lead\AffiliateChannelModel.cs" />
+    <Compile Include="Models\Lead\AffiliateModel.cs" />
+    <Compile Include="Models\Lead\BuyerModel.cs" />
+    <Compile Include="Models\Lead\CampaignModel.cs" />
+    <Compile Include="Models\Lead\DepartmentModel.cs" />
+    <Compile Include="Models\Lead\LeadModel.cs" />
+    <Compile Include="Models\Lead\Reports\AffiliateReportModel.cs" />
+    <Compile Include="Models\Lead\Reports\ReportAffiliatesByAffiliateChannelsModel.cs" />
+    <Compile Include="Models\Lead\Reports\ReportAffiliatesByCampaignsModel.cs" />
+    <Compile Include="Models\Lead\Reports\ReportAffiliatesByStatesModel.cs" />
+    <Compile Include="Models\Lead\Reports\ReportByDaysModel.cs" />
+    <Compile Include="Models\Lead\Reports\ReportBuyersByStatesModel.cs" />
+    <Compile Include="Models\Lead\Reports\ReportBuyersByCampaignsModel.cs" />
+    <Compile Include="Models\Lead\Reports\ReportBuyersByAffiliateChannelsModel.cs" />
+    <Compile Include="Models\Lead\Reports\BuyerReportModel.cs" />
+    <Compile Include="Models\Lead\Reports\BuyerReportByBuyerChannelModel.cs" />
+    <Compile Include="Models\Lead\FilterModel.cs" />
+    <Compile Include="Models\Lead\BlackListModel.cs" />
+    <Compile Include="Models\Lead\VerticalModel.cs" />
+    <Compile Include="Models\Membership\ProfileModel.cs" />
+    <Compile Include="Models\Message\SmtpAccountModel.cs" />
+    <Compile Include="Models\Security\RoleModel.cs" />
+    <Compile Include="Models\Support\SupportTicketsMessagesModel.cs" />
+    <Compile Include="Models\Support\SupportTicketsModel.cs" />
+    <Compile Include="Models\Membership\UserModel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Validators\Membership\ProfileValidator.cs" />
+    <Compile Include="Validators\Membership\UserValidator.cs" />
+    <Compile Include="Validators\Message\SmtpAccountValidator.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\AdRack.Buffering\PreQual.Buffering.csproj">
+      <Project>{4f15a984-84b5-4848-8ee8-a0886744ace4}</Project>
+      <Name>PreQual.Buffering</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Adrack.Core\PreQual.Core.csproj">
+      <Project>{5f57182e-10b9-4395-a9f3-f9a8fad05e85}</Project>
+      <Name>PreQual.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Adrack.Data\PreQual.Data.csproj">
+      <Project>{7a8e61ce-45c9-402d-b2bf-eabd71014442}</Project>
+      <Name>PreQual.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Adrack.Service\PreQual.Service.csproj">
+      <Project>{792f44c7-3033-417e-9b13-3916d7c6f95b}</Project>
+      <Name>PreQual.Service</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Adrack.Web.Framework\PreQual.Web.Framework.csproj">
+      <Project>{53124ce6-5b5e-4e77-ba30-a1fe7890785b}</Project>
+      <Name>PreQual.Web.Framework</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Shared\_Master.Browser.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Shared\_Master.Layout.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Shared\Header.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Shared\Navigation.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Shared\Footer.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Shared\_Master.Page.Layout.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\User\Create.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Common\SearchBar.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Common\Search.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Home\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Content\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\User\List.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\User\Edit.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\User\_CreateOrUpdate.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Home\Dashboard.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\core\library\font\bootstrap\glyphicons-halflings-regular.eot" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\core\library\font\bootstrap\glyphicons-halflings-regular.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\core\library\font\bootstrap\glyphicons-halflings-regular.woff" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\core\library\font\bootstrap\glyphicons-halflings-regular.woff2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\core\library\font\fontawesome\fontawesome-webfont.eot" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\core\library\font\fontawesome\fontawesome-webfont.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\core\library\font\fontawesome\fontawesome-webfont.woff" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\core\library\font\fontawesome\fontawesome-webfont.woff2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\core\library\font\fontawesome\FontAwesome.otf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\core\library\font\icomoon\icomoon.eot" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\core\library\font\icomoon\icomoon.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\core\library\font\icomoon\icomoon.woff" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\core\library\font\ionicons\ionicons.eot" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\core\library\font\ionicons\ionicons.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\core\library\font\ionicons\ionicons.woff" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Support\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Accounting\AffiliateInvoices.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Accounting\BuyerPayments.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Support\Item.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Affiliate\Item.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Affiliate\List.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Buyer\List.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Campaign\Item.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Views\BuyerBalanceModel\" />
+    <Folder Include="Views\BuyerInvoiceModel\" />
+    <Folder Include="Views\Content\BlackListType\" />
+    <Folder Include="Views\GenerateInvoiceModel\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\User\Item.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Report\ReportBuyersWinRateReport.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Setting\GetAll-URL.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Report\ReportBuyersStatement.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Lead\IndexPartialReport.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\ValidatorType\ZipCode.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Buyer\BulkAffiliateChannelSettings.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Report\ReportBuyersConversionAnalysys.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Report\ReportSendingTime.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Report\ReportClickMain.cshtml" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>..\bin\Adrack.Web.ContentManagement.xml</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <NoWarn>CS1584</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>bin\Adrack.Web.ContentManagement.xml</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
+    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>7466</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:7466/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>True</UseCustomServer>
+          <CustomServerUrl>http://www.meghedi.com</CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.1\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.1\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

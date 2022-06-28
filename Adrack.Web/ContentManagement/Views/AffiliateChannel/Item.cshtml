@@ -1,0 +1,1752 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.AffiliateChannelModel
+
+@using Adrack.Service.Helpers
+
+@{
+    Html.AddPageTitle("Affiliate Channel Item");
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/core.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/effects.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/uniform.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switchery.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_all.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_childcounter.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/loaders/blockui.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/ContentManagement/Scripts/plugins/notifications/pnotify.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/json2.js").ToLowerInvariant());
+
+    var currentUser = this.AppContext.AppUser;
+    string sectionName = "";
+}
+
+<style>
+    .subitem-ico {
+        float: left;
+        margin: 10px 10px 0 0;
+    }
+
+    .forsubselect {
+        float: right;
+        width: 365px !important;
+    }
+
+    .invalid-filter-value {
+        color: red;
+    }
+</style>
+
+
+<script>
+    var selectedNode = null;
+    var editMode = false;
+    var xmlTpl = '@Model.XmlTemplate.Replace("\r", "").Replace("\n", "");';
+    var fieldsSelect = [];
+    var curTemplateField = '';
+    var affiliateChannelId = @Model.AffiliateChannelId;
+    var campaignFields = [];
+
+    var filterRowNum = 0;
+
+   function campaignTemplateChange(e) {
+       var defaultValue = $(e).data('curvalue');
+
+        for (var i = 0; i < fieldsSelect.length; i++) {
+            if (fieldsSelect[i].id == $(e).val()) {
+
+                try {
+                    $(e).parent().parent().children('td').eq(2).html('<textarea class="first-value form-control" style="resize: none; height: 36px;" data-validatorvalue="' + fieldsSelect[i].validatorValue + '" data-validator="' + fieldsSelect[i].validator + '">' + defaultValue + '</textarea>');
+                }
+                catch (ex) {
+                    $(e).parent().parent().children('td').eq(2).html('<textarea class="first-value form-control" style="resize: none; height: 36px;" data-validatorvalue="' + fieldsSelect[i].validatorValue + '" data-validator="' + fieldsSelect[i].validator + '">' + defaultValue + '</textarea>');
+                }
+
+                break;
+            }
+        }
+    }
+
+    function allowedChanged(e)
+    {
+        $.ajax({
+            type: "POST",
+            url: "@(Url.RouteUrl("updateallowed"))",
+            data: { aid: affiliateChannelId, bid: $(e).data('id'), add: $(e).is(':checked') },
+            success: function (data) {
+                //$(this).parent('td').parent('tr').remove();
+                GenerateGridTable("blacklist_values", "/GetCustomBlackListValues?id=@Model.AffiliateChannelId&type=1&field=" + curTemplateField, "ID, Value, Action", null, null, null, null);
+                //setTimeout(function () { $('#modal_default').hide(); }, 500);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+
+    function value_remove(e)
+    {
+        $.ajax({
+            type: "POST",
+            url: "@(Url.RouteUrl("removecustomblacklistvalue"))",
+            data: { id: $(e).data('id') },
+            success: function (data) {
+                //$(this).parent('td').parent('tr').remove();
+                GenerateGridTable("blacklist_values", "/GetCustomBlackListValues?id=@Model.AffiliateChannelId&type=1&field=" + curTemplateField, "ID, Value, Action", null, null, null, null);
+                //setTimeout(function () { $('#modal_default').hide(); }, 500);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+
+    function BlackListDialog(e) {
+        curTemplateField = $(e).data('field');
+        $('#modal_blacklist_value').modal('show');
+        GenerateGridTable("blacklist_values", "/GetCustomBlackListValues?id=@Model.AffiliateChannelId&type=1&field=" + curTemplateField, "ID, Value, Action", null, null, null, null);
+    }
+
+    function generate_password(e)
+    {
+        if (!confirm('Are you sure?')) return;
+        var randomstring = Math.random().toString(36).slice(-8);
+        $(e).parent().children('input').val(randomstring);
+    }
+
+    function addFilterRow(field, condition, value, operator, parentid = 0, existing = false) {
+
+        var addChildBtn = '';
+        var subIcon = '';
+        var forsubselect = '';
+
+        if (parentid == 0) {
+            filterRowNum++;
+            addChildBtn = '<div class="add_child_btn" data-id="' + filterRowNum + '"><i class="glyphicon glyphicon-plus-sign green"></i></div>';
+        } else {
+            subIcon = '<div class="subitem-ico"><i class="glyphicon glyphicon-chevron-right"></i></div>';
+            forsubselect = 'forsubselect';
+        }
+
+        var html = '<tr class="row_' + filterRowNum + '">';
+        html += '<td>';
+        html += subIcon;
+
+        html += '<select class="fields form-control ' + forsubselect + '" data-id="' + filterRowNum + '" data-parent-id="'+ parentid +'"  data-curvalue="' + value + '" style="width: 400px" onchange="campaignTemplateChange(this)">';
+        var selected = '';
+        if (fieldsSelect.length == 0)
+        {
+            @foreach(var t in Model.CampaignTemplate)
+            {
+                @Html.Raw("selected = ''; if (field == " + t.Id.ToString() + ") selected = 'selected';");
+                @Html.Raw("html += '<option value=\"" + t.Id.ToString() + "\" ' + selected +'>" + t.TemplateField + "</option>';");
+
+                @Html.Raw("fieldsSelect.push({ id: " + t.Id.ToString() + ", name: '" + t.TemplateField + "', filterSettings: '" + (!string.IsNullOrEmpty(t.FieldFilterSettings) ? t.FieldFilterSettings.Replace("\r", "").Replace("\n", "").Replace("\t", "") : "") + "', validatorValue:'" + (!string.IsNullOrEmpty(t.ValidatorValue) ? t.ValidatorValue : "") + "', validator: '" + t.Validator.ToString() + "' });");
+            }
+        }
+        else
+        {
+            $.each(fieldsSelect, function (id, option) {
+                selected = '';
+                if (option.id == field) selected = 'selected';
+                html += '<option value="' + option.id + '" ' + selected +'>' + option.name + "</option>";
+            });
+        }
+
+        html += '</select>';
+        html += '</td>';
+        html += '<td>';
+        html += '<select class="form-control">';
+        html += '<option value="1" ' + (condition == '1' ? ' selected' : '') + '>CONTAINS</option>';
+        html += '<option value="2" ' + (condition == '2' ? ' selected' : '') + '>DOES NOT CONTAIN</option>';
+        html += '<option value="3" ' + (condition == '3' ? ' selected' : '') + '>STARTS WITH</option>';
+        html += '<option value="4" ' + (condition == '4' ? ' selected' : '') + '>ENDS WITH</option>';
+        html += '<option value="5" ' + (condition == '5' ? ' selected' : '') + '>EQUAL</option>';
+        html += '<option value="6" ' + (condition == '6' ? ' selected' : '') + '>NOT EQUAL</option>';
+        html += '<option value="7" ' + (condition == '7' ? ' selected' : '') + '>GREATER</option>';
+        html += '<option value="8" ' + (condition == '8' ? ' selected' : '') + '>GREATER EQUAL</option>';
+        html += '<option value="9" ' + (condition == '9' ? ' selected' : '') + '>LESS</option>';
+        html += '<option value="10" ' + (condition == '10' ? ' selected' : '') + '>LESS EQUAL</option>';
+        html += '<option value="11" ' + (condition == '11' ? ' selected' : '') + '>RANGE</option>';
+        html += '<option value="12" ' + (condition == '12' ? ' selected' : '') + '>NO SAME DIGITS</option>';
+        html += '</select>';
+        html += '</td>';
+
+        html += '<td>';
+        html += '<textarea class="form-control first-value" style="resize: none; height: 36px;">' + value + '</textarea>';
+        html += '</td>';
+
+        html += '<td><div class="filter_remove"><i class="glyphicon glyphicon-remove red"></i></div></td>';
+        html += '<td>' + addChildBtn + '</td>';
+        html += '</tr>';
+
+
+        if (parentid == 0) {
+            $('#conditions tbody').append(html);
+        } else {
+            if (!existing)
+                $(html).insertAfter($(".row_" + parentid).last());
+            else
+                $(html).insertAfter($(".row_" + filterRowNum).last());
+        }
+
+        $('.filter_remove').off('click').on('click', function () {
+            $(this).parent().parent().remove();
+        });
+    }
+
+    function addBlRow(field, value, operator)
+    {
+        var html = '<tr>';
+        html += '<td>';
+        html += '<select class=".fields form-control" style="width: 400px">';
+        var selected = '';
+        if (fieldsSelect.length == 0)
+        {
+            @foreach(var t in Model.CampaignTemplate)
+            {
+                @Html.Raw("selected = ''; if (field == '" + t.TemplateField + "') selected = 'selected';");
+                @Html.Raw("html += '<option value=\"" + t.TemplateField + "\" ' + selected +'>" + t.TemplateField + "</option>';");
+            }
+        }
+        else
+        {
+            $.each(fieldsSelect, function (id, option) {
+                selected = '';
+                if (option.id == field) selected = 'selected';
+                html += '<option value="' + option.name + '" ' + selected +'>' + option.name + "</option>";
+            });
+        }
+        html += '</select>';
+        html += '</td>';
+
+        html += '<td>';
+        html += '<textarea class="form-control" style="resize: none;">' + value + '</textarea>';
+        html += '</td>';
+
+        html += '<td><div class="bl_remove"><i class="glyphicon glyphicon-remove red"></i></div></td>';
+        html += '</tr>';
+
+        $('#blacklist tbody').append(html);
+
+        $('.bl_remove').off('click').on('click', function () {
+            $(this).parent().parent().remove();
+        });
+    }
+
+    function editRow()
+    {
+        if (selectedNode == null)
+        {
+            alert('Please select the node');
+            return;
+        }
+
+        editMode = true;
+
+        $('#node_name').val(selectedNode.title);
+
+        $('#modal_add_node').modal('show');
+    }
+
+    function deleteRow()
+    {
+        if (selectedNode == null)
+        {
+            alert('Please select the node');
+            return;
+        }
+
+        selectedNode.remove();
+    }
+
+    function loadTree(source)
+    {
+        var tree = $('.tree-table').fancytree('getTree');
+        tree.reload(source);
+
+        $(".fancytree-container tr td:first-child").hide();
+        $(".fancytree-container tr th:first-child").hide();
+    }
+
+    function GetXml()
+    {
+        tpl = [];
+
+        var tree = $(".tree-table").fancytree("getTree");
+        tpl = getNodes(tree, tree.rootNode, "root", tpl);
+
+        var tpljson = JSON.stringify(tpl);
+
+        $.ajax({
+            cache: false,
+            async: false,
+            type: "POST",
+            url: "@(Url.RouteUrl("GetAffiliateChannelXml"))",
+            data: { xml: xmlTpl, json: tpljson },
+            success: function (data) {
+                $('#xmltopost').val(data.xml);
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+
+    function initTree()
+    {
+        $(".tree-table").fancytree({
+            extensions: ["table", "dnd"],
+            checkbox: true,
+            keyboard: false,
+            table: {
+                indentation: 20,      // indent 20px per node level
+                nodeColumnIdx: 1,     // render the node title into the 2nd column
+                checkboxColumnIdx: 0  // render the checkboxes into the 1st column
+            },
+            source: [],
+            lazyLoad: function (event, data) {
+                data.result = { url: "ajax-sub2.json" }
+            },
+            renderColumns: function (event, data) {
+                var node = data.node,
+                $tdList = $(node.tr).find(">td");
+
+                $(node.tr).data('folder', node.folder);
+
+                $tdList.eq(0).data('name', "n");
+                $tdList.eq(1).data('name', "campaign field");
+                $tdList.eq(2).data('name', "template field");
+                $tdList.eq(3).data('name', "default value");
+                if (@Model.AffiliateChannelId > 0)
+                {
+                    //$tdList.eq(4).data('name', "black list value");
+                }
+                /* $tdList.eq(1).data('value', node.parent.title);
+                 $tdList.eq(2).data('value', node.data.DatabaseField);
+                 $tdList.eq(3).data('value', node.data.Validator);
+                 $tdList.eq(5).data('value', node.data.Required);*/
+
+                // (index #0 is rendered by fancytree by adding the checkbox)
+
+                if (!node.folder)
+                {
+                    var sel = '';
+
+                    var templateField = '<select class="cmp form-control" style="width: 150px">';
+
+                    @foreach (var item in Model.ListCampaignField)
+                    {
+                        @Html.Raw("if (node.data.CampaignTemplateId == " + item.Value + ") { sel = 'selected'; } else { sel = ''; }")
+                        @Html.Raw("templateField += '<option value=\"" + item.Value + "\" ' + sel + '>" + item.Text + "</option>';")
+                    }
+
+                    templateField += '</select>';
+
+                    $tdList.eq(2).addClass('text-center').html(templateField);
+
+                    $tdList.eq(3).addClass('text-center').html("<input type='text' class='form-control' maxlength='150' name='default_value' value='" + node.data.DefaultValue + "'>" + (node.title.toLowerCase() == "password" ? "<br><a onclick='generate_password(this)' href='javascript:void(0)'>Generate</a>" : ""));
+
+                    if (@Model.AffiliateChannelId > 0)
+                    {
+                        //$tdList.eq(4).addClass('text-center').html('<a href="javascript:void(0)" data-field="' + node.title + '" onclick="BlackListDialog(this)" class="btn-blacklist">Black lists</a>');
+                    }
+
+                    // Style checkboxes
+                    $(node.tr).find(".styled").uniform({ radioClass: 'choice' });
+
+                    FillCampaignDropdown($(node.tr).find(".cmp"), node.title, node.data.CampaignTemplateId);
+
+                    //$(node.tr).find(".select-search").select2();
+                }
+
+                //$(".select-search").off("select2:select").on("select2:select", function (e) { $(this).parent().data('value', e.params.data.id); console.log(e); });
+            },
+            activate: function(event, data) {
+                selectedNode = data.node;
+            },
+            select: function(event, data) {
+                console.log(data);
+                // Display list of selected nodes
+                //var s = data.tree.getSelectedNodes().join(", ");
+                //$("#echoSelection1").text(s);
+            },
+            dnd: {
+                preventVoidMoves: true, // Prevent dropping nodes 'before self', etc.
+                preventRecursiveMoves: true, // Prevent dropping nodes on own descendants
+                autoExpandMS: 400,
+                draggable: {
+                    //zIndex: 1000,
+                    // appendTo: "body",
+                    // helper: "clone",
+                    scroll: false,
+                    revert: "invalid"
+                },
+                dragStart: function (node, data) {
+                    if (data.originalEvent.shiftKey) {
+                        console.log("dragStart with SHIFT");
+                    }
+                    // allow dragging `node`:
+                    return true;
+                },
+                dragEnter: function (node, data) {
+                    // Prevent dropping a parent below another parent (only sort
+                    // nodes under the same parent)
+                    /* 					if(node.parent !== data.otherNode.parent){
+                                            return false;
+                                        }
+                                        // Don't allow dropping *over* a node (would create a child)
+                                        return ["before", "after"];
+                    */
+                    return true;
+                },
+                dragDrop: function (node, data) {
+                    if (!data.otherNode) {
+                        // It's a non-tree draggable
+                        var title = $(data.draggable.element).text() + " (" + (count)++ + ")";
+                        node.addNode({ title: title }, data.hitMode);
+
+                        return;
+                    }
+                    data.otherNode.moveTo(node, data.hitMode);
+                    $(node.tr).data('folder', true);
+                    console.log(node.tr);
+                }
+            }
+        });
+    }
+
+    function LoadAChannelTemplate(achannelid)
+    {
+        $.ajax({
+            cache: false,
+            async: false,
+            type: "POST",
+            url: "@(Url.RouteUrl("LoadAffiliateChannelTemplate"))",
+            data: { achannelid: achannelid, xml: $('#xml_template').val() },
+            success: function (data) {
+                GetXml();
+                loadTree(data);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+
+    function LoadCampaignTemplate(campaignid)
+    {
+        $.ajax({
+            cache: false,
+            async: false,
+            type: "POST",
+            url: "@(Url.RouteUrl("loadcampaigntemplatelist"))",
+            data: { campaignid: campaignid },
+            success: function (data) {
+                campaignFields = [];
+                $.each(data, function (id, option) {
+                    campaignFields.push({ id: option.id, name: option.name});
+                });
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+
+    function FillCampaignDropdown(e, title, campaigntemplateid)
+    {
+        $(e).html('');
+        $(e).append($('<option></option>').val(0).html("NONE").attr('selected', true));
+        $.each(campaignFields, function (id, option) {
+            if (option.id != campaigntemplateid)
+                $(e).append($('<option></option>').val(option.id).html(option.name));
+            else
+            {
+                $(e).find('option').removeAttr('selected');
+                $(e).append($('<option></option>').attr('selected', true).val(option.id).html(option.name));
+            }
+        });
+    }
+
+    function getNodes(tree, parent, parentName, ar)
+    {
+        if (parent.children != null)
+        {
+            if (parent.children.length > 0 && parent.title != parentName)
+            {
+                ar.push([]);
+
+                ar[ar.length - 1].push(parent.title);
+                ar[ar.length - 1].push("0");
+                ar[ar.length - 1].push("");
+                ar[ar.length - 1].push(parentName);
+            }
+
+            for(var i = 0; i < parent.children.length; i++)
+            {
+                if (parent.children[i].children == null || parent.children[i].children.length == 0)
+                {
+                    ar.push([]);
+
+                    $(parent.children[i].tr).children('td').each(function () {
+                        var value = null;
+
+                        if ($(this).data('name') == "campaign field") {
+                            value = $(this).find(".fancytree-title").text();
+                            console.log(value);
+                        }
+                        else
+                            if ($(this).data('name') == "template field") {
+                                value = $(this).find("select").val();
+                            }
+                            else
+                                if ($(this).data('name') == "default value") {
+                                    value = $(this).find("input").val();
+                                }
+
+                        if (value != null)
+                            ar[ar.length - 1].push(value);
+                    });
+
+                    ar[ar.length - 1].push(parent.title);
+                }
+                else
+                    ar = getNodes(tree, parent.children[i], parent.title, ar);
+            }
+        }
+
+        return ar;
+    }
+
+    function addNodeDialog()
+    {
+        editMode = false;
+        $('#modal_add_node').modal('show');
+    }
+
+    function LoadCampaignXml(selectedItem)
+    {
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "@(Url.RouteUrl("LoadFromCampaignXml"))",
+            data: { campaignid: selectedItem },
+            success: function (data) {
+                xmlTpl = data.xml;
+                LoadCampaignTemplate(selectedItem);
+                loadTree(data.items);
+
+                $("#@Html.FieldIdFor(x => x.MinPriceOptionValue)").val(data.targetRevenue);
+                $("#@Html.FieldIdFor(x => x.MinRevenue)").val(data.minimumRevenue);
+
+                $('.cmp').each(function ()
+                {
+                    var text = $(this).parent().parent().find('.fancytree-title').text();
+                    console.log(text);
+                    $(this).find('option:contains(' + text + ')').each(function(){
+                        if ($(this).text() == text) {
+                            $(this).attr('selected', 'selected');
+                            return false;
+                        }
+                        return true;
+                    });
+                    $(this).change();
+                });
+
+                $('.modal-body').unblock();
+                $('#modal_default').modal('hide');
+                //setTimeout(function () { $('#modal_default').hide(); }, 500);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+
+    function formatXml(xml) {
+        var formatted = '';
+        var reg = /(>)(<)(\/*)/g;
+        xml = xml.replace(reg, '$1\r\n$2$3');
+        var pad = 0;
+        jQuery.each(xml.split('\r\n'), function(index, node) {
+            var indent = 0;
+            if (node.match( /.+<\/\w[^>]*>$/ )) {
+                indent = 0;
+            } else if (node.match( /^<\/\w/ )) {
+                if (pad != 0) {
+                    pad -= 1;
+                }
+            } else if (node.match( /^<\w[^>]*[^\/]>.*$/ )) {
+                indent = 1;
+            } else {
+                indent = 0;
+            }
+
+            var padding = '';
+            for (var i = 0; i < pad; i++) {
+                padding += '  ';
+            }
+
+            formatted += padding + node + '\r\n';
+            pad += indent;
+        });
+
+        return formatted;
+    }
+
+    function generateLink()
+    {
+        $('#UniqueKey').val(guid());
+
+        var url = '@Model.BaseUrl?a=' + '@Model.AffiliateChannelKey';
+
+        url += '&s1=' + $('#SubId1').val();
+        url += '&s2=' + $('#SubId2').val();
+        url += '&s3=' + $('#SubId3').val();
+
+        url += '&k=' + $('#UniqueKey').val();
+
+        $('#link').val(url);
+    }
+
+    var canRedirect = false;
+    var canClone = false;
+    var curTabLink = null;
+
+    $(document).ready(function () {
+
+        $('.tab-link').click(function (e) {
+            if ($(this).attr('id') != 'tab-main')
+                curTabLink = $(this);
+        });
+
+        $("#btn-clone").click(function () {
+            /*$.post("/Management/BuyerChannel/Clone", 'id=' + $(this).data('id')).done(function (retData) {
+            });*/
+            if ($('#affiliate-channel-clone-name').val() != '') {
+                canClone = true;
+                canRedirect = true;
+                $("#@Html.FieldIdFor(x => x.Name)").val($('#affiliate-channel-clone-name').val());
+                $('#item-form').submit();
+            }
+        });
+
+        $('#check-buyer-channels').on('change', function (e) {
+            $('.bcallowed').prop('checked', $(this).is(':checked'));
+
+            var allowed = [];
+
+            $('.bcallowed').each(function (i, obj) {
+                allowed.push({ bid: $(this).data('id'), add: $(this).is(':checked') });
+            });
+
+            $.ajax({
+                type: "POST",
+                url: "@(Url.RouteUrl("updateallowed"))",
+                data: { aid: affiliateChannelId, allowed: JSON.stringify(allowed) },
+                success: function (data) {
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+        });
+
+        $('#test_btn').on('click', function () {
+            $.ajax({
+                type: "POST",
+                url: "@(Url.RouteUrl("TestImport", new { id = Model.AffiliateChannelId }))",
+                data: { channelid: $('#channel_id_field').text(), password: $('#password_field').text(), xml: $('#test_xml').val() },
+                success: function (data) {
+                    $('#test_response').val(data.response);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+        });
+
+        $('.filter_remove').off('click').on('click', function () {
+            $(this).parent().parent().remove();
+        });
+
+        $('.bl_remove').off('click').on('click', function () {
+            $(this).parent().parent().remove();
+        });
+
+        $('#add_new_blacklist_value').click(function () {
+            if (curTemplateField == '') return;
+            var v = $('#new_blacklist_value').val();
+            $('#new_blacklist_value').val('');
+            $.ajax({
+                type: "POST",
+                url: "@(Url.RouteUrl("addcustomblacklistvalue"))",
+                data: { id: @Model.AffiliateChannelId, type: 1, value: v, field: curTemplateField },
+                success: function (data) {
+                    GenerateGridTable("blacklist_values", "/GetCustomBlackListValues?id=@Model.AffiliateChannelId&type=1&field=" + curTemplateField, "ID, Value, Action", null, null, null, null);
+                    //setTimeout(function () { $('#modal_default').hide(); }, 500);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+            return false;
+        });
+
+        $('.btn-blacklist').click(function () {
+            curTemplateField = $(this).data('field');
+            $('#modal_blacklist_value').modal('show');
+            GenerateGridTable("blacklist_values", "/GetCustomBlackListValues?id=@Model.AffiliateChannelId&type=1&field=" + curTemplateField, "ID, Value, Action", null, null, null, null);
+        });
+
+        $("#XmlTemplateText").text( formatXml($("#XmlTemplateText").text() ) );
+
+        $('#filter_templates').on('change', function (e) {
+            var selectedItem = $(this).val();
+            if (selectedItem == 0) return;
+
+            if (!confirm('Are you sure you want to apply the filter template?')) {
+                e.preventDefault();
+                return;
+            }
+            if (selectedItem == 0) return;
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "/getfilterconditions",
+                data: { filterid: selectedItem },
+                success: function (data) {
+                    $('#conditions tbody').html('');
+                    $.each(data, function (id, option) {
+                        console.log(option);
+                        addFilterRow(option.field, option.condition, option.value, option.op, option.parent, true);
+                    });
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+
+                }
+            });
+        });
+
+        $('#filter_add').click(function () {
+            addFilterRow(0, '0', '', '0', 0);
+        });
+
+        $('#bl_add').click(function () {
+            addBlRow('', '0', '', '0');
+        });
+
+        /*$("#MinPriceOption").change(function () {
+            var selectedItem = parseInt($(this).val());
+
+            $('#value_div').css('opacity', '1');
+            $('#revenue_div').css('opacity', '1');
+            $('#option_value').text('Value');
+
+            switch(selectedItem)
+            {
+                case 0:
+                    $('#value_div').css('opacity', '0');
+                    $('#revenue_div').css('opacity', '0');
+                    $("#MinPriceOptionValueDescription").text('Affiliate receives amount equal to his MinPrice, if it is less or equal to Affiliateprice in Buyer channel'); break;
+                case 1:
+                    $('#revenue_div').css('opacity', '0');
+                    $("#MinPriceOptionValueDescription").text('For all sold leads Minprice is less or equeal to Buyer channel Affiliate price and Affiliate receives fixed amount specified  here'); break;
+                case 2:
+                    $('#option_value').text('Affiliate share%');
+                    $("#MinPriceOptionValueDescription").text('Affiliate receives appropriate commission from the Buyer Channel’s Buyer Price but not less than minimum revenue.'); break;
+                case 3:
+                    $('#revenue_div').css('opacity', '0');
+                    $("#MinPriceOptionValueDescription").text('Fixed amount that should be granted to the network from any sold lead. MinPrice+Fixed commision<=Buyer price in Buyer channel'); break;
+                case 4:
+                    $('#revenue_div').css('opacity', '0');
+                    $("#MinPriceOptionValueDescription").text('Affiliate receives amount equal to Affiliate price in Buyer channel even MinPrice is less than Affiliate price in Buyer channel (Minprice<=Affiliate price in Buyer channel)'); break;
+            }
+        });*/
+
+        $("#@Html.FieldIdFor(x => x.CampaignId)").change(function () {
+            var selectedItem = $(this).val();
+            if (selectedItem > 0)
+            {
+                /*var tree = $(".tree-table").fancytree("getTree");
+                if (tree.count() > 0)
+                {
+                    LoadCampaignTemplate(selectedItem);
+                    $('.cmp').change();
+                }
+                else{*/
+
+                // }
+                LoadCampaignXml(selectedItem);
+            }
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "/GetCampaignInfo",
+                data: { campaignid: selectedItem },
+                success: function (data) {
+                    $("#@Html.FieldIdFor(x => x.MinPriceOptionValue)").val(data.NetworkTargetRevenue);
+                    $("#@Html.FieldIdFor(x => x.MinRevenue)").val(data.NetworkMinimumRevenue);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Failed to retrieve user email.');
+                }
+            });
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "/GetFiltersByCampaignId",
+                data: { campaignid: selectedItem },
+                success: function (data) {
+                    $('#filter_templates').html('');
+                    $('#filter_templates').append($('<option></option>').val(0).html('Select a set'));
+                    $.each(data, function (id, option) {
+                        $('#filter_templates').append($('<option></option>').val(option.id).html(option.name));
+                    });
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Failed to retrieve user email.');
+                }
+            });
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "/GetCampaignFields",
+                data: { campaignid: selectedItem },
+                success: function (data) {
+                    var html = '<select class="fields">';
+                    fieldsSelect = [];
+                    parent = '';
+                    $.each(data, function (id, option) {
+                        /*if (parent != option.parent)
+                        {
+                            if (parent != '')
+                                html += '</optgroup>';
+
+                            html += '<optgroup label="' + option.parent + '">';
+                            parent = option.parent;
+                        }*/
+                        fieldsSelect.push({ id: option.id, name: option.name, validatorValue: option.validatorValue, validator: option.validator });
+                        html += '<option value="' + option.id + '">' + option.name + "</option>";
+                    });
+                    html += '</optgroup>';
+                    html += '</select>';
+                    $('#conditions tbody tr').children('td').eq(0).html(html);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Failed to retrieve user email.');
+                }
+            });
+        });
+
+        $('.select').select2();
+
+        $('#btnSubmitClose').on('click', function () {
+            canRedirect = true;
+            return true;
+        });
+
+        $('#item-form').on('submit', function (e) {
+            e.preventDefault();
+
+            var disabledElements = $(this).find(':disabled');
+            disabledElements.removeAttr('disabled');
+
+            var form = $(this);
+
+            var submitBtn = form.find(':submit');
+            submitBtn.attr('disabled','disabled');
+
+            var btn = $(":input[type=submit]:focus");
+
+            $('#tab-main').trigger('click');
+
+            var tpl = [];
+
+            var sn = null;
+            var lastsn = "";
+            var canContinue = true;
+
+            var conditions = [];
+
+            $('#conditions tbody tr').each(function () {
+                var field = $(this).children('td').eq(0).children('select').val();
+                var condition = $(this).children('td').eq(1).children('select').val();
+                var value = $(this).children('td').eq(2).children('.first-value').val();
+                var validator = $(this).children('td').eq(2).children('.first-value').data('validator');
+                var validatorValue = $(this).children('td').eq(2).children('.first-value').data('validatorvalue');
+                var parent = $(this).children('td').eq(0).children('select').data('parent-id');
+                var operator = 0;
+
+                var us = new RegExp("^\\d{5}(-{0,1}\\d{4})?$");
+                var ca = new RegExp(/([ABCEGHJKLMNPRSTVXY]\d)([ABCEGHJKLMNPRSTVWXYZ]\d){2}/i);
+                $(this).children('td').eq(2).children('.invalid-filter-value').remove();
+
+                if (Array.isArray(value)) {
+                    var val = '';
+                    for (var i = 0; i < value.length; i++) {
+                        val += value[i];
+                        if (validator == 7) {
+                            if (validatorValue == 'us' && !us.test(value[i].trim()) || validatorValue == 'ca' && !ca.test(value[i].trim())) {
+                                $(this).children('td').eq(2).append('<span class="invalid-filter-value"><b>Invalid zip code</b></span>');
+                                canContinue = false;
+                                break;
+                            }
+                        }
+                        if (i < value.length - 1)
+                            val += ",";
+                    }
+                    value = val;
+                }
+                else  if (value != null && value != undefined) {
+                    var values = value.split(",");
+                    for (var i = 0; i < values.length; i++) {
+                        if (validator == 7) {
+                            if (validatorValue == 'us' && !us.test(values[i].trim()) || validatorValue == 'ca' && !ca.test(values[i].trim())) {
+                                $(this).children('td').eq(2).append('<span class="invalid-filter-value"><b>Invalid zip code</b></span>');
+                                canContinue = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                conditions.push({ field: field, condition: condition, value: value, operator: operator, parent: parent });
+            });
+
+            if (!canContinue) {
+                submitBtn.removeAttr('disabled');
+
+                if (curTabLink != null) {
+                    curTabLink.trigger('click');
+                }
+                return;
+            }
+
+            var conditionsjson = JSON.stringify(conditions);
+
+            var blacklists = [];
+
+            $('#blacklist tbody tr').each(function () {
+                var field = $(this).children('td').eq(0).children('select').val();
+                var value = $(this).children('td').eq(1).children('textarea').val();
+                var operator = 0;
+
+                blacklists.push({ field: field, value: value });
+            });
+
+            var blacklistsjson = JSON.stringify(blacklists);
+
+            tpl = [];
+
+            var tree = $(".tree-table").fancytree("getTree");
+            tpl = getNodes(tree, tree.rootNode, "root", tpl);
+
+            if (tpl.length == 0)
+            {
+                alert('Affiliate channel template is not defined');
+                return;
+            }
+
+            var tpljson = JSON.stringify(tpl);
+
+            ShowLoader();
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: "POST",
+                async: true,
+                data: $(this).serialize() + '&json=' + tpljson + '&xml=' + xmlTpl + '&conditions=' + conditionsjson + '&blacklists=' + blacklistsjson + '&canClone=' + canClone,
+                success: function (data) {
+                    try {
+                        HideLoader();
+                        if (!canClone)
+                            NotificationPopup('Success', 'Affiliate channel successfully saved');
+                        else
+                            NotificationPopup('Success', 'Affiliate channel successfully cloned');
+                    }
+                    catch (e) { }
+
+                    if (data.error != undefined)
+                    {
+                        submitBtn.removeAttr('disabled');
+                        alert(data.error);
+                    }
+                    else
+                    {
+                        affiliateChannelId = data.id;
+
+                        $('#AffiliateChannelId').val(data.id);
+
+                        //if (btn.data("close") == "1")
+                        if (canRedirect)
+                        {
+                            @if (currentUser.UserTypeId != SharedData.AffiliateUserTypeId)
+                            {
+                                @: window.location = '/management/affiliatechannel/list';
+                            }
+                            else
+                            {
+                                @: window.location = '/management/affiliate/channels';
+                            }
+                        }
+                        else
+                            submitBtn.removeAttr('disabled');
+                    }
+
+                    canClone = false;
+                    canRedirect = false;
+                    disabledElements.attr('disabled', 'disabled');
+
+                    if (curTabLink != null) {
+                        curTabLink.trigger('click');
+                    }
+                },
+                error: function (jXHR, textStatus, errorThrown) {
+
+                    if (curTabLink != null) {
+                        curTabLink.trigger('click');
+                    }
+
+                    canClone = false;
+                    disabledElements.attr('disabled', 'disabled');
+                    HideLoader();
+                }
+            });
+
+            return false;
+        });
+
+        LoadCampaignTemplate(@Model.CampaignId);
+        initTree();
+
+        if(@Model.AffiliateChannelId > 0)
+        {
+            //LoadCampaignXml(@Model.CampaignId);
+            setTimeout(function () { LoadAChannelTemplate(@Model.AffiliateChannelId); }, 100);
+        }
+
+        $('#load_template_btn').click(function () {
+
+            $('.modal-body').block({
+                message: '<i class="icon-spinner2 spinner"></i>',
+                overlayCSS: {
+                    backgroundColor: '#1B2024',
+                    opacity: 0.85,
+                    cursor: 'wait'
+                },
+                css: {
+                    border: 0,
+                    padding: 0,
+                    backgroundColor: 'none',
+                    color: '#fff'
+                }
+            });
+
+            xmlTpl = $('#xml_template').val();
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@(Url.RouteUrl("LoadFromAffiliateChannelXml"))",
+                data: { xml: $('#xml_template').val() },
+                success: function (data) {
+                    LoadCampaignTemplate($("#@Html.FieldIdFor(x => x.CampaignId)").val());
+                    loadTree(data.items);
+
+                    xmlTpl = data.xml;
+
+                    $('.modal-body').unblock();
+                    $('#modal_default').modal('hide');
+                    //setTimeout(function () { $('#modal_default').hide(); }, 500);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+        });
+
+        @foreach (var si in Model.FilterConditions)
+        {
+            @: addFilterRow(@si.CampaignTemplateId.ToString(), @si.Condition.ToString(), '@si.Value', @si.ConditionOperator.ToString(), @Html.Raw(si.ParentId.HasValue ? si.ParentId.ToString() : "0"), true);
+        }
+
+        @if (Model.FilterConditions.Count > 0)
+        {
+            @: $( ".fields" ).each(function( index ) {
+              @: campaignTemplateChange($(this).get(0));
+            @: });
+        }
+    }).on("click", ".add_child_btn", function(){
+        addFilterRow(0, '0', '', '', $(this).data('id'));
+    });
+</script>
+
+<div class="panel panel-body">
+    <div class="panel-heading">
+        <h5 class="panel-title">@Html.Raw(@Model.Name + " / " + @Model.AffiliateChannelId) &mdash; <a href="/Management/Campaign/Item/@Model.CampaignId" class="text-blue">@ViewBag.CampaignName</a> &mdash; <a href="/Management/Affiliate/Item/@Model.AffiliateId" class="text-blue">@ViewBag.AffiliateName</a> </h5>
+    </div>
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-validation", id = "item-form" }))
+    {
+        <div class="panel-body">
+            <div class="tabbable">
+                <ul class="nav nav-tabs nav-tabs-highlight">
+                    <li class="active"><a id="tab-main" href="#general-tab" data-toggle="tab" class="tab-link">General</a></li>
+
+                    @if (currentUser.UserTypeId == SharedData.NetowrkUserTypeId || currentUser.UserTypeId == SharedData.BuiltInUserTypeId)
+                    {
+                        <li><a href="#integration-tab" data-toggle="tab" class="tab-link">Integration</a></li>
+                    }
+
+                    @if (currentUser.UserTypeId != SharedData.AffiliateUserTypeId)
+                    {
+                        <li><a href="#filter-tab" data-toggle="tab" class="tab-link">Filters</a></li>
+
+                        if (Model.CampaignType == 0)
+                        {
+                            <li><a href="#blacklist-tab" data-toggle="tab" class="tab-link">Black lists</a></li>
+                        }
+                    }
+
+                    @if (Model.CampaignType == 0)
+                    {
+                        <li><a href="#posting-tab" data-toggle="tab" class="tab-link">Posting details</a></li>
+                    }
+
+                    @if (currentUser.UserTypeId != SharedData.AffiliateUserTypeId)
+                    {
+                        <li><a href="#bchannels-tab" data-toggle="tab" class="tab-link">Buyer channels</a></li>
+                    }
+
+
+                    <li><a href="#history-tab" data-toggle="tab" class="tab-link">History</a></li>
+                    <li><a href="#note-tab" data-toggle="tab" class="tab-link">Note</a></li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane active" id="general-tab">
+                        <br>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(x => x.Name)
+                                    @Html.TextBoxFor(x => x.Name, new { @class = "form-control", tabindex = 1, placeholder = "Affiliate channel name", required = "required", maxlength = "50" })
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    @Html.Label("Status")<br />
+                                    @Html.DropDownList("Status", Model.ListStatus, new { @class = "select", required = "required", style = "width: 250px" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            @if (Model.AffiliateChannelId == 0)
+                            {
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        @Html.Label("Campaigns")<br />
+                                        @Html.DropDownListFor(x => x.CampaignId, Model.ListCampaign, new { @class = "select", required = "required", style = "width: 250px" })
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        @Html.Label("Campaigns")<br />
+                                        @if (currentUser.UserTypeId != SharedData.AffiliateUserTypeId)
+                                        {
+                                            @Html.DropDownListFor(x => x.CampaignId, Model.ListCampaign, new { @class = "select", required = "required", style = "width: 250px", @readonly = "readonly" })
+                                        }
+                                        else
+                                        {
+                                            @Html.DropDownListFor(x => x.CampaignId, Model.ListCampaign, new { @class = "select", disabled = "disabled", required = "required", style = "width: 250px", @readonly = "readonly" })
+                                        }
+                                    </div>
+                                </div>
+                            }
+
+                            @if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+                            {
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        @Html.Label("Affiliates")<br />
+                                        @Html.DropDownList("AffiliateId", Model.ListAffiliate, new { @class = "select", required = "required", style = "width: 250px" })
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        @Html.Label("Affiliates")<br />
+                                        @Html.DropDownList("AffiliateId", Model.ListAffiliate, new { @class = "select", required = "required", style = "width: 250px", disabled = "disabled" })
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    @Html.Label("Data format")<br />
+                                    @Html.DropDownList("DataFormat", Model.ListDataFormat, new { @class = "select", required = "required", style = "width: 250px", disabled = "disabled" })
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    @Html.Label("Timeout")<br />
+                                    @Html.TextBoxFor(x => x.Timeout, new { @class = "form-control", tabindex = 1, placeholder = "timeout", required = "required" })
+                                </div>
+                            </div>
+                        </div>
+
+                        @if ((ViewBag.UserTypeId == SharedData.BuiltInUserTypeId || ViewBag.UserTypeId == SharedData.NetowrkUserTypeId) && Model.CampaignType == 0)
+                        {
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group" id="value_div">
+                                        @Html.Label("Network target revenue %", new { id = "option_value" })<br />
+                                        @Html.TextBoxFor(x => x.MinPriceOptionValue, new { @class = "form-control", tabindex = 1, placeholder = "Min price option value", required = "required" })<br />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-group" id="revenue_div">
+                                        @Html.Label("Network minimum revenue $")<br />
+                                        @Html.TextBoxFor(x => x.MinRevenue, new { @class = "form-control", tabindex = 1, placeholder = "Minimum revenue", required = "required", type = "number" })
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        @Html.Label("Affiliate price method")<br />
+                                        @Html.DropDownList("AffiliatePriceMethod", Model.ListAffiliatePriceMethod, new { @class = "form-control", required = "required" })
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        @Html.Label("Affiliate price")<br />
+                                        @Html.TextBoxFor(x => x.AffiliatePrice, new { @class = "form-control", tabindex = 1, @type = "number", required = "required" })
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="tab-pane" id="integration-tab">
+                        <br>
+                        @if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+                        {
+                            <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#modal_default">Load template (XML) <i class="icon-play3 position-right"></i></button>
+                        }
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered tree-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 46px;">#</th>
+                                        <th style="width: 80px;">Template field</th>
+                                        <th style="width: 80px;">Campaign field</th>
+                                        <th style="width: 80px;">Default value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane" id="filter-tab">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <br>
+                                <select id="filter_templates" class="form-control">
+                                    <option value="0">Select filter set</option>
+                                    @foreach (var f in Model.Filters)
+                                    {
+                                        <option value="@f.Id">@f.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <br>
+                                <button id="filter_add" type="button" class="btn btn-default">Add</button>
+                            </div>
+                        </div>
+                        <br>
+                        <table id="conditions" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th width="150px">Field</th>
+                                    <th width="250px">Condition</th>
+                                    <th width="700px">Value</th>
+                                    <td width="5px"></td>
+                                    <td width="5px"></td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                    @if (Model.CampaignType == 0)
+                    {
+                        <div class="tab-pane" id="blacklist-tab">
+                            <div class="row">
+                                <div class="col-lg-2">
+                                    <div class="form-group">
+                                        <br>
+                                        <button id="bl_add" type="button" class="btn btn-default">Add</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <table id="blacklist" class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Field</th>
+                                                <th>Value</th>
+                                                <td></td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var si in Model.CustomBlackLists)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <select class="fields form-control" style="width: 400px">
+                                                            @foreach (var t in Model.CampaignTemplate)
+                                                            {
+                                                                <option value="@t.TemplateField" @Html.Raw(si.TemplateField == t.TemplateField ? "selected" : "")>@(t.TemplateField)</option>
+                                                            }
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <textarea class="form-control" style="resize: none;">@si.Value</textarea>
+                                                    </td>
+                                                    <td><div class="bl_remove"><i class="glyphicon glyphicon-remove red"></i></div></td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="tab-pane" id="posting-tab">
+                            <!--AZ-->
+                            <div class="panel panel-flat">
+                                <div class="panel-heading">
+                                    <h5 class="panel-title">Protocol Details</h5>
+                                    <div class="heading-elements">
+                                        <ul class="icons-list">
+                                            <li><a data-action="collapse"></a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive">
+
+                                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#modal_test_request">Send test request<i class="icon-play3 position-right"></i></button>
+
+                                    <div class="content">
+                                        <table class="table">
+                                            <tr>
+                                                <td width="180px"><b>Request Format:</b></td>
+                                                <td><code>HTTPS POST</code></td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>Request Service:</b></td>
+                                                <td><code>@ViewBag.postingurl@Html.Raw("Import/")</code></td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>ChannelID:</b></td>
+                                                <td><code id="channel_id_field">@ViewBag.CHANNELID</code></td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>Password:</b></td>
+                                                <td><code id="password_field">@ViewBag.PASSWORD</code></td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>Response Format:</b></td>
+                                                <td><code>XML 1.0</code></td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>Response Encoding:</b></td>
+                                                <td><code>UTF-8</code></td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>Post Specification Url:</b></td>
+                                                <td><code>@ViewBag.HashCode</code></td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>Tech Contact:</b></td>
+                                                <td><code>support@adrack.com</code></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel panel-flat">
+                                <div class="panel-heading">
+                                    <h5 class="panel-title">Sample PHP codes</h5>
+                                    <div class="heading-elements">
+                                        <ul class="icons-list">
+                                            <li><a data-action="collapse"></a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <div class="col-md-6">
+                                        <div class="table-responsive">
+                                            <div class="content">
+                                                <p class="text-bold">PHP Sample 1</p>
+                                                <pre class="language-markup content-group">
+<code>&lt;?php
+    $url = &quot;https://post.adrack.com/Import/&quot;; //POST URL
+    $file = &quot;example.xml&quot;; //full path to xml file
+    $res = curl_init();
+    if (!$res) {
+            die(&quot;Couldn't initialize a cURL handle&quot;);
+        }
+    curl_setopt($res, CURLOPT_URL, $url);
+    curl_setopt($res, CURLOPT_POST, true);
+    curl_setopt($res, CURLOPT_POSTFIELDS, array(&quot;Lead[xml]&quot; =&gt; &quot;$file&quot;));
+    curl_setopt($res, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($res);
+    curl_close($res);
+?&gt;</code>
+                                            </pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="table-responsive">
+                                            <div class="content">
+                                                <p class="text-bold">PHP Sample 2</p>
+                                                <pre class="language-markup content-group">
+<code>&lt;?php
+        function send_post($url, $fieldName, $FilePath = null) {
+        if (is_file($FilePath))
+            $Content = file_get_contents($FilePath);
+        else
+            throw new Exception(&quot;Problem with $FilePath&quot;);
+        $boundary = &quot;---------------------&quot; . substr(md5(rand(0, 32000)), 0, 10);
+        $data = &quot;--$boundary\n&quot;;
+        $data .= &quot;Content-Disposition: form-data; name=\&quot;{$fieldName}\&quot;; filename=\&quot;tempfname\&quot;\n&quot;;
+        $data .= &quot;Content-Type: text/xml\n&quot;;
+        $data .= &quot;Content-Transfer-Encoding: binary\n\n&quot;;
+        $data .= $Content . &quot;\n&quot;;
+        $data .= &quot;--$boundary--\n&quot;;
+        $params = array(&quot;http&quot; =&gt; array(
+                &quot;method&quot; =&gt; &quot;POST&quot;,
+                &quot;header&quot; =&gt; &quot;Content-Type: multipart/form-data; boundary=&quot; . $boundary,
+                &quot;content&quot; =&gt; $data
+        ));
+        $stream_context = stream_context_create($params);
+        $file = fopen($url, &quot;rb&quot;, false, $stream_context);
+        if (!$file) {
+            throw new Exception(&quot;Problem with $url, $php_errormsg&quot;);
+        }
+        $response = stream_get_contents($file);
+        if ($response === false) {
+            throw new Exception(&quot;Problem reading data from $url, $php_errormsg&quot;);
+        }
+        return $response;
+    }
+    $FilePath = &quot;/home/user/example.xml&quot;;//full path to xml file
+    $fieldName = &quot;Lead[xml]&quot;;// IMPORTANT !!!
+    $url = &quot;https://post.adrack.com/Import/&quot;; //POST URL
+    $response = send_post($url, $fieldName, $FilePath);
+?&gt;</code>
+                                            </pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!---->
+                            <div class="panel panel-flat">
+                                <div class="panel-heading">
+                                    <h5 class="panel-title">Lead Import XML Example. Can be used for testing.</h5>
+                                    <div class="heading-elements">
+                                        <ul class="icons-list">
+                                            <li><a data-action="collapse"></a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <div class="content">
+                                        <textarea id="XmlTemplateText" rows="25" style="width:100%" readonly>
+                                            @(ViewBag.Campaign != null ? ViewBag.XmlTemplate : "")
+                                        </textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!---->
+                            <div class="panel panel-flat">
+                                <div class="panel-heading">
+                                    <h5 class="panel-title">Request Fields (Description and data format)</h5>
+                                    <div class="heading-elements">
+                                        <ul class="icons-list">
+                                            <li><a data-action="collapse"></a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <div class="content">
+
+                                        <div class="table-responsive">
+                                            <table class="table RequestDetailsTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Field</th>
+                                                        <th><p class="text-center">Description</p></th>
+                                                        <th><p class="text-center">Type</p></th>
+                                                        <th><p class="text-center">Format</p></th>
+                                                        <th><p class="text-center">Status</p></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (Adrack.Web.ContentManagement.Controllers.AffiliateChannelController.LocalCampaignTemplate ct in ViewBag.CampaignTemplateList)
+                                                    {
+                                                        if (ct.TemplateField.ToLower() == "request" ||
+                                                            ct.TemplateField.ToLower() == "referral" ||
+                                                            ct.TemplateField.ToLower() == "customer" ||
+                                                            ct.TemplateField.ToLower() == "personalinfo" ||
+                                                            ct.TemplateField.ToLower() == "bankinfo")
+                                                        {
+                                                            continue;
+                                                        }
+
+                                                        string[] format = ct.Format.Split(new char[1] { '#' });
+
+                                                        if (format[0].ToLower() == "date of birth")
+                                                        {
+                                                            format[0] = "Date";
+                                                        }
+
+                                                        <tr>
+                                                            <td>@ct.TemplateField</td>
+                                                            <td><p class="text-center">@ct.Description</p></td>
+                                                            <td><p class="text-center">@format[0]</p></td>
+                                                            <td>
+                                                                <p class="text-center">
+                                                                    @if (format.Length > 1)
+                                                                    {
+                                                                        @Html.Raw(format[1])
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        @Html.Raw("Undefined")
+                                                                    }
+                                                                </p>
+                                                            </td>
+                                                            <td>
+                                                                <p class="text-center">
+                                                                    @if (ct.Required == true)
+                                                                    {<span>Required</span>}
+                                                                    @if (ct.Required == false)
+                                                                    {<span>Optional</span>}
+                                                                </p>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel panel-flat">
+                                <div class="panel-heading">
+                                    <h5 class="panel-title">Response Example</h5>
+                                    <div class="heading-elements">
+                                        <ul class="icons-list">
+                                            <li><a data-action="collapse"></a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <div class="content">
+                                        <pre class="language-markup content-group">
+                                        <code><b>Sold:</b> <br />&lt;response&gt;<br />&nbsp; &lt;id&gt;0001&lt;/id&gt;<br />&nbsp; &lt;status&gt;sold&lt;/status&gt;<br />&nbsp; &lt;message&gt;&lt;/message&gt;<br />&nbsp; &lt;price&gt;0.5&lt;/price&gt;<br />&nbsp; &lt;redirect&gt;&lt;![CDATA[]]&gt;&lt;/redirect&gt;<br />&lt;/response&gt;<br />
+
+
+
+
+
+
+
+                                        <b>Reject:</b><br />&lt;response&gt;<br />&nbsp; &lt;id&gt;0&lt;/id&gt;<br />&nbsp; &lt;status&gt;reject&lt;/status&gt;<br />&nbsp; &lt;message&gt;lead was not sold in marketplace&lt;/message&gt;<br />&nbsp; &lt;price&gt;&lt;/price&gt;<br />&nbsp; &lt;redirect&gt;&lt;/redirect&gt;<br />&lt;/response&gt;<br /><br />
+
+
+
+
+
+
+
+                                        <b>Error:</b><br />&lt;response&gt;<br />&nbsp; &lt;id&gt;0&lt;/id&gt;<br />&nbsp; &lt;status&gt;error&lt;/status&gt;<br />&nbsp; &lt;message&gt;error message here&lt;/message&gt;<br />&nbsp; &lt;price&gt;&lt;/price&gt;<br />&nbsp; &lt;redirect&gt;&lt;/redirect&gt;<br />&lt;/response&gt;<br /><br />
+
+
+
+
+
+
+
+                                        <b>Test:</b><br />&lt;response&gt;<br />&nbsp; &lt;id&gt;0&lt;/id&gt;<br />&nbsp; &lt;status&gt;test&lt;/status&gt;<br />&nbsp; &lt;message&gt;message on lead quality&lt;/message&gt;<br />&nbsp; &lt;price&gt;1&lt;/price&gt;<br />&nbsp; &lt;redirect&gt;&lt;![CDATA[]]&gt;&lt;/redirect&gt;<br />&lt;/response&gt;
+                                            </code>
+                                        </pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <div id="bchannels-tab" class="tab-pane">
+
+                        <div id="buyer_channels"></div>
+                        <hr />
+                        <label style="float:right;">&nbsp;Select / Deselect All Channels</label>&nbsp;<input style="float:right;" type='checkbox' id='check-buyer-channels'>
+                        <script>
+                                $(document).ready(function () {
+                                    GenerateGridTable("buyer_channels", "/GetBuyerChannelsbyCampaign?id=@Model.CampaignId&aid=@Model.AffiliateChannelId", "ID, Name, Included, Status", null, null, null, null);
+                                });
+                        </script>
+                    </div>
+
+                    <div class="tab-pane" id="history-tab">
+                        <br>
+                        @{ Html.RenderAction("IndexPartial", "History", new { id = Model.AffiliateChannelId, entity = "AffiliateChannel" }); }
+                    </div>
+
+                    <div class="tab-pane" id="note-tab">
+                        <div class="col-md-6">
+                            <div class="form-group" id="revenue_div">
+                                @Html.Label("Notes")<br />
+                                @Html.TextAreaFor(x => x.Note, new { @class = "form-control", tabindex = 1, placeholder = "" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="color:red">
+            @Html.ValidationSummary()
+        </div>
+
+        <div class="text-right">
+            <input type="hidden" id="AffiliateChannelId" name="AffiliateChannelId" value="@Model.AffiliateChannelId" />
+            <input type="hidden" id="CampaignType" name="CampaignType" value="@Model.CampaignType" />
+
+            @if (currentUser.UserTypeId != SharedData.NetowrkUserTypeId && currentUser.UserTypeId != SharedData.BuiltInUserTypeId)
+            {
+                @Html.HiddenFor(x => x.MinPriceOptionValue)
+                @Html.HiddenFor(x => x.MinRevenue)
+            }
+
+            <a href="#" class="btn btn-default" data-close="2" onclick="history.go(-1);">Close <i class="icon-cross position-right"></i></a>
+            <a class="btn btn-primary btn-ladda" data-dismiss="modal" title="Clone affiliate channel" nohref="nohref" data-toggle="modal" data-target="#modal_form_clone_affiliatechannel">Clone <i class="icon-arrow-right14 position-right"></i></a>
+            <button id="btnSubmitClose" type="submit" class="btn btn-primary" data-close="1">Save and close </button>
+            <button type="submit" class="btn btn-success" data-close="0">Save <i class="icon-arrow-right14 position-right"></i></button>
+        </div>
+    }
+</div>
+
+<!-- Basic modal -->
+<div id="modal_default" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Template</h5>
+            </div>
+
+            <div class="modal-body">
+                <textarea id="xml_template" class="form-control" rows="15"></textarea>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <button id="load_template_btn" type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal_blacklist_value" class="modal fade">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-body">
+                <label>Add value</label><br />
+                <input id="new_blacklist_value" name="new_blacklist_value" /><button id="add_new_blacklist_value">Add</button><br /><br />
+
+                <div id="blacklist_values">
+                    <div id="blacklist_values"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal_test_request" class="modal fade">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button id="test_btn">Send test message</button><br />
+                <label>XML</label><br />
+                <textarea id="test_xml" rows="10" cols="55">@ViewBag.XmlTemplate</textarea>
+                <label>Response</label><br />
+                <textarea id="test_response" rows="5" cols="55"></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /basic modal -->
+
+<div id="modal_form_clone_affiliatechannel" class="modal fade">
+    <div class="modal-dialog modal-xs">
+        <div class="modal-content">
+
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">New affiliate channel</h5>
+            </div>
+
+            <form action="#">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <input class="form-control" type="text" id="affiliate-channel-clone-name" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btn-clone" type="button" data-target="#modal_form_affiliatechannel" data-toggle="modal" class="btn btn-success btn-sm" data-id="@Model.AffiliateChannelId">
+                        <i class="icon-add-to-list position-left"></i> Clone
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

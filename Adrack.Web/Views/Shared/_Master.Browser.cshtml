@@ -1,0 +1,96 @@
+﻿@using Adrack.Core
+@using Adrack.Core.Domain.Seo
+@using Adrack.Core.Infrastructure
+@{
+    var appLanguageRtl = AppEngineContext.Current.Resolve<IAppContext>().AppLanguage.Rtl;
+    var appSetting = AppEngineContext.Current.Resolve<AppSetting>();
+    var seoSetting = AppEngineContext.Current.Resolve<SeoSetting>();
+
+    #region Page Layout Add On
+
+    #region Application Java Script
+
+    // Application Java Script
+    //AZ    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/main.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, "~/Scripts/core/app.js".ToLowerInvariant());
+    //Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/soundmanager2.js").ToLowerInvariant());
+
+    #endregion
+
+    #region Application Style Sheet
+
+    // Application Style Sheet
+    Html.AppendPageCss(PageLayoutPosition.Body, "~/Content/core/library/ionicons.css".ToLowerInvariant());
+    Html.AppendPageCss(PageLayoutPosition.Body, "~/Content/core/library/icomoon.css".ToLowerInvariant());
+    Html.AppendPageCss(PageLayoutPosition.Body, "~/Content/core/library/font-awesome.min.css".ToLowerInvariant());
+
+    #endregion
+
+    #region Java Script
+
+    // Java Script
+    Html.AppendPageScript(PageLayoutPosition.Head, "~/Scripts/plugins/loaders/pace.min.js".ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Head, "~/Scripts/core/library/jquery.min.js".ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Head, "~/Scripts/jquery.cookie.js".ToLowerInvariant());
+    //Html.AppendPageScript(PageLayoutPosition.Head, string.Format("~/Scripts/core/library/jquery_ui/core.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Head, "~/Scripts/core/library/bootstrap.min.js".ToLowerInvariant());
+    //Html.AppendPageScript(PageLayoutPosition.Head, string.Format("~/Scripts/plugins/blockui.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Head, "~/Scripts/core/library/modernizr.js".ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Head, "~/Scripts/plugins/ui/nicescroll.min.js".ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Head, "~/Scripts/main.js".ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Head, "~/Scripts/pages/layout_fixed_custom.js".ToLowerInvariant());
+
+    #endregion
+
+    #region Style Sheet
+
+    // Style Sheet
+    Html.AddPageCustom(PageLayoutPosition.Head, string.Format("<link href=\"{0}\" rel=\"stylesheet\" type=\"text/css\">", "https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700,900"));
+    //    Html.AppendPageCss(PageLayoutPosition.Head, string.Format("~/Content/core/library/bootstrap.min.csszzz").ToLowerInvariant());
+
+    Html.AppendPageCss(PageLayoutPosition.Head, "~/Content/core/css/bootstrap.css".ToLowerInvariant());
+
+    Html.AppendPageCss(PageLayoutPosition.Head, "~/Content/core/css/bootstrap.css".ToLowerInvariant());
+    Html.AppendPageCss(PageLayoutPosition.Head, "~/Content/core/css/core.css".ToLowerInvariant());
+    Html.AppendPageCss(PageLayoutPosition.Head, "~/Content/core/css/components.css".ToLowerInvariant());
+    Html.AppendPageCss(PageLayoutPosition.Head, "~/Content/core/css/colors.css".ToLowerInvariant());
+
+    #endregion
+
+    #endregion
+
+    Html.AppendPageCustom(PageLayoutPosition.HtmlAttribute, "class=\"no-js\"");
+    Html.AppendPageCustom(PageLayoutPosition.HtmlAttribute, "lang=\"" + LanguageCulture() + "\"");
+
+    if (appLanguageRtl)
+    {
+        appSetting.ResponsiveDesignSupported = false;
+    }
+
+    if (appSetting.ResponsiveDesignSupported)
+    {
+        Html.AppendPageCustom(PageLayoutPosition.Head, string.Format("<meta name=\"viewport\" content=\"{0}\">", seoSetting.PageViewPort));
+    }
+
+    if (appLanguageRtl)
+    {
+        Html.AppendPageCss("~/Content/core/Base.Rtl.css".ToLowerInvariant());
+        Html.AppendPageCustom(PageLayoutPosition.HtmlAttribute, "dir=\"rtl\"");
+    }
+    else
+    {
+        Html.AppendPageCss("~/Content/core/Base.css".ToLowerInvariant());
+    }
+
+    if (appSetting.ResponsiveDesignSupported)
+    {
+        Html.AppendPageCss("~/Content/core/Base.Component.css".ToLowerInvariant());
+        Html.AppendPageCss("~/Content/core/Base.Responsive.css".ToLowerInvariant());
+    }
+
+    if (seoSetting.RenderXuaCompatible)
+    {
+        Html.AppendPageCustom(PageLayoutPosition.Head, string.Format("<meta http-equiv=\"x-ua-compatible\" content=\"{0}\">", seoSetting.PageXuaCompatible));
+    }
+}

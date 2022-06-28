@@ -1,0 +1,224 @@
+﻿@model Adrack.Web.Models.Lead.RegisterAffiliateModel
+@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+
+    Html.AddPageTitle(T("PageTitle.Register").Text);
+
+    Html.AppendPageScript(PageLayoutPosition.Body, "~/Scripts/core/library/jquery_ui/core.min.js".ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, "~/Scripts/plugins/forms/wizards/form_wizard/form.min.js".ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, "~/Scripts/plugins/forms/wizards/form_wizard/form.wizard.min.js".ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, "~/Scripts/plugins/forms/selects/select2.min.js".ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, "~/Scripts/plugins/forms/styling/uniform.min.js".ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, "~/Scripts/plugins/loaders/blockui.min.js".ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, "~/Scripts/core/library/jasny.bootstrap.min.js".ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, "~/Scripts/plugins/forms/validation/validate.min.js".ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, "~/Scripts/core/domain/membership/register.js".ToLowerInvariant());
+    Html.AppendPageCustom(PageLayoutPosition.ContainerAttribute, "login-container");
+}
+
+<script type="text/javascript">
+
+    $(function() {
+
+        $('#generate-pass-btn').on('click',
+            function(e) {
+                e.preventDefault();
+                $('#user-password').val(Password.generate(8));
+            });
+
+        $('#apply-pass-btn').on('click',
+            function() {
+                $('#Password').val($('#user-password').val());
+                $('#ConfirmPassword').val($('#user-password').val());
+                $('#modal_generate_pass').modal('hide');
+            });
+
+        $("#@Html.FieldIdFor(x => x.CountryId)").change(function() {
+            var selectedItem = $(this).val();
+
+            var ddlStates = $("#@Html.FieldIdFor(x => x.StateProvinceId)");
+
+            var statesProgress = $("#states-loading-progress");
+            statesProgress.show();
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.RouteUrl("GetStateProvinceByCountryId"))",
+                data: { "countryId": selectedItem, "addSelectStateProvinceItem": "true" },
+                success: function(data) {
+                    ddlStates.html('');
+                    $.each(data,
+                        function(id, option) {
+                            if (option.id == 0) option.id = "";
+                            ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                        });
+                    statesProgress.hide();
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    statesProgress.hide();
+                }
+            });
+        });
+    });
+</script>
+
+@using (Html.BeginForm("Register", "MembershipController", FormMethod.Post, new {@class = "form-horizontal"}))
+{
+    @Html.AntiForgeryToken()
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+            <h5 class="panel-title">Basic legend</h5>
+        </div>
+
+        <div class="panel-body">
+            <fieldset>
+                <legend class="text-semibold">Enter your information</legend>
+
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Username:</label>
+                    <div class="col-lg-9">
+                        @Html.TextBoxFor(x => x.UserName, new { @class = "form-control", autofocus = "autofocus", placeholder = "User name" })
+                        @Html.ValidationMessageFor(x => x.UserName)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Enter your password:</label>
+                    <div class="col-lg-9">
+                        @Html.TextBoxFor(x => x.Password, new { @class = "form-control", type = "password", autofocus = "autofocus", placeholder = "Password" })
+                        @Html.ValidationMessageFor(x => x.Password)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Repeat password:</label>
+                    <div class="col-lg-9">
+                        <input name="repeat_password" type="password" class="form-control" placeholder="Repeat password">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Contact email:</label>
+                    <div class="col-lg-9">
+                        @Html.TextBoxFor(x => x.ContactEmail, new { @class = "form-control", autofocus = "autofocus", placeholder = "User name" })
+                        @Html.ValidationMessageFor(x => x.ContactEmail)
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend class="text-semibold">Add personal details</legend>
+
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Name:</label>
+                    <div class="col-lg-9">
+                        @Html.TextBoxFor(x => x.Name, new {@class = "form-control", placeholder = "Name"})
+                        @Html.ValidationMessageFor(x => x.Name)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Email:</label>
+                    <div class="col-lg-9">
+                        @Html.TextBoxFor(x => x.Email, new {@class = "form-control", placeholder = "Email", type = "email"})
+                        @Html.ValidationMessageFor(x => x.Email)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Phone:</label>
+                    <div class="col-lg-9">
+                        @Html.TextBoxFor(x => x.Phone, new {@class = "form-control", placeholder = "Phone"})
+                        @Html.ValidationMessageFor(x => x.Phone)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Your country:</label>
+                    <div class="col-lg-9">
+                        @Html.DropDownListFor(x => x.CountryId, Model.ListCountry, new {@class = "select", placeholder = "Select your country"})
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Select your state:</label>
+                    <div class="col-lg-9">
+                        @Html.DropDownListFor(x => x.StateProvinceId, Model.ListStateProvince, new {@class = "select", placeholder = "Select your state"})
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">City:</label>
+                    <div class="col-lg-9">
+                        @Html.TextBoxFor(x => x.City, new {@class = "form-control", placeholder = "City"})
+                        @Html.ValidationMessageFor(x => x.City)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Address line1:</label>
+                    <div class="col-lg-9">
+                        @Html.TextBoxFor(x => x.AddressLine1, new {@class = "form-control", placeholder = "Address line1"})
+                        @Html.ValidationMessageFor(x => x.AddressLine1)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Address line2:</label>
+                    <div class="col-lg-9">
+                        @Html.TextBoxFor(x => x.AddressLine2, new {@class = "form-control", placeholder = "Address line2"})
+                        @Html.ValidationMessageFor(x => x.AddressLine2)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Zip code:</label>
+                    <div class="col-lg-9">
+                        @Html.TextBoxFor(x => x.ZipPostalCode, new {@class = "form-control", placeholder = "Zip code"})
+                        @Html.ValidationMessageFor(x => x.ZipPostalCode)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-lg-9">
+                        <button data-toggle="modal" data-target="#modal_generate_pass"></button>
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="text-right">
+                <button type="submit" class="btn btn-primary">Submit form <i class="icon-arrow-right14 position-right"></i></button>
+            </div>
+        </div>
+    </div>
+}
+
+<div id="modal_generate_pass" class="modal fade">
+    <div class="modal-dialog modal-xs">
+        <div class="modal-content">
+
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Generate password</h5>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <input class="form-control" type="text" id="user-password" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <button class="form-control btn btn-info" id="generate-pass-btn">Generate</button>
+                    </div>
+                    <div class="col-sm-6">
+                        <button class="form-control btn btn-info" id="apply-pass-btn">Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

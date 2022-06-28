@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>PreQual.Database</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{2c14a90a-a855-454b-8919-14551852fdd7}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql110DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>Adrack.Database</RootNamespace>
+    <AssemblyName>Adrack.Database</AssemblyName>
+    <ModelCollation>1033,CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>True</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <SccProjectName>
+    </SccProjectName>
+    <SccProvider>
+    </SccProvider>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccLocalPath>
+    </SccLocalPath>
+    <Recovery>SIMPLE</Recovery>
+    <DefaultCollation>SQL_Latin1_General_CP1_CI_AS</DefaultCollation>
+    <DefaultFilegroup>PRIMARY</DefaultFilegroup>
+    <TargetDatabase>PreQual.Database</TargetDatabase>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <SuppressTSqlWarnings>SQL71558</SuppressTSqlWarnings>
+  </PropertyGroup>
+  <!-- VS10 without SP1 will not have VisualStudioVersion set, so do that here -->
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <!-- Default to the v10.0 targets path if the targets file for the current VS version is not found -->
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
+    <NoWarn>
+    </NoWarn>
+    <SuppressTSqlWarnings>SQL71558</SuppressTSqlWarnings>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="dbo\" />
+    <Folder Include="dbo\Tables\" />
+    <Folder Include="Security\" />
+    <Folder Include="dbo\Stored Procedures\" />
+    <Folder Include="dbo\Functions\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Script.PostDeployment.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Adrack.Publish.xml" />
+    <None Include="SchemaCompare_Local.scmp" />
+    <None Include="SchemaCompare_Azure.scmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="dbo\Tables\Language.sql" />
+    <Build Include="dbo\Tables\Log.sql" />
+    <Build Include="dbo\Tables\Permission.sql" />
+    <Build Include="dbo\Tables\Profile.sql" />
+    <Build Include="dbo\Tables\Role.sql" />
+    <Build Include="dbo\Tables\RolePermission.sql" />
+    <Build Include="dbo\Tables\ScheduleTask.sql" />
+    <Build Include="dbo\Tables\Setting.sql" />
+    <Build Include="dbo\Tables\SmtpAccount.sql" />
+    <Build Include="dbo\Tables\EmailQueue.sql" />
+    <Build Include="dbo\Tables\EmailTemplate.sql" />
+    <Build Include="dbo\Tables\StateProvince.sql" />
+    <Build Include="dbo\Tables\EmailSubscription.sql" />
+    <Build Include="dbo\Tables\User.sql" />
+    <Build Include="dbo\Tables\UserRole.sql" />
+    <Build Include="dbo\Tables\UserType.sql" />
+    <Build Include="dbo\Tables\Category.sql" />
+    <Build Include="dbo\Tables\Acl.sql" />
+    <Build Include="dbo\Tables\Address.sql" />
+    <Build Include="dbo\Tables\AddressType.sql" />
+    <Build Include="dbo\Tables\Country.sql" />
+    <Build Include="dbo\Tables\Currency.sql" />
+    <Build Include="Security\RoleMemberships.sql" />
+    <Build Include="Security\Permissions.sql" />
+    <Build Include="dbo\Tables\PageSlug.sql" />
+    <Build Include="dbo\Tables\Authentication.sql" />
+    <Build Include="dbo\Tables\GlobalAttribute.sql" />
+    <Build Include="dbo\Tables\UserPermission.sql" />
+    <Build Include="dbo\Tables\LocalizedString.sql" />
+    <Build Include="dbo\Tables\LocalizedProperty.sql" />
+    <Build Include="dbo\Stored Procedures\usp_membership_user_search.sql" />
+    <Build Include="dbo\Tables\Navigation.sql" />
+    <Build Include="dbo\Tables\LeadTransaction.sql" />
+    <Build Include="dbo\Tables\Campaign.sql" />
+    <Build Include="dbo\Tables\Buyer.sql" />
+    <Build Include="dbo\Tables\Affiliate.sql" />
+    <Build Include="dbo\Stored Procedures\usp_geo_location.sql" />
+    <Build Include="Security\Adrack.sql" />
+    <Build Include="dbo\Tables\Bank.sql" />
+    <Build Include="dbo\Tables\AffiliateUsers.sql" />
+    <Build Include="dbo\Stored Procedures\GetAllAffiliatePayments.sql" />
+    <Build Include="dbo\Tables\Department.sql" />
+    <Build Include="dbo\Stored Procedures\GetSupportTicketsMessages.sql" />
+    <Build Include="dbo\Stored Procedures\SetTicketMessagesRead.sql" />
+    <Build Include="dbo\Stored Procedures\GetSupportTickets.sql" />
+    <Build Include="dbo\Tables\CampaignTemplate.sql" />
+    <Build Include="dbo\Tables\BlackListType.sql" />
+    <Build Include="dbo\Stored Procedures\AddSupportTicketUser.sql" />
+    <Build Include="dbo\Stored Procedures\DeleteCampaignTemplates.sql" />
+    <Build Include="dbo\Stored Procedures\GetAllBuyerPayments.sql" />
+    <Build Include="dbo\Tables\LeadMain.sql" />
+    <Build Include="dbo\Tables\BuyerChannelTemplate.sql" />
+    <Build Include="dbo\Tables\BuyerChannel.sql" />
+    <Build Include="dbo\Tables\AffiliateChannel.sql" />
+    <Build Include="dbo\Tables\AffiliateChannelTemplate.sql" />
+    <Build Include="dbo\Tables\AffiliateInvoice.sql" />
+    <Build Include="dbo\Tables\AffiliatePayment.sql" />
+    <Build Include="dbo\Tables\BuyerInvoice.sql" />
+    <Build Include="dbo\Tables\BuyerPayment.sql" />
+    <Build Include="dbo\Tables\LeadContent.sql" />
+    <Build Include="dbo\Tables\RefundedLeads.sql" />
+    <Build Include="dbo\Tables\SupportTickets.sql" />
+    <Build Include="dbo\Tables\SupportTicketsMessages.sql" />
+    <Build Include="dbo\Tables\SupportTicketsUser.sql" />
+    <Build Include="dbo\Tables\Vertical.sql" />
+    <Build Include="dbo\Tables\Filter.sql" />
+    <Build Include="dbo\Tables\LeadMainReport.sql" />
+    <Build Include="dbo\Tables\LeadMainResponse.sql" />
+    <Build Include="dbo\Tables\LeadContentDublicate.sql" />
+    <Build Include="dbo\Stored Procedures\CheckForDublicate.sql" />
+    <Build Include="dbo\Functions\CheckStoredProcActive.sql" />
+    <Build Include="dbo\Stored Procedures\GenerateBuyerInvoices.sql" />
+    <Build Include="dbo\Tables\LeadMainReportDay.sql" />
+    <Build Include="dbo\Stored Procedures\FillMainReport.sql" />
+    <Build Include="dbo\Stored Procedures\GenerateAffiliateInvoices.sql" />
+    <Build Include="dbo\Tables\BuyerBalance.sql" />
+    <Build Include="dbo\Functions\SplitInts.sql" />
+    <Build Include="dbo\Stored Procedures\BuyerReportByBuyerChannels.sql" />
+    <Build Include="dbo\Stored Procedures\GetLeads.sql" />
+    <Build Include="dbo\Stored Procedures\UpdateBuyerBalance.sql" />
+    <Build Include="dbo\Stored Procedures\GetBuyersBalance.sql" />
+    <Build Include="dbo\Stored Procedures\CheckBuyerCredit.sql" />
+    <Build Include="dbo\Tables\BuyerChannelSchedule.sql" />
+    <Build Include="dbo\Stored Procedures\GetLeadsCountByPeriod.sql" />
+    <Build Include="dbo\Stored Procedures\GetLeadsCountByDay.sql" />
+    <Build Include="dbo\Tables\VerifySecurity.sql" />
+    <Build Include="dbo\Tables\VerifyAccount.sql" />
+    <Build Include="dbo\Tables\FilterCondition.sql" />
+    <Build Include="dbo\Stored Procedures\GetResponsesByLeadId.sql" />
+    <Build Include="dbo\Stored Procedures\GetLeadById.sql" />
+    <Build Include="dbo\Tables\BuyerChannelFilterCondition.sql" />
+    <Build Include="dbo\Stored Procedures\GetBuyerDistrib.sql" />
+    <Build Include="dbo\Stored Procedures\DisableBuyerInvoice.sql" />
+    <Build Include="dbo\Stored Procedures\DisableAffiliateInvoice.sql" />
+    <Build Include="dbo\Tables\BuyerInvoiceAdjustment.sql" />
+    <Build Include="dbo\Tables\AffiliateInvoiceAdjustment.sql" />
+    <Build Include="dbo\Stored Procedures\GetBuyerInvoiceDetails.sql" />
+    <Build Include="dbo\Tables\AffiliateChannelFilterCondition.sql" />
+    <Build Include="dbo\Stored Procedures\GetAffiliateInvoiceDetails.sql" />
+    <Build Include="dbo\Stored Procedures\ReportBuyersByStates.sql" />
+    <Build Include="dbo\Stored Procedures\ReportBuyersByCampaigns.sql" />
+    <Build Include="dbo\Stored Procedures\ReportBuyersByAffiliateChannels.sql" />
+    <Build Include="dbo\Tables\History.sql" />
+    <Build Include="dbo\Stored Procedures\GetHistory.sql" />
+    <Build Include="dbo\Tables\LeadMainReportDayAffiliate.sql" />
+    <Build Include="dbo\Tables\BlackListValue.sql" />
+    <Build Include="dbo\Stored Procedures\usp_get_leads.sql" />
+    <Build Include="dbo\Stored Procedures\ReportAffiliatesByStates.sql" />
+    <Build Include="dbo\Stored Procedures\ReportAffiliatesByCampaigns.sql" />
+    <Build Include="dbo\Stored Procedures\ReportAffiliatesByAffiliateChannels.sql" />
+    <Build Include="dbo\Stored Procedures\ReportTotals.sql" />
+    <Build Include="dbo\Stored Procedures\ReportByDays.sql" />
+    <Build Include="dbo\Stored Procedures\ReportByMinutes.sql" />
+    <Build Include="dbo\Stored Procedures\ReportByHour.sql" />
+    <Build Include="dbo\Stored Procedures\ClearRolePermissions.sql" />
+    <Build Include="dbo\Stored Procedures\AddRolePermission.sql" />
+    <Build Include="dbo\Tables\PaymentMethod.sql" />
+    <Build Include="dbo\Stored Procedures\GetSupportTicketsByUsers.sql" />
+    <Build Include="dbo\Stored Procedures\GetAffiliatesStatusCounts.sql" />
+    <Build Include="dbo\Stored Procedures\SetDefaultPaymentMethod.sql" />
+    <Build Include="dbo\Tables\AffiliateNote.sql" />
+    <Build Include="dbo\Tables\Document.sql" />
+    <Build Include="dbo\Stored Procedures\ReportByYear.sql" />
+    <Build Include="dbo\Tables\LeadGeoData.sql" />
+    <Build Include="dbo\Stored Procedures\GetUsersByRoleId.sql" />
+    <Build Include="dbo\Stored Procedures\GetUsersByRoleId.sql" />
+    <Build Include="dbo\Stored Procedures\GetDublicateLead.sql" />
+    <Build Include="dbo\Tables\AffiliateResponse.sql" />
+    <Build Include="dbo\Tables\PostedData.sql" />
+    <Build Include="dbo\Stored Procedures\ExecCustomQuery.sql" />
+    <Build Include="dbo\Tables\RedirectUrl.sql" />
+    <Build Include="dbo\Tables\Privacy.sql" />
+    <Build Include="dbo\Tables\BuyerResponse.sql" />
+    <Build Include="dbo\Stored Procedures\GetBadIPClicksReport.sql" />
+    <Build Include="dbo\Stored Procedures\GetLeadsCount.sql" />
+    <Build Include="dbo\Tables\CustomBlackListValue.sql" />
+    <Build Include="dbo\Stored Procedures\GetErrorLeadsReport.sql" />
+    <Build Include="dbo\Tables\ProcessingLog.sql" />
+    <Build Include="dbo\Tables\NoteTitle.sql" />
+    <Build Include="dbo\Tables\LeadNote.sql" />
+    <Build Include="dbo\Tables\ZipCodeRedirect.sql" />
+    <Build Include="dbo\Stored Procedures\ReportTotalsBuyer.sql" />
+    <Build Include="dbo\Stored Procedures\ReportBuyersByDates.sql" />
+    <Build Include="dbo\Stored Procedures\ReportBuyersByReactionTime.sql" />
+    <Build Include="dbo\Stored Procedures\ReportBuyersByLeadNotes.sql" />
+    <Build Include="dbo\Stored Procedures\GetAllBuyerPaymentsByBuyer.sql" />
+    <Build Include="dbo\Stored Procedures\ReportByDate.sql" />
+    <Build Include="dbo\Tables\PaymentSourceValue.sql" />
+    <Build Include="dbo\Tables\PaymentSourceType.sql" />
+    <Build Include="dbo\Tables\PaymentSource.sql" />
+    <Build Include="dbo\Stored Procedures\BalanceAutoCorrection.sql" />
+    <Build Include="dbo\Tables\BuyerChannelTemplateMatching.sql" />
+    <Build Include="dbo\Stored Procedures\GetAffiliateBalance.sql" />
+    <Build Include="dbo\Tables\RegistrationRequest.sql" />
+    <Build Include="dbo\Stored Procedures\CleanUpDB.sql" />
+    <Build Include="dbo\Stored Procedures\GetDublicateLeadByBuyer.sql" />
+    <Build Include="dbo\Stored Procedures\GetLeadCountByBuyer.sql" />
+    <Build Include="dbo\Stored Procedures\CloneBuyerChannel.sql" />
+    <Build Include="dbo\Tables\ArchiveTableList.sql" />
+    <Build Include="dbo\Tables\ArchiveTableLog.sql" />
+    <Build Include="dbo\Stored Procedures\ReportByStatuses.sql" />
+    <Build Include="dbo\Stored Procedures\ReportByTopStates.sql" />
+    <Build Include="dbo\Tables\FormTemplate.sql" />
+    <Build Include="dbo\Tables\CallCenterSetting.sql" />
+    <Build Include="dbo\Tables\UserBuyerChannel.sql" />
+    <Build Include="dbo\Tables\UserSubscribtion.sql" />
+    <Build Include="dbo\Stored Procedures\GetHistoryByUsers.sql" />
+    <Build Include="dbo\Tables\LeadSensitiveData.sql" />
+    <Build Include="dbo\Stored Procedures\ReportTotalsByDate.sql" />
+    <Build Include="dbo\Stored Procedures\ClearCache.sql" />
+    <Build Include="dbo\Tables\LeadMainReportDayReceived.sql" />
+    <Build Include="dbo\Stored Procedures\GetProcessingLeads.sql" />
+    <Build Include="dbo\Stored Procedures\ClearSensitiveData.sql" />
+    <Build Include="dbo\Tables\GeoLocationIP.sql" />
+    <Build Include="dbo\Tables\GeoLocation.sql" />
+    <Build Include="dbo\Tables\GeoLocationCity_Temp.sql" />
+    <Build Include="dbo\Tables\GeoIP2IPv6_Temp.sql" />
+    <Build Include="dbo\Tables\GeoIP2IPv4_Temp.sql" />
+    <Build Include="dbo\Stored Procedures\usp_start_archive_data.sql" />
+    <Build Include="dbo\Stored Procedures\usp_get_archive_data.sql" />
+    <Build Include="dbo\Stored Procedures\ReportAffiliatesEpl.sql" />
+    <Build Include="dbo\Stored Procedures\BuyerReportByBuyers.sql" />
+    <Build Include="dbo\Stored Procedures\CheckBlackListValue.sql" />
+    <Build Include="dbo\Stored Procedures\addRows.sql" />
+    <Build Include="dbo\Stored Procedures\GetLeadContentDublicateBySSN.sql" />
+    <Build Include="dbo\Stored Procedures\GetAffiliateResponsesByLeadId.sql" />
+    <Build Include="dbo\Tables\LogX_1.sql" />
+    <Build Include="dbo\Tables\LeadMainReportDayRedirected.sql" />
+    <Build Include="dbo\Stored Procedures\ReportTotals_OLD.sql" />
+    <Build Include="dbo\Tables\LeadMainReportTotalDay.sql" />
+    <Build Include="dbo\Stored Procedures\ReportBuyersComparison.sql" />
+    <Build Include="dbo\Tables\LeadMainReportDayPrices.sql" />
+    <Build Include="dbo\Stored Procedures\ReportBuyersByPrices.sql" />
+    <Build Include="dbo\Tables\LeadMainReportDaySubIds.sql" />
+    <Build Include="dbo\Stored Procedures\ReportBySubIds.sql" />
+    <Build Include="dbo\Tables\LeadFieldsContent.sql" />
+    <Build Include="dbo\Functions\SplitStrings.sql" />
+    <Build Include="dbo\Functions\SplitDecimals.sql" />
+    <Build Include="dbo\Stored Procedures\ReportBuyersTrafficEstimator.sql" />
+    <Build Include="dbo\Tables\LeadMainReportDayHour.sql" />
+    <Build Include="dbo\Stored Procedures\BuyerReportByHour.sql" />
+    <Build Include="dbo\Stored Procedures\SalesReport.sql" />
+    <Build Include="dbo\Stored Procedures\ReportBuyersWinRateReport_1.sql" />
+    <Build Include="dbo\Stored Procedures\GetPricePoints_1.sql" />
+    <Build Include="dbo\Stored Procedures\CleanUpLeadsDB_1.sql" />
+    <Build Include="dbo\Stored Procedures\GenerateLeads.sql" />
+    <Build Include="dbo\Stored Procedures\GenerateLead.sql" />
+    <Build Include="dbo\Tables\DoNotPresent.sql" />
+    <Build Include="dbo\Stored Procedures\CheckDoNotPresent.sql" />
+    <Build Include="dbo\Stored Procedures\GenerateDNP.sql" />
+    <Build Include="dbo\Tables\SubIdWhiteList.sql" />
+    <Build Include="dbo\Stored Procedures\CheckSubIdWhiteList.sql" />
+    <Build Include="dbo\Tables\EntityOwnership.sql" />
+    <Build Include="dbo\Tables\CachedUrl.sql" />
+    <Build Include="dbo\Stored Procedures\GetErrorLeadsReportCount.sql" />
+    <Build Include="dbo\Stored Procedures\ReportBuyersComparisonBuyerChannels.sql" />
+    <Build Include="dbo\Stored Procedures\GetLeadsCount2.sql" />
+    <Build Include="dbo\Stored Procedures\GetLeads2.sql" />
+    <Build Include="dbo\Stored Procedures\ReportSendingTime.sql" />
+    <Build Include="dbo\Tables\VerticalField.sql" />
+    <Build Include="dbo\Tables\EntityChangeHistory.sql" />
+    <Build Include="dbo\Stored Procedures\BuyerReportByBuyerChannelsFinal.sql" />
+    <Build Include="dbo\Stored Procedures\BuyerReportByBuyerFinal.sql" />
+    <Build Include="dbo\Stored Procedures\ReportBuyersByCampaignsFinal.sql" />
+    <Build Include="dbo\Stored Procedures\ReportBuyersByAffiliateChannelsFinal.sql" />
+    <Build Include="dbo\Stored Procedures\ReportBuyersByStatesFinal.sql" />
+    <Build Include="dbo\Stored Procedures\ReportBuyersByDatesFinal.sql" />
+    <Build Include="dbo\Stored Procedures\ReportBuyersByPricesFinal.sql" />
+    <Build Include="dbo\Stored Procedures\ReportAffiliatesByAffiliateChannelsFinal.sql" />
+    <Build Include="dbo\Stored Procedures\ReportAffiliatesByStatesFinal.sql" />
+    <Build Include="dbo\Stored Procedures\ReportAffiliatesByCampaignsFinal.sql" />
+    <Build Include="dbo\Stored Procedures\ReportBuyersWinRateReportFinal.sql" />
+    <Build Include="dbo\Stored Procedures\GetUsersWithRolesByRoleId.sql" />
+    <Build Include="dbo\Tables\AttachedChannel.sql" />
+    <Build Include="dbo\Stored Procedures\UpdateRolePermissionState.sql" />
+    <Build Include="dbo\Stored Procedures\ClearEntityOwnershipByUserId.sql" />
+    <Build Include="dbo\Stored Procedures\AddUserRole.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="Adrack.Database.refactorlog" />
+  </ItemGroup>
+</Project>

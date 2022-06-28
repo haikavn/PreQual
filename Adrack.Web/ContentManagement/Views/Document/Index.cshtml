@@ -1,0 +1,107 @@
+﻿<script type="text/javascript" src="~/Scripts/plugins/uploaders/fileinput.min.js"></script>
+<script type="text/javascript" src="~/Scripts/pages/uploader_bootstrap.js"></script>
+@{
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+}
+<style>
+    .delete_doc {
+        cursor: pointer;
+    }
+</style>
+<script>
+
+    function GenerateGridDocTable() {
+
+        $.post("/Management/Document/GetDocuments?affiliateid="+@ViewBag.AffId).done(function (retData) {
+
+            var str = '';
+
+            for(i=0; i < retData.data.length; i++)
+            {
+                str += '<tr>'+
+                    '<td>' + retData.data[i][0] + '</td>'+
+                    '<td>' + retData.data[i][1] + '</td>'+
+                    '<td>' + retData.data[i][2] + '</td>'+
+                    '<td>' + retData.data[i][3] + '</td>'+
+                    '<td>' + retData.data[i][4] + '</td>'+
+                    '<td style="text-align:center"><span class="delete_doc" id="del'+retData.data[i][0]+'"><i class="icon-cross2 text-danger"></i></span></td>' +
+                    '</tr>';
+            }
+
+            $("#GridViewDocuments tbody").html(str);
+
+            $(".delete_doc").click(function () {
+                if( confirm("Are You sure?") != true ) return false;
+                var data = 'id=' + $(this).attr("id").replace('del', '');
+
+                $.post("/Management/Document/DeleteDocument/", data).done(function (retData) {
+                    GenerateGridDocTable();
+                });
+
+            });
+
+        });
+
+    }
+
+    $(document).ready(function () {
+
+        $('#attach-document').bind('change', function () {
+            if( this.files[0].size/1024/1024 > 2 )
+            {
+                alert('This file size is: ' + this.files[0].size/1024/1024 + "MB,\nwitch is larger than allowed");
+                $(".file-preview .close").trigger("click");
+            }
+        });
+
+        $("#AddDocument").click(function () {
+
+            var formData = new FormData();
+            formData.append('file', $('#attach-document')[0].files[0]);
+            formData.append('affiliateid', @ViewBag.AffId);
+
+            $(".file-preview .close").trigger("click");
+
+            $.ajax({
+                url : '/Management/Document/AddDocument',
+                type : 'POST',
+                data : formData,
+                processData: false,
+                contentType: false,
+                success : function(data) {
+                    GenerateGridDocTable();
+                }
+            });
+        });
+
+    });
+</script>
+
+<table id="GridViewDocuments" class="display table datatable-html dataTable no-footer">
+    <thead>
+        <tr>
+            <td width="70px"><b>ID</b></td>
+            <td><b>Thumbnail</b></td>
+            <td><b>Document Name</b></td>
+            <td><b>Author</b></td>
+            <td><b>Date Created</b></td>
+            <td width="70px" style="text-align:center"><b>Delete</b></td>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+<script>
+    GenerateGridDocTable();
+</script>
+
+<br><br>
+<div class="col-md-2 ">
+    <div class="form-group">
+        <input type="file" id="attach-document" class="file-input" data-show-caption="false" data-show-upload="false" data-browse-class="btn btn-primary btn-xs" data-remove-class="btn btn-default btn-xs">
+        <span class="help-block">Attach a Document (Max: 2MB.)</span>
+    </div>
+</div>
+
+<div class="col-md-6 ">
+    <button id="AddDocument" type="button" class="btn bg-teal-400 btn-labeled btn-labeled-right"><b><i class="icon-circle-right2"></i></b> Upload Document</button>
+</div>

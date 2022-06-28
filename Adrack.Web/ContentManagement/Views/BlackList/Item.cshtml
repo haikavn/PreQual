@@ -1,0 +1,111 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.BlackListModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switchery.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+}
+
+<script>
+    function value_remove(e)
+    {
+        $.ajax({
+            type: "POST",
+            url: "@(Url.RouteUrl("removeblacklistvalue"))",
+            data: { id: $(e).data('id') },
+            success: function (data) {
+                //$(this).parent('td').parent('tr').remove();
+                GenerateGridTable("blacklist_values", "/GetBlackListValues", "ID, Value, Condition, Action", null, null, null, "@Model.BlackListTypeId");
+                //setTimeout(function () { $('#modal_default').hide(); }, 500);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        $('#add_new_blacklist_value').click(function () {
+            var v = $('#new_blacklist_value').val();
+            $('#new_blacklist_value').val('');
+            $.ajax({
+                type: "POST",
+                url: "@(Url.RouteUrl("addblacklistvalue"))",
+                data: { blacklisttypeid: @Model.BlackListTypeId, value: v, condition: $('#new_blacklist_condition').val()},
+                success: function (data) {
+                    GenerateGridTable("blacklist_values", "/GetBlackListValues", "ID, Value, Action, Condition", null, null, null, "@Model.BlackListTypeId");
+                    //setTimeout(function () { $('#modal_default').hide(); }, 500);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+            return false;
+        });
+    });
+</script>
+
+@using (Html.BeginForm("Item", null, FormMethod.Post, new {  @class = "form-validation", id = "blacklist_form" }))
+{
+    @Html.AntiForgeryToken()
+        <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group has-feedback">
+                                @Html.LabelFor(x => x.Name)
+                                @Html.DropDownList("Name", Model.BlackListNames, new { @class = "form-control", required = "required" })
+                                <div class="form-control-feedback">
+                                    <i class="icon-user-plus text-muted"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (Model.BlackListTypeId > 0)
+                    {
+                    <div class="row">
+                        <div class="col-md-1">
+                            <label>Value</label><br />
+                            <input id="new_blacklist_value" name="new_blacklist_value" class="form-control" />
+                        </div>
+                        <div class="col-md-1">
+                            <label>Condition</label><br />
+                            <select id="new_blacklist_condition" name="new_blacklist_condition" class="form-control">
+                                <option value="1">EQUAL</option>
+                                <option value="2">STARTS WITH</option>
+                                <option value="3">ENDS WITH</option>
+                                <option value="4">CONTAINS</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <button id="add_new_blacklist_value">Add</button>
+                        </div>
+                    </div>
+                    <div id="blacklist_values" class="row">
+                        <div id="blacklist_values"></div>
+                        <script>
+                            GenerateGridTable("blacklist_values", "/GetBlackListValues", "ID, Value, Condition, Action", null, null, null, "@Model.BlackListTypeId");
+                        </script>
+                    </div>
+                    }
+
+            <div style="color:red">
+                @Html.ValidationSummary()
+            </div>
+
+            @if (permissionService.Authorize(PermissionProvider.SettingsBlackListsModify))
+            {
+            <div>
+                @Html.HiddenFor(x => x.BlackListTypeId)
+                @Html.HiddenFor(x => x.BlackType)
+                @Html.HiddenFor(x => x.ParentId)
+                <input class="btn btn-info" id="validation-next" value="Submit" type="submit">
+            </div>
+            }
+        </div>
+}

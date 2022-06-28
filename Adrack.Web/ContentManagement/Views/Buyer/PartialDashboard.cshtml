@@ -1,0 +1,52 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.BuyerModel
+
+@using Adrack.Service.Helpers
+
+@{
+    Layout = null;
+
+    ViewBag.Title = "Dashboard";
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    var currentUser = this.AppContext.AppUser;
+}
+
+@if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+{
+    @RenderPage("../Shared/BuyerSubMenu.cshtml")
+}
+
+<script>
+                            $(document).ready(function () {
+                                $('#refresh_dashboard').click(function () {
+                                    if (chartIndex == 1) {
+                                        UpdateReportByDays();
+                                    }
+                                    if (chartIndex == 2) {
+                                        UpdateReportByMinutes();
+                                    }
+                                    if (chartIndex == 3) {
+                                        UpdateReportByHour();
+                                    }
+                                    if (chartIndex == 4) {
+                                        UpdateReportByYear();
+                                    }
+                                    UpdateReportTotalsBuyer();
+                                    return false;
+                                });
+                            });
+</script>
+
+<div>
+    <button id="refresh_dashboard">Refresh</button>
+    <br />
+
+    <div>
+        @{ Html.RenderAction("ReportByDays", "Report", new { id = Model.BuyerId }); }
+    </div>
+    <br />
+    <div>
+        @{ Html.RenderAction("ReportTotalsBuyer", "Report", new { id = Model.BuyerId }); }
+    </div>
+</div>

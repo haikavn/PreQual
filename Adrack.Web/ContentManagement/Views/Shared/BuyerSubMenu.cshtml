@@ -1,0 +1,17 @@
+﻿@if (ViewBag.SelectedBuyerId != null)
+{
+<div class="navbar navbar-default header-highlight">
+    <ul class="nav navbar-nav buyer-submenu">
+        @*<li><a href="/Management/Buyer/Dashboard/@ViewBag.SelectedBuyerId"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
+        <li><a href="/Management/Lead/Buyer/@ViewBag.SelectedBuyerId"><i class="icon-make-group position-left"></i> <span>Leads</span></a></li>*@
+        <li><a href="/Management/Buyer/Item/@ViewBag.SelectedBuyerId"><i class="icon-hammer-wrench"></i> <span>Company Info</span></a></li>
+        <li><a href="/Management/Buyer/Channels/@ViewBag.SelectedBuyerId"><i class="fa fa-users"></i> <span>Channels</span></a></li>
+        <li><a href="/Management/Buyer/Reports/@ViewBag.SelectedBuyerId"><i class="icon-calendar5"></i> <span>Report</span></a></li>
+        <li><a href="/Management/Accounting/Invoices/?buyerid=@ViewBag.SelectedBuyerId"><i class="fa fa-money"></i> <span>Accounting</span></a></li>
+        <li><a href="/Management/Buyer/Billing/@ViewBag.SelectedBuyerId"><i class="fa fa-briefcase"></i> <span>Billing</span></a></li>
+        <li><a href="/Management/Support/Tickets/?buyerid=@ViewBag.SelectedBuyerId"><i class="icon-lifebuoy"></i> <span>Support</span></a></li>
+        <li><a href="/Management/Buyer/Users/@ViewBag.SelectedBuyerId"><i class="fa fa-users"></i> <span>Users</span></a></li>
+        <li><a href="/Management/Buyer/History/@ViewBag.SelectedBuyerId"><i class="fa fa-history"></i> <span>History</span></a></li>
+    </ul>
+</div>
+}

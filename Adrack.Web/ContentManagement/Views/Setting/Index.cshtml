@@ -1,0 +1,356 @@
+﻿@model Adrack.Web.ContentManagement.Models.Content.SettingModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    Html.AddPageTitle("Company Information");
+    Html.AddPageMetaDescription("Edit Company Information");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/selects/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switchery.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+
+    int timeZoneIndex = -1;
+}
+
+<script src="~/Scripts/pages-js/Settings.js"></script>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-validation", enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="panel panel-flat">
+
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <fieldset class="content-group">
+                        <legend class="text-semibold"><i class="icon-reading position-left"></i> Company details</legend>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">Company Name:</label>
+                            <div class="col-lg-9">
+                                <input type="text" class="form-control" placeholder="Company Name" name="CompanyName" value="@Model.CompanyName">
+                            </div>
+                        </div>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">Address 1:</label>
+                            <div class="col-lg-9">
+                                <textarea rows="2" cols="5" class="form-control" placeholder="Address 1" name="Address">@Model.CompanyAddress</textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">Address 2:</label>
+                            <div class="col-lg-9">
+                                <textarea rows="2" cols="5" class="form-control" placeholder="Address 2" name="Address2">@Model.CompanyAddress2</textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">City:</label>
+                            <div class="col-lg-9">
+                                <input type="text" class="form-control" placeholder="City" name="City" value="@Model.City" />
+                            </div>
+                        </div>
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">State:</label>
+                            <div class="col-lg-9">
+                                <input type="text" class="form-control" placeholder="State" name="State" value="@Model.State" />
+                            </div>
+                        </div>
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">ZipCode:</label>
+                            <div class="col-lg-9">
+                                <input type="text" class="form-control" placeholder="ZipCode" name="ZipCode" value="@Model.ZipCode" />
+                            </div>
+                        </div>
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">Country:</label>
+                            <div class="col-lg-9">
+                                @Html.DropDownList("CountryId", Model.ListCountry, new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">Bank Name:</label>
+                            <div class="col-lg-9">
+                                <input type="text" class="form-control" placeholder="Bank Name" name="Bank" value="@Model.CompanyBank">
+                            </div>
+                        </div>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">Account Type: @Model.AccountType</label>
+                            <div class="col-lg-9">
+                                <select class="form-control" name="AccountType">
+                                    <option value="Checking" @Html.Raw(Model.AccountType == "Checking" ? "selected='selected'" : "")>Checking</option>
+                                    <option value="Saving" @Html.Raw(Model.AccountType == "Saving" ? "selected='selected'" : "")>Saving</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">Routing Number:</label>
+                            <div class="col-lg-9">
+                                <input type="text" class="form-control" placeholder="Routing Number" name="RoutingNumber" value="@Model.RoutingNumber">
+                            </div>
+                        </div>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">Account Number:</label>
+                            <div class="col-lg-9">
+                                <input type="text" class="form-control" placeholder="Account Number" name="AccountNumber" value="@Model.AccountNumber">
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">E-Mail:</label>
+                            <div class="col-lg-9">
+                                <input type="text" class="form-control" placeholder="E-Mail" name="EMail" value="@Model.CompanyEmail">
+                            </div>
+                        </div>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">Web Site Title:</label>
+                            <div class="col-lg-9">
+                                <input type="text" class="form-control" placeholder="Web Site Title" name="WebSiteTitle" value="@Model.PageTitle">
+                            </div>
+                        </div>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">Company Logo:</label>
+                            <div class="col-lg-9">
+                                <img src="@Model.CompanyLogoPath" />
+                                <br> <br>
+                                <input type="file" class="file-styled" name="CompanyLogo">
+                                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                                {
+                                    <span style="font-size: 12px; color: red">@Model.ErrorMessage</span>
+                                }
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+
+            <br><br>
+            <div class="row">
+                <div class="col-md-6">
+                    <fieldset>
+                        <legend class="text-semibold"><i class="icon-reading position-left"></i> Posting details</legend>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">Application url:</label>
+                            <div class="col-lg-9">
+                                <input type="text" class="form-control" placeholder="Application url" name="AppUrl" value="@Model.AppUrl"><br>
+                            </div>
+                        </div>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">Posting url:</label>
+                            <div class="col-lg-9">
+                                <input type="text" class="form-control" placeholder="Posting url" name="PostingUrl" value="@Model.PostingUrl"><br>
+                            </div>
+                        </div>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">Affiliate Channel XML Field:</label>
+                            <div class="col-lg-9">
+                                <input type="text" class="form-control" placeholder="Affiliate xml field" name="AffiliateXmlField" value="@Model.AffiliateXmlField"><br>
+                            </div>
+                        </div>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">Dublicate monitor:</label>
+                            <div class="col-lg-9">
+                                <select name="DublicateMonitor" class="form-control">
+                                    <option value="0" @Html.Raw(Model.DublicateMonitor == 0 ? "selected='selected'" : "")>No</option>
+                                    <option value="1" @Html.Raw(Model.DublicateMonitor == 1 ? "selected='selected'" : "")>Yes</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">Allow affiliate redirect:</label>
+                            <div class="col-lg-9">
+                                <select name="AllowAffiliateRedirect" class="form-control">
+                                    <option value="0" @Html.Raw(Model.AllowAffiliateRedirect == 0 ? "selected='selected'" : "")>No</option>
+                                    <option value="1" @Html.Raw(Model.AllowAffiliateRedirect == 1 ? "selected='selected'" : "")>Yes</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">Affiliate redirect url:</label>
+                            <div class="col-lg-9">
+                                <input type="text" class="form-control" placeholder="Affiliate redirect url" name="AffiliateRedirectUrl" value="@Model.AffiliateRedirectUrl">
+                            </div>
+                        </div>
+
+                        <!--<div class="form-group clearfix">
+        <label class="col-lg-3 control-label">Max processing leads: </label>
+        <div class="col-lg-9">
+            <input type="number" style="width:100px" class="form-control" placeholder="" name="MaxProcessingLeads" value="@Model.MaxProcessingLeads">
+        </div>
+    </div>-->
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">Processing delay: </label>
+                            <div class="col-lg-9">
+                                <input type="number" style="width:100px" class="form-control" placeholder="" name="ProcessingDelay" value="@Model.ProcessingDelay">
+                            </div>
+                        </div>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">White IP:</label>
+                            <div class="col-lg-9">
+                                <textarea name="WhiteIp" class="form-control">@Model.WhiteIp</textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">Send lead email:</label>
+                            <div class="col-lg-9">
+                                <select name="LeadEmail" class="form-control">
+                                    <option value="0" @Html.Raw(Model.LeadEmail == 0 ? "selected='selected'" : "")>No</option>
+                                    <option value="1" @Html.Raw(Model.LeadEmail == 1 ? "selected='selected'" : "")>Yes</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">Lead email address:</label>
+                            <div class="col-lg-9">
+                                <input type="text" class="form-control" placeholder="" name="LeadEmailTo" value="@Model.LeadEmailTo">
+                            </div>
+                        </div>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">Lead email fields:</label>
+                            <div class="col-lg-9">
+                                <input type="text" class="form-control" placeholder="" name="LeadEmailFields" value="@Model.LeadEmailFields">
+                            </div>
+                        </div>
+
+
+                        <div class="form-group clearfix">
+
+                            <label class="col-lg-3 control-label">Min processing mode:</label>
+                            <div class="col-lg-2">
+                                <select name="MinProcessingMode" id="MinProcessingMode" class="form-control">
+                                    <option value="0" @Html.Raw(Model.MinProcessingMode == 0 ? "selected='selected'" : "")>No</option>
+                                    <option value="1" @Html.Raw(Model.MinProcessingMode == 1 ? "selected='selected'" : "")>Yes</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-7">
+                                <label class="text-size-mini text-danger">This function will stop checking buyer credits, schedule and minprice options. This function is only for testing purposes</label>
+                            </div>
+
+
+                        </div>
+                        <div class="form-group clearfix">
+
+                            <label class="col-lg-3 control-label">System on hold:</label>
+                            <div class="col-lg-2">
+                                <select name="SystemOnHold" class="form-control" id="SystemOnHold">
+                                    <option value="0" @Html.Raw(Model.SystemOnHold == 0 ? "selected='selected'" : "")>No</option>
+                                    <option value="1" @Html.Raw(Model.SystemOnHold == 1 ? "selected='selected'" : "")>Yes</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-7">
+                                <label class="text-size-mini text-danger">This function will put system on hold</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group clearfix">
+                            <label class="col-lg-3 control-label">Debug mode:</label>
+                            <div class="col-lg-9">
+                                <select name="DebugMode" class="form-control">
+                                    <option value="0" @Html.Raw(Model.DebugMode == 0 ? "selected='selected'" : "")>No</option>
+                                    <option value="1" @Html.Raw(Model.DebugMode == 1 ? "selected='selected'" : "")>Yes</option>
+                                </select>
+                            </div>
+                        </div>
+
+                    </fieldset>
+                </div>
+            </div>
+
+            <br><br>
+            <div class="row">
+                <div class="col-md-6">
+                    <fieldset>
+                        <legend class="text-semibold"><i class="icon-reading position-left"></i> Common settings</legend>
+
+                        <div class="form-group">
+                            <label class="col-lg-3 control-label">Login Expire (minutes): </label>
+                            <div class="col-lg-9">
+                                <input type="number" style="width:100px" class="form-control" placeholder="Login Expire" name="LoginExpire" value="@Model.LoginExpire">
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <br /><br />
+
+            <div class="row">
+                <div class="col-md-6">
+                    <fieldset>
+                        <legend class="text-semibold"><i class="icon-reading position-left"></i> Cache settings</legend>
+
+                        <div class="row">
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">Turn on automatic cache cleaner for processing servers: </label>
+                                <div class="col-lg-9">
+                                    <select name="AutoCacheMode" class="form-control" id="AutoCacheMode">
+                                        <option value="0" @Html.Raw(Model.AutoCacheMode == 0 ? "selected='selected'" : "")>No</option>
+                                        <option value="1" @Html.Raw(Model.AutoCacheMode == 1 ? "selected='selected'" : "")>Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">Please enter list of processing servers URLs line by line: </label>
+                                <div class="col-lg-9">
+                                    <textarea name="AutoCacheUrls" class="form-control" id="AutoCacheUrls">@Model.AutoCacheUrls</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <br /><br />
+
+            @if (Model.IsSaved == true)
+            {
+                <div class="col-md-6">
+                    <div class="alert alert-success alert-styled-right alert-arrow-right alert-bordered">
+                        <button class="close" data-dismiss="alert" type="button">
+                            <span>×</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+                        <span class="text-semibold">Well done!</span>Information Successfully Saved
+                    </div>
+                </div>
+            }
+
+            @if (permissionService.Authorize(PermissionProvider.SettingsCompanyDetailsModify))
+            {
+                <div class="text-right">
+                    <button type="submit" class="btn btn-success">Save <i class="icon-arrow-right14 position-right"></i></button>
+                </div>
+            }
+        </div>
+    </div>
+}

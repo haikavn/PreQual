@@ -1,0 +1,481 @@
+﻿@model Adrack.Web.Management.Models.Membership.UserModel
+
+@using System.Linq
+@using Adrack.Service.Helpers
+
+@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+
+    Html.AddPageTitle("User");
+    Html.AddPageMetaDescription("Add/Edit user");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/ContentManagement/Scripts/plugins/duallistbox.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/core.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/form.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/form.wizard.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/uniform.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/blockui.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jasny.bootstrap.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/validate.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/ui/moment/moment.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/picker.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/picker.date.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/daterangepicker.js").ToLowerInvariant());
+
+    //Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/domain/membership/register.js").ToLowerInvariant());
+    Html.AppendPageCustom(PageLayoutPosition.ContainerAttribute, "login-container");
+
+    var currentUser = this.AppContext.AppUser;
+}
+
+    <script type="text/javascript">
+
+        $(function () {
+
+            passwordScore = checkPassword($('#Password').val());
+
+            $("#UserPasswordGen").on('click', function (e) {
+                e.preventDefault();
+                var password = Password.generate(8);
+                $("#@Html.FieldIdFor(x => x.Password)").val(password);
+                $("#@Html.FieldIdFor(x => x.ConfirmPassword)").val(password);
+                passwordScore = checkPassword(password);
+            });
+
+            $('#generate-pass-btn').on('click', function (e) {
+                e.preventDefault();
+                $('#user-password').val(Password.generate(8));
+            });
+
+            $('#apply-pass-btn').on('click', function () {
+                $('#Password').val($('#user-password').val());
+                $('#ConfirmPassword').val($('#user-password').val());
+                $('#modal_generate_pass').modal('hide');
+                $("#@Html.FieldIdFor(x => x.Password)").trigger('change');
+            });
+
+            $("#@Html.FieldIdFor(x => x.CountryId)").change(function () {
+                var selectedItem = $(this).val();
+
+                var ddlStates = $("#@Html.FieldIdFor(x => x.StateProvinceId)");
+
+                var statesProgress = $("#states-loading-progress");
+                statesProgress.show();
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    url: "@(Url.RouteUrl("GetStateProvinceByCountryId"))",
+                    data: { "countryId": selectedItem, "addSelectStateProvinceItem": "true" },
+                    success: function (data) {
+                        ddlStates.html('');
+                        $.each(data, function (id, option) {
+                            if (option.id == 0) option.id = "";
+                            ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                        });
+                        statesProgress.hide();
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        statesProgress.hide();
+                    }
+                });
+            });
+
+            $(".form-validation").formwizard({
+                disableUIStyles: true,
+                validationEnabled: true,
+                inDuration: 150,
+                outDuration: 150,
+                validationOptions: {
+                    ignore: 'input[type=hidden], .select2-search__field', // ignore hidden fields
+                    errorClass: 'validation-error-label',
+                    successClass: 'validation-valid-label',
+                    highlight: function (element, errorClass) {
+                        $(element).removeClass(errorClass);
+                    },
+                    unhighlight: function (element, errorClass) {
+                        $(element).removeClass(errorClass);
+                    },
+
+                    // Different components require proper error label placement
+                    errorPlacement: function (error, element) {
+
+                        // Styled checkboxes, radios, bootstrap switch
+                        if (element.parents('div').hasClass("checker") || element.parents('div').hasClass("choice") || element.parent().hasClass('bootstrap-switch-container')) {
+                            if (element.parents('label').hasClass('checkbox-inline') || element.parents('label').hasClass('radio-inline')) {
+                                error.appendTo(element.parent().parent().parent().parent());
+                            }
+                            else {
+                                error.appendTo(element.parent().parent().parent().parent().parent());
+                            }
+                        }
+
+                            // Unstyled checkboxes, radios
+                        else if (element.parents('div').hasClass('checkbox') || element.parents('div').hasClass('radio')) {
+                            error.appendTo(element.parent().parent().parent());
+                        }
+
+                            // Input with icons and Select2
+                        else if (element.parents('div').hasClass('has-feedback') || element.hasClass('select2-hidden-accessible')) {
+                            error.appendTo(element.parent());
+                        }
+
+                            // Inline checkboxes, radios
+                        else if (element.parents('label').hasClass('checkbox-inline') || element.parents('label').hasClass('radio-inline')) {
+                            error.appendTo(element.parent().parent());
+                        }
+
+                            // Input group, styled file input
+                        else if (element.parent().hasClass('uploader') || element.parents().hasClass('input-group')) {
+                            error.appendTo(element.parent().parent());
+                        }
+
+                        else {
+                            error.insertAfter(element);
+                        }
+                    },
+                    rules: {
+                        Email: {
+                            email: true
+                        },
+                        ConfirmPassword: {
+                            equalTo: "#Password"
+                        }
+                    }
+                }
+            });
+
+            $('.daterange-single').daterangepicker({
+                singleDatePicker: true,
+                startDate: moment(new Date('@Adrack.Web.ContentManagement.Helper.GetTimeZoneStr()')),
+                maxDate: moment(new Date('@Adrack.Web.ContentManagement.Helper.GetTimeZoneStr()')),
+                locale: {
+                    format: 'MM/DD/YYYY'
+                }
+            });
+
+            $('.select').select2();
+
+            $('.styled').uniform({
+                radioClass: 'choice'
+            });
+        });
+    </script>
+
+@using (Html.BeginForm("Item", null, FormMethod.Post, new { @class = "form-validation", id="user-form" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="row">
+        <div class="col-lg-6 col-lg-offset-3">
+            <div class="panel registration-form">
+                <div class="panel-body">
+                    <div class="text-center">
+                        <h4 class="content-group-lg">
+                            @if (Model.UserTypeId == SharedData.AffiliateUserTypeId)
+                            {
+                                @Html.Raw("Create affiliate user")
+                            }
+                            else if (Model.UserTypeId == SharedData.BuyerUserTypeId)
+                            {
+                                @Html.Raw("Create buyer user")
+                            }
+                            else
+                                if (Model.UserTypeId == SharedData.BuiltInUserTypeId)
+                            {
+                                    @Html.Raw("Create system user")
+                                }
+                            <small class="display-block">All fields are required</small>
+                        </h4>
+                    </div>
+
+                    <fieldset class="step" id="step1">
+                        <h6 class="form-wizard-title text-semibold">
+                            <span class="form-wizard-count">1</span>
+                            User info
+                            <small class="display-block">Tell us a bit about yourself</small>
+                        </h6>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group has-feedback">
+                                    @Html.LabelFor(x => x.Email)
+                                    @if (Model.UserId > 0)
+                                    {
+                                        @Html.TextBoxFor(x => x.Email, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Choose email", required = "required", @readonly = "true", type = "email" })
+                                    }
+                                    else
+                                    {
+                                        @Html.TextBoxFor(x => x.Email, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Choose email", required = "required", type = "email" })
+                                    }
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-plus text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group has-feedback">
+                                    @Html.Label("Contact email")
+                                    @Html.TextBoxFor(x => x.ContactEmail, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Choose contact email", type = "email" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-plus text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group has-feedback">
+                                    @Html.LabelFor(x => x.FirstName)
+                                    @Html.TextBoxFor(x => x.FirstName, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "First name", required = "required" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-check text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group has-feedback">
+                                    @Html.LabelFor(x => x.LastName)
+                                    @Html.TextBoxFor(x => x.LastName, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Last name", required = "required" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-plus text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group has-feedback">
+                                    @Html.LabelFor(x => x.MiddleName)
+                                    @Html.TextBoxFor(x => x.MiddleName, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Middle name" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-check text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group has-feedback">
+                                    @Html.LabelFor(x => x.Phone)
+                                    @Html.TextBoxFor(x => x.Phone, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Phone", required = "required" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-check text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group has-feedback">
+                                    @Html.LabelFor(x => x.CellPhone)
+                                    @Html.TextBoxFor(x => x.CellPhone, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Cell phone", required = "required" })
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user-plus text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!--<div class="col-md-4">
+                                <div class="form-group has-feedback">
+                                    @Html.LabelFor(x => x.TimeZone)
+                                    @Html.DropDownList("TimeZone", Model.TimeZones, new { @class = "select" })
+                                </div>
+                            </div>-->
+                        </div>
+
+                        @if(Model.UserId == 0)
+                        {
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group has-feedback">
+                                    <a id="UserPasswordGen" href="#">Generate password</a>
+                                    @Html.TextBoxFor(x => x.Password, new { @readonly = "readonly", style = "width: 45%"  })
+                                    @Html.HiddenFor(x => x.ConfirmPassword)
+                                </div>
+                            </div>
+
+                            <div class="col-md-8">
+                                <div class="form-group has-feedback">
+                                    @Html.CheckBoxFor(x => x.ChangePassOnLogin, new { @class = "styled" })
+                                    @Html.Label("Make this user change their password when they first sign in")
+                                </div>
+                            </div>
+                        </div>
+                        }
+                        else
+                        {
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group has-feedback">
+                                        @Html.LabelFor(x => x.Password)
+                                        @Html.TextBoxFor(x => x.Password, new { @class = "form-control", tabindex = 1, placeholder = "Password", type = "password" })
+                                        <div class="form-control-feedback">
+                                            <i class="icon-user-lock text-muted"></i>
+                                        </div>
+                                    </div>
+                                    @{ Html.RenderAction("PasswordStrength", "User", new { id = "Password" }); }
+                                </div>
+
+                                <div class="col-md-5">
+                                    <div class="form-group has-feedback">
+                                        @Html.LabelFor(x => x.ConfirmPassword)
+                                        @Html.TextBoxFor(x => x.ConfirmPassword, new { @class = "form-control", tabindex = 1, placeholder = "Confirm password", type = "password" })
+                                        <div class="form-control-feedback">
+                                            <i class="icon-user-lock text-muted"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <div class="form-group has-feedback" style="margin-top: 30px">
+                                        <label></label>
+                                        <a data-toggle="modal" data-target="#modal_generate_pass">Generate</a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                            <div class="row">
+
+                                <div class="col-md-4">
+                                    <div class="form-group has-feedback">
+                                        @Html.Label("User role")<br />
+                                        @Html.DropDownList("UserRoleId", Model.ListUserRole, new { @class = "select", required = "required" })
+                                    </div>
+                                </div>
+
+                                @if (Model.UserTypeId == SharedData.AffiliateUserTypeId)
+                                {
+                                    <div class="col-md-4">
+                                        <div class="form-group has-feedback">
+                                            @Html.Label("Affiliate")<br />
+                                            @Html.DropDownList("ParentId", Model.ListAffiliate, new { @class = "select", required = "required" })
+                                        </div>
+                                    </div>
+                                }
+
+                                @if (Model.UserTypeId == SharedData.BuyerUserTypeId)
+                                {
+                                    <div class="col-md-4">
+                                        <div class="form-group has-feedback">
+                                            @Html.Label("Buyer")<br />
+                                            @Html.DropDownList("ParentId", Model.ListBuyer, new { @class = "select", required = "required" })
+                                        </div>
+                                    </div>
+                                }
+
+                                @if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+                                {
+                                    <div class="col-md-4">
+                                        <div class="form-group has-feedback">
+                                            @Html.Label("Status")<br />
+                                            @Html.DropDownList("UserStatus", Model.ListStatus, new { @class = "select", required = "required" })
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    @Html.HiddenFor(x => x.UserStatus)
+                                }
+
+                                @if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId)
+                                {
+                                    <div class="col-md-4">
+                                        <div class="form-group has-feedback">
+                                            @Html.Label("Locked out")<br />
+                                            @Html.DropDownList("LockedOut", Model.ListLockedOut, new { @class = "select", required = "required" })
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    @Html.HiddenFor(x => x.LockedOut)
+                                }
+
+                                <div class="col-md-4">
+                                    <div class="form-group has-feedback">
+                                        @Html.Label("Mask email")<br />
+                                        @Html.CheckBoxFor(x => x.MaskEmail)
+                                    </div>
+                                </div>
+                            </div>
+
+                        @if (Model.UserTypeId == SharedData.BuiltInUserTypeId)
+                        {
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group has-feedback">
+                                        @Html.LabelFor(x => x.Comment)
+                                        @Html.TextAreaFor(x => x.Comment, new { @class = "form-control", tabindex = 1, placeholder = "Note" })
+                                        <div class="form-control-feedback">
+                                            <i class="icon-mention text-muted"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </fieldset>
+
+                    <div style="color:red">
+                        @Html.ValidationSummary()
+                    </div>
+
+                    <div class="form-wizard-actions">
+                        @Html.HiddenFor(x => x.UserId)
+
+                        @Html.HiddenFor(x => x.UserTypeId)
+
+                        @Html.HiddenFor(x => x.RedirectUrl)
+
+                        @Html.HiddenFor(x => x.ParentId2)
+
+                        <input class="btn btn-default" id="validation-back" value="Back" type="reset">
+                        <input class="btn btn-info" id="validation-next" value="Next" type="submit" onclick="if ($(this).val() == 'Submit') return validatePassword(); return true;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (Model.DisplayCaptcha)
+{
+    <br />
+    <div>
+        @Html.Raw(Html.GenerateCaptcha())
+    </div>
+}
+
+<div id="modal_generate_pass" class="modal fade">
+    <div class="modal-dialog modal-xs">
+        <div class="modal-content">
+
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Generate password</h5>
+            </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <input class="form-control" type="text" id="user-password" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <button class="form-control btn btn-info" id="generate-pass-btn">Generate</button>
+                        </div>
+                        <div class="col-sm-6">
+                            <button class="form-control btn btn-info" id="apply-pass-btn">Apply</button>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>

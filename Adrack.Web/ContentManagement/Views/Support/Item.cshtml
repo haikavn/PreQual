@@ -1,0 +1,88 @@
+﻿@model Adrack.Web.ContentManagement.Models.Support.SupportTicketsMessagesModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+
+    Html.AddPageTitle("Tickets desk - Ticket details");
+    Html.AddPageMetaDescription("Ticket details");
+}
+
+<script type="text/javascript" src="~/Scripts/plugins/uploaders/fileinput.min.js"></script>
+<script type="text/javascript" src="~/Scripts/pages/uploader_bootstrap.js"></script>
+
+<script src="~/Scripts/pages-js/SupportItem.js"></script>
+<script>
+    SupportItemParams.init(@Model.TicketID);
+</script>
+
+<a href="/Management/Support/Tickets">< Back to Tickets</a>
+
+@if (permissionService.Authorize(PermissionProvider.SupportChangeStatus))
+{
+    <div class="col-sm-offset-11">
+        <div class="status-filter-switch">
+            Actions: 
+            <div data-toggle="buttons" class="btn-group support-action-btn">
+                @if (Model.TicketStatus == 0)
+                {
+                    <button class="btn btn-default btn-warning" data-id="1">Open</button>
+                }
+                @if (Model.TicketStatus == 1)
+                {
+                    <button class="btn btn-default btn-success" data-id="0">Close</button>
+                }
+
+            </div>
+        </div>
+    </div>
+}
+
+<div class="row">
+    <div class="col-lg-3 text-bold"><h5>Subject: @Model.TicketSubject</h5></div>
+    <div class="col-lg-2 text-bold"><h5>Reporter: @ViewBag.Reporter</h5></div>
+    <div class="col-lg-2 text-bold"><h5>Assigned to: @ViewBag.Assigne</h5></div>
+    <div class="col-lg-1 text-bold"><h5>Priority: @ViewBag.Priority</h5></div>
+    <div class="col-lg-1 text-bold"><h5>Status: @ViewBag.Status</h5></div>
+
+</div>
+
+<div class="panel panel-flat">
+    <div class="panel-heading">
+        <h6 class="panel-title">@Model.TicketSubject</h6>
+        <div class="heading-elements">
+            <ul class="icons-list">
+                <li><a data-action="collapse"></a></li>
+                <li><a data-action="reload"></a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="panel-body">
+        <ul class="media-list chat-list content-group">
+            <div id="MessagesContainer"></div>
+        </ul>
+        @if (Model.TicketStatus == 1)
+        {
+            <div id="messaging-container">
+                <textarea id="TicketMessageText" name="enter-message" class="form-control content-group" rows="3" cols="1" placeholder="Enter your message..."></textarea>
+
+                <div class="row">
+                    <div class="col-xs-6">
+
+                        <div class="form-group">
+                            <span class="help-block">Attach a file (Max: 2MB.)</span>
+                            <input type="file" id="attach-file" class="file-input" data-show-caption="false" data-show-upload="false" data-browse-class="btn btn-primary btn-xs" data-remove-class="btn btn-default btn-xs">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 text-right">
+                        <button id="AddTicketMessage" type="button" class="btn bg-teal-400 btn-labeled btn-labeled-right"><b><i class="icon-circle-right2"></i></b> Send</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

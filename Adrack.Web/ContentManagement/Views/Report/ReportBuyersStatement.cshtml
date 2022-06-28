@@ -1,0 +1,54 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.Reports.BuyerReportModel
+
+@{
+    Html.AddPageTitle("Report Buyers Statement Report");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+}
+
+<script src="~/Scripts/core/library/jquery_ui/core.min.js"></script>
+<script src="~/Scripts/core/library/jquery_ui/interactions.min.js"></script>
+<script src="~/Scripts/core/library/jquery_ui/effects.min.js"></script>
+<script src="~/Scripts/plugins/forms/selects/bootstrap_multiselect.js"></script>
+<script src="~/Scripts/plugins/trees/fancytree_all.min.js"></script>
+<script src="~/Scripts/plugins/trees/fancytree_childcounter.js"></script>
+
+<script>
+    function loadReport() {
+             location.href = '@Model.BaseUrl' + '/management/report/CreateReportPdf/' + $('#buyers').val();
+     }
+
+    $(document).ready(function () {
+        $('#download-btn').on('click', function () {
+            loadReport(true);
+        });
+
+        $('.multiselect').multiselect({
+            enableCaseInsensitiveFiltering: true,
+            numberDisplayed: 1
+        });
+
+        $('.select').select2();
+    });
+</script>
+<br>
+<div class="row">
+    <div class="col-md-3">
+        <div class="row">
+            <div class="col-md-12 bulk-filter">
+                <div class="form-group">
+                    <select id="buyers" class="form-control select">
+                        @foreach (var a in Model.ListBuyers)
+                        {
+                            <option value="@a.Value">@a.Text</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <button id="download-btn" class="btn btn-default">Download</button>
+            </div>
+        </div>
+        
+    </div>
+</div>

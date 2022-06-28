@@ -1,0 +1,42 @@
+﻿@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+@using Adrack.Service.Helpers
+
+@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+
+    Html.AddPageTitle("Affiliate Channel");
+    Html.AddPageMetaDescription("Shows Affiliate Channels");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+
+    var currentUser = this.AppContext.AppUser;
+}
+
+<script src="~/Scripts/pages-js/AffiliateChannelList.js"></script>
+<script> AffiliateChannelListParams.init('@Html.Raw(currentUser.UserTypeId == SharedData.BuiltInUserTypeId || permissionService.Authorize(PermissionProvider.AffiliateChannelsModify) ? ",Action" : "")'); </script>
+
+@if (permissionService.Authorize(PermissionProvider.AffiliateChannelsModify))
+{
+<button id="add_new" type="button" class="btn btn-success btn-sm">
+    <i class="icon-add-to-list position-left"></i>Add affiliate channel
+</button><br /><br />
+}
+
+@if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || permissionService.Authorize(PermissionProvider.AffiliateChannelsFilter))
+{
+    <div class="status-filter">
+        <div data-toggle="buttons" class="btn-group">
+            <label class="btn btn-default active">
+                <input type="radio" checked="checked" id="status0" name="statusradio"> Show All
+            </label>
+            <label class="btn btn-default">
+                <input type="radio" id="status1" name="statusradio"> Show Deleted
+            </label>
+        </div>
+    </div>
+}
+
+<div id="affiliate_channels"></div>

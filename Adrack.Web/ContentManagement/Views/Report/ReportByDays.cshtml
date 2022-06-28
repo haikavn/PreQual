@@ -1,0 +1,1303 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.Reports.ReportByDaysModel
+
+@using Adrack.Service.Helpers
+
+@{
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/loaders/blockui.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/visualization/echarts/echarts.js").ToLowerInvariant());
+
+    var currentUser = this.AppContext.AppUser;
+}
+
+<script type="text/javascript" src="~/Scripts/plugins/visualization/d3/d3.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/visualization/d3/d3_tooltip.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/forms/styling/switchery.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/forms/styling/uniform.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/forms/selects/bootstrap_multiselect.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/ui/moment/moment.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/daterangepicker.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/forms/selects/select2.min.js"></script>
+<script type="text/javascript" src="~/Scripts/pages/dashboard.js"></script>
+
+<script>
+
+    @if (Model.UserTypeId == SharedData.BuiltInUserTypeId || Model.UserTypeId == SharedData.NetowrkUserTypeId)
+    {
+        @: var legendArr = ['Posted', 'Sold'];
+        }
+    else if (Model.UserTypeId == SharedData.BuyerUserTypeId)
+    {
+        @: var legendArr = ['Received', 'Acquired'];
+        }
+    else if (Model.UserTypeId == SharedData.AffiliateUserTypeId)
+    {
+        @: var legendArr = ['Posted', 'Sold'];
+    }
+
+    @if (Model.UserTypeId == SharedData.BuiltInUserTypeId || Model.UserTypeId == SharedData.NetowrkUserTypeId)
+    {
+        @: var legendArrAll = ['Received', 'Posted', 'Sold', 'Revenue($)', 'Cost($)', 'Profit($)'];
+        }
+    else if (Model.UserTypeId == SharedData.BuyerUserTypeId)
+    {
+        @: var legendArrAll = ['Posted', 'Received', 'Acquired', 'Cost($)', 'Revenue($)', 'Profit($)'];
+        }
+    else if (Model.UserTypeId == SharedData.AffiliateUserTypeId)
+    {
+        @: var legendArrAll = ['Received', 'Posted', 'Sold', 'Cost($)', 'Revenue($)', 'Profit($)'];
+    }
+
+    var legendColor = ['#57a5c6', '#ec407a', '#71c371', '#903ebf', '#fd8433', '#187358'];
+
+    var basic_lines;
+    var basic_lines_options;
+    var parentid = '@Model.ParentId';
+    var seriesType = 'line';
+    var chartIndex = 1;
+
+    var firstIndex = 0;
+
+    function AddChartSeries(name, series, data, Index, n) {
+
+        if (basic_lines_options != undefined) {
+
+            if (Index > 2) {
+                basic_lines_options.yAxis.push(
+                        {
+                            type: 'value',
+                            axisLabel: {
+                                formatter: '${value}'
+                            },
+                            name: 'USD'
+                        }
+                    );
+            }
+            else {
+                basic_lines_options.yAxis.push(
+                    {
+                        type: 'value',
+                        axisLabel: {
+                            formatter: '{value}'
+                        },
+                        name: 'Leads'
+                    }
+                );
+
+            }
+        }
+
+        series.push(
+            {
+                name: name,
+                type: seriesType,
+                /*AZ stack: "tiled", */
+                showAllSymbol: true,
+                yAxisIndex: n == 1 ? 0 : 1,
+                symbolSize: function (value) {
+                    return 2;
+                },
+                data: data,
+                markLine: {
+                    data: [{
+                        type: 'average',
+                        name: 'Average'
+                    }]
+                }
+            }
+        );
+    }
+
+    function getLegend() {
+        return { data: legendArr };
+    }
+
+    function setData(series, received, total, sold, bprice, aprice, profit) {
+        var allDatasArr = [received, total, sold, bprice, aprice, profit];
+
+        if (series == null) {
+            series = [];
+        }
+
+        index1 = legendArrAll.indexOf(legendArr[0]);
+        AddChartSeries(legendArr[0], series, allDatasArr[index1], index1, 1);
+
+        if (legendArr.length > 1) {
+            index2 = legendArrAll.indexOf(legendArr[1]);
+            AddChartSeries(legendArr[1], series, allDatasArr[index2], index2, index1 > 2 && index2 > 2 || index1 < 3 && index2 < 3 ? 1 : 0);
+        }
+
+        return series;
+    }
+
+    var globalLock = false;
+    function UnLock() {
+        window.setTimeout("globalLock = false;", 1000);
+    }
+
+    function Lock() {
+        globalLock = true;
+    }
+
+    function DrawTopStates(jsonData) {
+
+        var obj = $.parseJSON(jsonData);
+
+        var totalSum = 0;
+
+        $.each(obj, function (i, val) {
+            totalSum += parseInt(val.replace(/,/g, ''));
+        });
+
+        $(".table-top-states tbody").html("");
+        $.each(obj, function (i, val) {
+            var perc = parseInt((parseInt(val.replace(/,/g, '')) / totalSum * 100).toString());
+            var trStr =
+                '<tr>\
+                    <td width="50px"><span class="label bg-blue" style="width: 50px">' + i + '</span></td>\
+                    <td width="100px">' + val + '</td>\
+                    <td width="400px">\
+                        <div class="progress-bg"></div>\
+                        <div class="progress-bar1" style="width:' + perc + '%"></div>\
+                        <div class="progress-percent">' + perc + '%</div>\
+                    </td>\
+                </tr>';
+
+            $(".table-top-states tbody").append(trStr);
+        });
+
+    }
+
+    function UpdateChart(options, callback) {
+
+        try {
+            basic_lines.clear();
+            basic_lines.setOption(options);
+            basic_lines.refresh();
+            setTimeout(function () { basic_lines.resize(); }, 200);
+            UnLock();
+        }
+        catch (err) {
+            UnLock();
+            document.location.reload(true);
+        }
+    }
+
+    function UpdateReportByYear() {
+
+        campaingnid = $("#IdCampaigns").val();
+        timeZone = $("#TimeZone").val();
+
+        if (campaingnid == undefined || campaingnid == "" || campaingnid == null) {
+            campaingnid = 0;
+        }
+
+        $.ajax({
+            cache: false,
+            async: false,
+            type: "POST",
+            url: "@ViewBag.BaseUrl/management/report/GetReportByYear?parentid=@Model.ParentId&campaingnid=" + campaingnid + "&tz=" + timeZone,
+            data: {},
+            success: function (data) {
+                $('.chart-loader-div').hide();
+                dates = data.dates;
+
+                $(".ReceivedVal").html(ConvertToMoney(data.receivedsum));
+                $(".PostedVal").html(ConvertToMoney(data.postedsum));
+                $(".SoldVal").html(ConvertToMoney(data.soldsum));
+                $(".LoanedVal").html(ConvertToMoney(data.loanedsum));
+                $(".RevenueVal").html("$" + ConvertToMoney(data.bpricesum));
+                $(".CostVal").html("$" + ConvertToMoney(data.apricesum));
+                $(".ProfitVal").html("$" + ConvertToMoney(data.profitsum));
+
+                if (data.soldsum > 0)
+                    $(".ConversionVal").html(RoundNum((data.loanedsum / data.soldsum) * 100, 2) + '%');
+                else
+                    $(".ConversionVal").html('0%');
+
+                basic_lines_options.legend = getLegend();
+
+                basic_lines_options.tooltip = {
+                    trigger: 'axis'
+                };
+
+                basic_lines_options.color = [legendColor[legendArrAll.indexOf(legendArr[0])], legendColor[legendArrAll.indexOf(legendArr[1])]];
+
+                basic_lines_options.xAxis = [{
+                    type: 'category',
+                    boundaryGap: true,
+                    data: dates
+                }];
+
+                basic_lines_options.yAxis = [
+                ];
+
+                basic_lines_options.series = [];
+
+                setData(basic_lines_options.series, data.received, data.posted, data.sold, data.bprice, data.aprice, data.profit);
+
+                UpdateChart(basic_lines_options, UpdateReportByYear);
+
+                $('.chart-switch').removeAttr('disabled');
+
+                generateBarChart("#chart-received", 12, 50, true, "elastic", 1200, 50, "rgba(255,255,255,0.5)", "goal", data.received, dates);
+                generateBarChart("#chart-posted", 12, 50, true, "elastic", 1200, 50, "rgba(255,255,255,0.5)", "goal", data.posted, dates);
+                generateBarChart("#chart-bought", 12, 50, true, "elastic", 1200, 50, "rgba(255,255,255,0.5)", "goal", data.sold, dates);
+                generateBarChart("#chart-revenue", 12, 50, true, "elastic", 1200, 50, "rgba(255,255,255,0.5)", "goal", data.bprice, dates);
+
+                generateBarChart("#chart-cost", 12, 50, true, "elastic", 1200, 50, "rgba(255,255,255,0.5)", "goal", data.aprice, dates);
+                generateBarChart("#chart-profit", 12, 50, true, "elastic", 1200, 50, "rgba(255,255,255,0.5)", "goal", data.profit, dates);
+
+                var data2 = [
+                {
+                    "status": "Rejected",
+                    "icon": "<i class='status-mark border-blue-300 position-left'></i>",
+                    "value": data.postedsum - data.soldsum,
+                    "color": "#EC407A"
+                }, {
+                    "status": "Sold",
+                    "icon": "<i class='status-mark border-success-300 position-left'></i>",
+                    "value": data.soldsum,
+                    "color": "#71c371"
+                }
+                ];
+                ticketStatusDonut("#DonutChart2", 110, data2);
+
+                var data3 = [
+                    {
+                        "status": "Cost",
+                        "icon": "<i class='status-mark border-blue-300 position-left'></i>",
+                        "value": data.bpricesum - data.profitsum,
+                        "color": "#fd8433"
+                    }, {
+                        "status": "Profit",
+                        "icon": "<i class='status-mark border-success-300 position-left'></i>",
+                        "value": data.profitsum,
+                        "color": "#45A88A"
+                    }
+                ];
+
+                ticketStatusDonut("#DonutChart3", 110, data3);
+
+                var statArray = data.statuses.split(",");
+                $(".ErrorVal").html(statArray[2]);
+                    var data1 = [
+                    {
+                        "status": "Received",
+                        "icon": "<i class='status-mark border-blue-300 position-left'></i>",
+                        "value": data.statusestotals,
+                        "color": "#26A69A"
+                    }, {
+                        "status": "Error",
+                        "icon": "<i class='status-mark border-success-300 position-left'></i>",
+                        "value": statArray[2],
+                        "color": "#EC407A"
+                    }
+                ];
+
+                    ticketStatusDonut("#DonutChart1", 100, data1);
+
+                    var statArray = data.statuses.split(",");
+                $(".FiltereddVal").html(statArray[5]);
+                    var data4 = [
+                    {
+                        "status": "Received",
+                        "icon": "<i class='status-mark border-blue-300 position-left'></i>",
+                        "value": data.statusestotals,
+                        "color": "#26A69A"
+                    }, {
+                        "status": "Filtered",
+                        "icon": "<i class='status-mark border-success-300 position-left'></i>",
+                        "value": statArray[5],
+                        "color": "#EC407A"
+                    }
+                ];
+
+                    ticketStatusDonut("#DonutChart4", 100, data4);
+
+                    DrawTopStates(data.topstates);
+                },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+
+    function UpdateReportByHour() {
+        $.ajax({
+            cache: false,
+            async: false,
+            type: "POST",
+            url: "@ViewBag.BaseUrl/management/report/GetReportByHour?parentid=@Model.ParentId",
+            data: {},
+            success: function (data) {
+                $('.chart-loader-div').hide();
+
+                sold = [];
+                posted = [];
+                received = [];
+                bprice = [];
+                aprice = [];
+                profit = [];
+
+                for (var i = 0; i < data.sold.length; i++) {
+                    sold.push([new Date(data.sold[i][0], data.sold[i][1] - 1, data.sold[i][2], data.sold[i][3], 0, 0), data.sold[i][4]]);
+                }
+
+                for (var i = 0; i < data.received.length; i++) {
+                    received.push([new Date(data.received[i][0], data.received[i][1] - 1, data.received[i][2], data.received[i][3], 0, 0), data.received[i][4]]);
+                }
+
+                for (var i = 0; i < data.posted.length; i++) {
+                    posted.push([new Date(data.posted[i][0], data.posted[i][1] - 1, data.posted[i][2], data.posted[i][3], 0, 0), data.posted[i][4]]);
+                }
+
+                basic_lines_options.legend = getLegend();
+
+                basic_lines_options.color = [legendColor[legendArrAll.indexOf(legendArr[0])], legendColor[legendArrAll.indexOf(legendArr[1])]];
+
+                basic_lines_options.xAxis = [{
+                    type: 'time',
+                    splitNumber: 24
+                }];
+
+                basic_lines_options.series = [];
+                basic_lines_options.yAxis = [];
+
+                setData(basic_lines_options.series, received, posted, sold, bprice, aprice, profit);
+
+                UpdateChart(basic_lines_options, UpdateReportByHour);
+
+                $('.chart-switch').removeAttr('disabled');
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+
+    }
+
+    function UpdateReportByMinutes() {
+
+        window.setTimeout(function () {
+            if (basic_lines_options == undefined) return;
+            console.log("Update by minutes");
+            campaingnid = $("#IdCampaigns").val();
+            timeZone = 1; //$("#TimeZone").val();
+
+            if (campaingnid == undefined || campaingnid == "" || campaingnid == null) {
+                campaingnid = 0;
+            }
+
+            var dates2 = $('.reportdate').val().split('-');
+
+            var d1 = new Date(dates2[0].replace(/ /g, ''));
+
+            if (dates2[1] == undefined || dates2[1] == null) {
+                dates2[1] = dates2[0];
+            }
+
+            var d2 = new Date(dates2[1].replace(/ /g, ''));
+
+            if (d2.getFullYear() != d1.getFullYear()) {
+                UpdateReportByYear();
+                return;
+            }
+
+            if (d2 > d1) {
+                UpdateReportByDays(1, campaingnid);
+                return;
+            }
+
+            $.ajax({
+                cache: false,
+                async: false,
+                type: "POST",
+                url: "@ViewBag.BaseUrl/Management/report/GetReportByDateRang?parentid=@Model.ParentId&tz=" + timeZone,
+
+                data: { date: $('.reportdate').val(), campaignid: campaingnid },
+                success: function (data) {
+                    $('.chart-loader-div').hide();
+
+                    $(".ReceivedVal").html(ConvertToMoney(data.receivedsum));
+                    $(".PostedVal").html(ConvertToMoney(data.postedsum));
+                    $(".SoldVal").html(ConvertToMoney(data.soldsum));
+                    $(".LoanedVal").html(ConvertToMoney(data.loanedsum));
+
+                    if (data.soldsum > 0)
+                        $(".ConversionVal").html(RoundNum((data.loanedsum / data.soldsum) * 100, 2) + '%');
+                    else
+                        $(".ConversionVal").html('0%');
+
+                    $(".RevenueVal").html("$" + ConvertToMoney(data.bpricesum));
+                    $(".CostVal").html("$" + ConvertToMoney(data.apricesum));
+                    $(".ProfitVal").html("$" + ConvertToMoney(data.profitsum));
+
+                    basic_lines_options.legend = getLegend();
+
+                    // basic_lines_options.color = ['#57a5c6', '#ec407a', '#71c371', '#5C6BC0', '#fd8433', '#45A88A'];
+                    basic_lines_options.color = [legendColor[legendArrAll.indexOf(legendArr[0])], legendColor[legendArrAll.indexOf(legendArr[1])]];
+
+                    basic_lines_options.xAxis = [{
+                        type: 'category',
+                        boundaryGap: true,
+                        data: data.dates
+                    }];
+                    basic_lines_options.yAxis = [];
+
+                    basic_lines_options.tooltip = {
+                        trigger: 'axis'
+                    };
+
+                    basic_lines_options.series = [];
+                    setData(basic_lines_options.series, data.received, data.posted, data.sold, data.bprice, data.aprice, data.profit);
+
+                    generateBarChart("#chart-received", 144, 50, true, "elastic", 1200, 50, "rgba(255,255,255,0.5)", "goal", data.received, data.dates);
+                    generateBarChart("#chart-posted", 144, 50, true, "elastic", 1200, 50, "rgba(255,255,255,0.5)", "goal", data.posted, data.dates);
+                    generateBarChart("#chart-bought", 144, 50, true, "elastic", 1200, 50, "rgba(255,255,255,0.5)", "goal", data.sold, data.dates);
+
+                    generateBarChart("#chart-revenue", 144, 50, true, "elastic", 1200, 50, "rgba(255,255,255,0.5)", "goal", data.bprice, data.dates);
+
+                    generateBarChart("#chart-cost", 144, 50, true, "elastic", 1200, 50, "rgba(255,255,255,0.5)", "goal", data.aprice, data.dates);
+                    generateBarChart("#chart-profit", 144, 50, true, "elastic", 1200, 50, "rgba(255,255,255,0.5)", "goal", data.profit, data.dates);
+
+                    var data2 = [
+                        {
+                            "status": "Not Sold",
+                            "icon": "<i class='status-mark border-blue-300 position-left'></i>",
+                            "value": data.postedsum - data.soldsum,
+                            "color": "#EC407A"
+                        }, {
+                            "status": "Sold",
+                            "icon": "<i class='status-mark border-success-300 position-left'></i>",
+                            "value": data.soldsum,
+                            "color": "#29B6F6"
+                        }
+                    ];
+
+                    ticketStatusDonut("#DonutChart2", 110, data2);
+
+                    var data3 = [
+                        {
+                            "status": "Cost",
+                            "icon": "<i class='status-mark border-blue-300 position-left'></i>",
+                            "value": data.bpricesum - data.profitsum,
+                            "color": "#fd8433"
+                        }, {
+                            "status": "Profit",
+                            "icon": "<i class='status-mark border-success-300 position-left'></i>",
+                            "value": data.profitsum,
+                            "color": "#45A88A"
+                        }
+                    ];
+
+                    ticketStatusDonut("#DonutChart3", 110, data3);
+
+                    var statArray = data.statuses.split(",");
+                    $(".ErrorVal").html(statArray[2]);
+                    var data1 = [
+                        {
+                            "status": "Received",
+                            "icon": "<i class='status-mark border-blue-300 position-left'></i>",
+                            "value": data.statusestotals,
+                            "color": "#26A69A"
+                        }, {
+                            "status": "Error",
+                            "icon": "<i class='status-mark border-success-300 position-left'></i>",
+                            "value": statArray[2],
+                            "color": "#EC407A"
+                        }
+                    ];
+
+                    ticketStatusDonut("#DonutChart1", 100, data1);
+
+                    var statArray = data.statuses.split(",");
+                    $(".FiltereddVal").html(statArray[5]);
+                    var data4 = [
+                        {
+                            "status": "Received",
+                            "icon": "<i class='status-mark border-blue-300 position-left'></i>",
+                            "value": data.statusestotals,
+                            "color": "#26A69A"
+                        }, {
+                            "status": "Filtered",
+                            "icon": "<i class='status-mark border-success-300 position-left'></i>",
+                            "value": statArray[5],
+                            "color": "#EC407A"
+                        }
+                    ];
+
+                    ticketStatusDonut("#DonutChart4", 100, data4);
+
+                    DrawTopStates(data.topstates);
+
+                    UpdateChart(basic_lines_options, UpdateReportByMinutes);
+
+                    $('.chart-switch').removeAttr('disabled');
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+        }, 1000);
+    }
+
+    function UpdateReportByDays(defaultMode) {
+        window.setTimeout(function () {
+            campaingnid = $("#IdCampaigns").val();
+            timeZone = $("#TimeZone").val();
+
+            if (campaingnid == undefined || campaingnid == "" || campaingnid == null) {
+                campaingnid = 0;
+            }
+
+            $.ajax({
+                cache: false,
+                async: false,
+                type: "POST",
+                url: "@ViewBag.BaseUrl/management/report/GetReportByDays?parentid=@Model.ParentId&tz=" + timeZone,
+                data: { dates: $('.reportdate').val(), mode: defaultMode, campaingnid: campaingnid },
+                success: function (data) {
+                    $('.chart-loader-div').hide();
+
+                    $(".ReceivedVal").html(ConvertToMoney(data.receivedsum));
+                    $(".PostedVal").html(ConvertToMoney(data.postedsum));
+                    $(".SoldVal").html(ConvertToMoney(data.soldsum));
+                    $(".LoanedVal").html(ConvertToMoney(data.loanedsum));
+                    $(".RevenueVal").html("$" + ConvertToMoney(data.bpricesum));
+                    $(".CostVal").html("$" + ConvertToMoney(data.apricesum));
+                    $(".ProfitVal").html("$" + ConvertToMoney(data.profitsum));
+
+                    if (data.soldsum > 0)
+                        $(".ConversionVal").html(RoundNum((data.loanedsum / data.soldsum) * 100, 2) + '%');
+                    else
+                        $(".ConversionVal").html('0%');
+
+                    posted = [];
+                    sold = [];
+                    received = [];
+                    bprice = [];
+                    aprice = [];
+                    profit = [];
+
+                    for (var i = 0; i < data.data.length; i++) {
+                        posted.push(data.data[i].posted);
+                        sold.push(data.data[i].sold);
+                        received.push(data.data[i].received);
+                        bprice.push(data.data[i].bprice);
+                        aprice.push(data.data[i].aprice);
+                        profit.push(data.data[i].profit);
+                    }
+
+                    basic_lines_options.legend = getLegend();
+
+                    // basic_lines_options.color = ['#57a5c6', '#ec407a', '#71c371', '#5C6BC0', '#fd8433', '#45A88A'];
+                    basic_lines_options.color = [legendColor[legendArrAll.indexOf(legendArr[0])], legendColor[legendArrAll.indexOf(legendArr[1])]];
+
+                    basic_lines_options.xAxis = [{
+                        type: 'category',
+                        boundaryGap: true,
+                        data: data.dates
+                    }];
+                    basic_lines_options.yAxis = [];
+
+                    basic_lines_options.tooltip = {
+                        trigger: 'axis'
+                    };
+
+                    basic_lines_options.series = [];
+                    setData(basic_lines_options.series, received, posted, sold, bprice, aprice, profit);
+                    UpdateChart(basic_lines_options, null);
+                    //basic_lines.clear();
+                    //basic_lines.setOption(basic_lines_options);
+                    //basic_lines.refresh();
+
+                    //setTimeout(function () { basic_lines.resize(); }, 500);
+
+                    $('.chart-switch').removeAttr('disabled');
+
+                    generateBarChart("#chart-received", 30, 50, true, "elastic", 1200, 50, "rgba(255,255,255,0.5)", "goal", received, data.dates);
+                    generateBarChart("#chart-posted", 30, 50, true, "elastic", 1200, 50, "rgba(255,255,255,0.5)", "goal", posted, data.dates);
+                    generateBarChart("#chart-bought", 30, 50, true, "elastic", 1200, 50, "rgba(255,255,255,0.5)", "goal", sold, data.dates);
+                    generateBarChart("#chart-revenue", 30, 50, true, "elastic", 1200, 50, "rgba(255,255,255,0.5)", "goal", bprice, data.dates);
+
+                    generateBarChart("#chart-cost", 30, 50, true, "elastic", 1200, 50, "rgba(255,255,255,0.5)", "goal", aprice, data.dates);
+                    generateBarChart("#chart-profit", 30, 50, true, "elastic", 1200, 50, "rgba(255,255,255,0.5)", "goal", profit, data.dates);
+
+                    var data2 = [
+                        {
+                            "status": "Not Sold",
+                            "icon": "<i class='status-mark border-blue-300 position-left'></i>",
+                            "value": data.postedsum - data.soldsum,
+                            "color": "#EC407A"
+                        }, {
+                            "status": "Sold",
+                            "icon": "<i class='status-mark border-success-300 position-left'></i>",
+                            "value": data.soldsum,
+                            "color": "#29B6F6"
+                        }
+                    ];
+                    ticketStatusDonut("#DonutChart2", 110, data2);
+
+                    var data3 = [
+                        {
+                            "status": "Cost",
+                            "icon": "<i class='status-mark border-blue-300 position-left'></i>",
+                            "value": data.bpricesum - data.profitsum,
+                            "color": "#fd8433"
+                        }, {
+                            "status": "Profit",
+                            "icon": "<i class='status-mark border-success-300 position-left'></i>",
+                            "value": data.profitsum,
+                            "color": "#45A88A"
+                        }
+                    ];
+
+                    ticketStatusDonut("#DonutChart3", 110, data3);
+
+                    var statArray = data.statuses.split(",");
+                    $(".ErrorVal").html(statArray[2]);
+                    var data1 = [
+                        {
+                            "status": "Received",
+                            "icon": "<i class='status-mark border-blue-300 position-left'></i>",
+                            "value": data.statusestotals,
+                            "color": "#26A69A"
+                        }, {
+                            "status": "Error",
+                            "icon": "<i class='status-mark border-success-300 position-left'></i>",
+                            "value": statArray[2],
+                            "color": "#EC407A"
+                        }
+                    ];
+
+                    ticketStatusDonut("#DonutChart1", 100, data1);
+
+                    var statArray = data.statuses.split(",");
+                    $(".FiltereddVal").html(statArray[5]);
+                    var data4 = [
+                        {
+                            "status": "Received",
+                            "icon": "<i class='status-mark border-blue-300 position-left'></i>",
+                            "value": data.statusestotals,
+                            "color": "#26A69A"
+                        }, {
+                            "status": "Filtered",
+                            "icon": "<i class='status-mark border-success-300 position-left'></i>",
+                            "value": statArray[5],
+                            "color": "#EC407A"
+                        }
+                    ];
+
+                    ticketStatusDonut("#DonutChart4", 100, data4);
+
+                    DrawTopStates(data.topstates);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+        }, 500);
+
+    }
+
+    $(document).ready(function () {
+
+            var dtNow = new Date('@Adrack.Web.ContentManagement.Helper.GetTimeZoneStr()');
+            $('.reportdate').daterangepicker({
+                applyClass: 'bg-slate-600',
+                cancelClass: 'btn-default',
+                startDate: moment(dtNow),
+                endDate: moment(dtNow),
+                maxDate: moment(dtNow).subtract(-1, 'days'),
+                opens: "right",
+                ranges: {
+                    'Today': [moment(dtNow), moment(dtNow)],
+                    'Yesterday': [moment(dtNow).subtract(1, 'days'), moment(dtNow).subtract(1, 'days')],
+                    'Last 7 Days': [moment(dtNow).subtract(6, 'days'), moment(dtNow)],
+                    'Last 30 Days': [moment(dtNow).subtract(29, 'days'), moment(dtNow)],
+                    'This Month': [moment(dtNow).startOf('month'), moment(dtNow).endOf('month')],
+                    'Last Month': [moment(dtNow).subtract(1, 'month').startOf('month'), moment(dtNow).subtract(1, 'month').endOf('month')],
+                    'Last 12 Month': [moment(dtNow).subtract(12, 'month'), moment(dtNow)]
+                },
+                locale: {
+                    format: 'MM/DD/YYYY'
+                }
+            });
+
+        $("#IdCampaigns").change(function () {
+            UpdateReportByMinutes();
+        });
+
+        $("#TimeZone").change(function () {
+            UpdateReportByMinutes();
+        });
+
+        $("#chartCol1").change(function () {
+            $("#chartCol2 option").removeAttr("disabled");
+            $("#chartCol2 [value='" + $(this).val() + "']").attr("disabled", "disabled");
+
+            if ($("#chartCol1").val() != "None") {
+                legendArr[0] = $("#chartCol1").val();
+            }
+
+            if ($("#chartCol2").val() != "None") {
+                legendArr[1] = $("#chartCol2").val();
+            }
+
+            if ($("#chartCol1").val() == "None") {
+                legendArr.splice(0, 1);
+            }
+            if ($("#chartCol2").val() == "None") {
+                legendArr.splice(1, 1);
+            }
+
+            UpdateReportByMinutes();
+        });
+
+        $("#chartCol2").change(function () {
+            $("#chartCol1 option").removeAttr("disabled");
+            $("#chartCol1 [value='" + $(this).val() + "']").attr("disabled", "disabled");
+
+            if ($("#chartCol1").val() != "None") {
+                legendArr[0] = $("#chartCol1").val();
+            }
+
+            if ($("#chartCol2").val() != "None") {
+                legendArr[1] = $("#chartCol2").val();
+            }
+
+            if ($("#chartCol1").val() == "None") {
+                legendArr.splice(0, 1);
+            }
+            if ($("#chartCol2").val() == "None") {
+                legendArr.splice(1, 1);
+            }
+
+            UpdateReportByMinutes();
+        });
+
+        $('.reportdate').on('apply.daterangepicker', function (ev, picker) {
+            $('.chart-loader-div').show();
+            chartIndex = 1;
+            $('.btn-default').removeClass('active-btn');
+            $('#report-by-minutes').addClass('active-btn');
+            UpdateReportByMinutes();
+        });
+
+        $('.reportdate').focusout(function () {
+
+        });
+
+        $('.reportdate').trigger('apply.daterangepicker');
+
+        $('.text-slate').click(function () {
+            seriesType = $(this).data('type');
+
+            if (globalLock) {
+                return;
+            }
+            Lock();
+            if (chartIndex == 2) {
+                UpdateReportByDays();
+            }
+            if (chartIndex == 1) {
+                UpdateReportByMinutes();
+            }
+            if (chartIndex == 3) {
+                UpdateReportByHour();
+            }
+            if (chartIndex == 4) {
+                UpdateReportByYear();
+            }
+        });
+
+        $('#report-by-days').click(function () {
+            if (globalLock) {
+                return;
+            }
+            Lock();
+            $('.chart-loader-div').show();
+            chartIndex = 2;
+
+            $('.btn-default').removeClass('active-btn');
+            $(this).addClass('active-btn');
+            UpdateReportByDays();
+        });
+
+        $('#report-by-minutes').click(function () {
+            if (globalLock) {
+                return;
+            }
+            $('.chart-loader-div').show();
+            chartIndex = 1;
+            $('.btn-default').removeClass('active-btn');
+            $('#report-by-minutes').addClass('active-btn');
+            UpdateReportByMinutes();
+        });
+
+        $('#report-by-hour').click(function () {
+
+            if (globalLock) {
+                return;
+            }
+            Lock();
+
+            $('.chart-loader-div').show();
+            chartIndex = 3;
+            $('.btn-default').removeClass('active-btn');
+            $(this).addClass('active-btn');
+            UpdateReportByHour();
+        });
+
+        $('#report-by-year').click(function () {
+            if (globalLock) {
+                return;
+            }
+            Lock();
+
+            $('.chart-loader-div').show();
+            chartIndex = 4;
+
+            $('.btn-default').removeClass('active-btn');
+            $(this).addClass('active-btn');
+            $(this).css('font-weight', 'bold');
+            UpdateReportByYear();
+        });
+
+        $(".sidebar-main-toggle").click(function () {
+            setTimeout(function () {
+                basic_lines.resize();
+            }, 200);
+        });
+
+        require.config({
+            paths: {
+                echarts: '@ViewBag.BaseUrl/Scripts/plugins/visualization/echarts'
+            }
+        });
+
+        require(
+            [
+                'echarts',
+                'echarts/theme/limitless',
+                'echarts/chart/bar',
+                'echarts/chart/line'
+            ],
+
+            // Charts setup
+            function (ec, limitless) {
+                var legend = getLegend();
+                var series = setData(null, [0], [0], [0], [0], [0], [0]);
+
+                // Initialize charts
+                // ------------------------------
+
+                basic_lines = ec.init(document.getElementById('basic_lines'), limitless);
+
+                basic_lines_options = {
+
+                    // Setup grid
+                    grid: {
+                        x: 40,
+                        x2: 40,
+                        y: 35,
+                        y2: 25
+                    },
+
+                    toolbox: {
+                        show: true,
+                        feature: {
+                            magicType: { show: true, type: ['line', 'bar'], title: { line: 'Line', bar: 'Bar' } },
+                            saveAsImage: { show: true, title: 'Save as Image' }
+                        }
+                    },
+
+                    // Add tooltip
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+
+                    legend: ['Posted'],
+
+                    dataZoom: {
+                        show: true,
+                        realtime: true,
+                        start: 0,
+                        end: 100
+                    },
+
+                    grid: {
+                        y2: 120
+                    },
+
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: function (params) {
+                            return params.value[1];
+                        }
+                    },
+
+                    // Add custom colors
+                    color: ['#57a5c6', '#ec407a', '#71c371', '#5C6BC0', '#fd8433', '#45A88A'],
+
+                    // Enable drag recalculate
+                    calculable: false,
+
+                    // Horizontal axis
+                    xAxis: [{
+                        type: 'time',
+                        splitNumber: 30
+                    }],
+
+                    // Vertical axis
+                    yAxis: [
+                        {
+                            type: 'value',
+                            name: 'leads',
+                            axisLabel: {
+                                formatter: '{value}'
+                            }
+                        },
+                        {
+                            type: 'value',
+                            name: 'finacne',
+                            axisLabel: {
+                                formatter: '{value} $'
+                            }
+                        }
+                    ],
+
+                    // Add series
+                    series: [
+                        {
+                            name: 'Posted',
+                            type: seriesType,
+                            /* stack: "tiled", */
+                            showAllSymbol: true,
+                            symbolSize: function (value) {
+                                return 2;
+                            },
+                            data: [new Date(0, 0, 0, 0), 0],
+                            markLine: {
+                                data: [{
+                                    type: 'average',
+                                    name: 'Average'
+                                }]
+                            }
+                        }
+                    ]
+                };
+
+                UpdateReportByMinutes();
+                window.onresize = function () {
+                    setTimeout(function () {
+                        basic_lines.resize();
+                    }, 500);
+                }
+            }
+        );
+    });
+</script>
+
+<div class="dashboard-report-top-container">
+    <input type="text" class="reportdate" value="@ViewBag.TimeZoneNow">
+    <div style="width:300px; display: inline-block">
+        <select id="IdCampaigns" data-placeholder="Select a Campaign" class="form-control">
+            <option value="0">All Campaigns</option>
+            @foreach (Adrack.Core.Domain.Lead.Campaign camp in ViewBag.AllCampaignsList)
+            {
+                <option value="@camp.Id">@camp.Name</option>
+            }
+        </select>
+    </div>
+
+    <a class="btn btn-default chart-switch active-btn" id="report-by-minutes" href="javascript:void(0)">Update</a>
+</div>
+
+<br>
+@if (ViewBag.showDonuts == true)
+{
+    <div class="stat-row">
+
+        @if (Model.UserTypeId == SharedData.BuiltInUserTypeId || Model.UserTypeId == SharedData.NetowrkUserTypeId)
+        {
+            <div class="stat-item">
+                <div class="statistic-panel statistic-panel-received">
+                    <div class="stat-title">Received</div>
+                    <h3 class="no-margin ReceivedVal">0</h3>
+                    <div class="container-fluid">
+                        <div id="chart-received"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <div class="statistic-panel statistic-panel-posted">
+                    <div class="stat-title">Posted</div>
+                    <h3 class="no-margin PostedVal">0</h3>
+                    <div class="container-fluid">
+                        <div id="chart-posted"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <div class="statistic-panel statistic-panel-bought">
+                    <div class="stat-title">Sold</div>
+                    <h3 class="no-margin SoldVal">0</h3>
+                    <div class="container-fluid">
+                        <div id="chart-bought"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <div class="statistic-panel statistic-panel-revenue">
+                    <div class="stat-title">Revenue</div>
+                    <h3 class="no-margin RevenueVal">0</h3>
+                    <div class="container-fluid">
+                        <div id="chart-revenue"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <div class="statistic-panel statistic-panel-cost">
+                    <div class="stat-title">Cost</div>
+                    <h3 class="no-margin CostVal">0</h3>
+                    <div class="container-fluid">
+                        <div id="chart-cost"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <div class="statistic-panel statistic-panel-profit">
+                    <div class="stat-title">Profit</div>
+                    <h3 class="no-margin ProfitVal">0</h3>
+                    <div class="container-fluid">
+                        <div id="chart-profit"></div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.UserTypeId == SharedData.BuyerUserTypeId)
+        {
+            <div class="stat-item">
+                <div class="statistic-panel statistic-panel-bought">
+                    <div class="stat-title">Acquired</div>
+                    <h3 class="no-margin SoldVal">0</h3>
+                    <div class="container-fluid">
+                        <div id="chart-bought"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <div class="statistic-panel statistic-panel-posted">
+                    <div class="stat-title">Received</div>
+                    <h3 class="no-margin PostedVal">0</h3>
+                    <div class="container-fluid">
+                        <div id="chart-posted"></div>
+                    </div>
+                </div>
+            </div>
+
+                <div class="stat-item">
+                    <div class="statistic-panel statistic-panel-revenue">
+                        <div class="stat-title">Cost</div>
+                        <h3 class="no-margin RevenueVal">0</h3>
+                        <div class="container-fluid">
+                            <div id="chart-revenue"></div>
+                        </div>
+                    </div>
+                </div>
+
+            if (Model.UserTypeId == SharedData.BuyerUserTypeId && ViewBag.BuyerType == 1)
+            {
+                <div class="stat-item">
+                    <div class="statistic-panel statistic-panel-loaned">
+                        <div class="stat-title">Loaned</div>
+                        <h3 class="no-margin LoanedVal">0</h3>
+                        <div class="container-fluid">
+                            <div id="chart-loaned"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-item">
+                    <div class="statistic-panel statistic-panel-conversion">
+                        <div class="stat-title">Conversion Rate</div>
+                        <h3 class="no-margin ConversionVal">0</h3>
+                        <div class="container-fluid">
+                            <div id="chart-bought"></div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+
+        @if (Model.UserTypeId == SharedData.AffiliateUserTypeId)
+        {
+            <div class="stat-item">
+                <div class="statistic-panel statistic-panel-received">
+                    <div class="stat-title">Posted</div>
+                    <h3 class="no-margin ReceivedVal">0</h3>
+                    <div class="container-fluid">
+                        <div id="chart-received"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <div class="statistic-panel statistic-panel-bought">
+                    <div class="stat-title">Sold</div>
+                    <h3 class="no-margin SoldVal">0</h3>
+                    <div class="container-fluid">
+                        <div id="chart-bought"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <div class="statistic-panel statistic-panel-cost">
+                    <div class="stat-title">Revenue</div>
+                    <h3 class="no-margin CostVal">0</h3>
+                    <div class="container-fluid">
+                        <div id="chart-cost"></div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <br>
+}
+<br>
+<div class="stat-row">
+    <select id="chartCol1" class="form-control chart-column-selector">
+        @if (Model.UserTypeId == SharedData.BuiltInUserTypeId || Model.UserTypeId == SharedData.NetowrkUserTypeId)
+        {
+            <option value="Received">Received</option>
+            <option value="Posted" selected>Posted</option>
+            <option value="Sold" disabled="disabled">Sold</option>
+            <option value="Revenue($)">Revenue($)</option>
+            <option value="Cost($)">Cost($)</option>
+            <option value="Profit($)">Profit($)</option>
+        }
+        else if (Model.UserTypeId == SharedData.BuyerUserTypeId)
+        {
+            <option value="Received" selected>Received</option>
+            <option value="Acquired" disabled="disabled">Acquired</option>
+            <option value="Cost($)">Cost($)</option>
+        }
+        else if (Model.UserTypeId == SharedData.AffiliateUserTypeId)
+        {
+            <option value="Posted" selected>Posted</option>
+            <option value="Sold" disabled="disabled">Sold</option>
+            <option value="Revenue($)">Revenue($)</option>
+        }
+        <option value="None">None</option>
+    </select>
+
+    <select id="chartCol2" class="form-control chart-column-selector">
+        @if (Model.UserTypeId == SharedData.BuiltInUserTypeId || Model.UserTypeId == SharedData.NetowrkUserTypeId)
+        {
+            <option value="Received">Received</option>
+            <option value="Posted" disabled="disabled">Posted</option>
+            <option value="Sold" selected>Sold</option>
+            <option value="Revenue($)">Revenue($)</option>
+            <option value="Cost($)">Cost($)</option>
+            <option value="Profit($)">Profit($)</option>
+        }
+        else if (Model.UserTypeId == SharedData.BuyerUserTypeId)
+        {
+            <option value="Received" disabled="disabled">Received</option>
+            <option value="Acquired" selected>Acquired</option>
+            <option value="Cost($)">Cost($)</option>
+        }
+        else if (Model.UserTypeId == SharedData.AffiliateUserTypeId)
+        {
+            <option value="Posted" disabled="disabled">Posted</option>
+            <option value="Sold" selected>Sold</option>
+            <option value="Revenue($)">Revenue($)</option>
+        }
+        <option value="None">None</option>
+    </select>
+</div>
+<br>
+<div class="chart-container">
+    <div class="chart has-fixed-height" id="basic_lines"></div>
+
+    <div class="chart-loader-div">
+        <br><br><br><br>
+        <img src="/Content/img/ajax-loader.gif" />
+    </div>
+</div>
+
+@if (ViewBag.showDonuts == true && Model.UserTypeId != SharedData.AffiliateUserTypeId)
+{
+    <div class="stat-container">
+        <div class="stat-box">
+            <div class="row">
+                <div class="donut-item">
+                    <div class="col-md-6">
+                        <h3 class="text-semibold no-margin">
+                            Posted
+                        </h3>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="text-semibold no-margin">
+                            <lable class="PostedVal">0</lable>
+                        </h3>
+                    </div>
+                    <div class="col-md-7">
+                        <br>
+                        <div id="DonutChart2"></div>
+                    </div>
+
+                    <div class="col-md-5">
+
+                        <div style="border-bottom: #cccccc solid 1px"><br><br></div>
+                        <div class="stat-title">
+                            <h5><i class='status-mark position-left' style="border-color:#EC407A"></i> Rejected</h5>
+                            <h5><i class='status-mark position-left' style="border-color:#71c371"></i> Sold</h5>
+                        </div>
+                    </div>
+                </div>
+
+                @if (Model.UserTypeId == SharedData.BuiltInUserTypeId || Model.UserTypeId == SharedData.NetowrkUserTypeId)
+                {
+                    <div class="donut-item">
+
+                        <div class="col-md-6">
+                            <h3 class="text-semibold no-margin">
+                                Revenue
+                            </h3>
+                        </div>
+                        <div class="col-md-6">
+                            <h3 class="text-semibold no-margin"><lable class="RevenueVal">0</lable></h3>
+                        </div>
+                        <div class="col-md-7">
+                            <br>
+                            <div id="DonutChart3"></div>
+                        </div>
+
+                        <div class="col-md-5">
+                            <div style="border-bottom: #cccccc solid 1px"><br><br></div>
+                            <div class="stat-title">
+                                <h5><i class='status-mark position-left' style="border-color:#fd8433"></i> Cost</h5>
+                                <h5><i class='status-mark position-left' style="border-color:#45A88A"></i> Profit</h5>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="stat-box top-states">
+            <h5>Top 5 States</h5>
+            <div>
+                <table class="table-top-states">
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}

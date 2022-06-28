@@ -1,0 +1,24 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.BuyerModel
+
+@using Adrack.Service.Helpers
+
+@{
+    ViewBag.Title = "Campaigns";
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    var currentUser = this.AppContext.AppUser;
+    Html.AddPageTitle("Campaigns");
+}
+
+@if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+{
+    @RenderPage("../Shared/AffiliateSubMenu.cshtml")
+}
+<br><br>
+<div style="width: 820px">
+    <div id="GridView_Campaigns"></div>
+</div>
+<script>
+    GenerateGridTable("GridView_Campaigns", "/Management/Campaign/GetAllCampaigns", "ID, Name, Description");
+</script>

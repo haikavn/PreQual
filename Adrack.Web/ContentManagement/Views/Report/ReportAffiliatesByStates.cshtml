@@ -1,0 +1,186 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.Reports.AffiliateReportModel
+
+@{
+   /* Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/core.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/effects.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/uniform.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switchery.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_all.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_childcounter.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/loaders/blockui.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/ui/moment/moment.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/daterangepicker.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/anytime.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/picker.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/picker.date.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/picker.time.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/legacy.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/json2.js").ToLowerInvariant());*/
+}
+
+<script>
+
+    function initReportAffiliatesByStates() {
+        $("#ReportAffiliatesByStates").fancytree({
+            extensions: ["table", "dnd"],
+            checkbox: false,
+            table: {
+                indentation: 20,      // indent 20px per node level
+                nodeColumnIdx: 0     // render the node title into the 2nd column
+            },
+            source: [],
+            lazyLoad: function (event, data) {
+                data.result = { url: "ajax-sub2.json" }
+            },
+            renderColumns: function (event, data) {
+                var node = data.node,
+                $tdList = $(node.tr).find(">td");
+
+                $tdList.eq(0).css('text-align', 'left');
+
+                if (!node.folder) {
+
+                }
+                //$tdList.eq(0).html(node.title);
+                $tdList.eq(1).addClass('text-center').text(node.data.TotalLeads);
+                $tdList.eq(2).addClass('text-center').text(node.data.SoldLeads);
+                $tdList.eq(3).addClass('text-center').text(node.data.AcceptRate);
+                $tdList.eq(4).addClass('text-center').text(node.data.RedirectRate);
+                $tdList.eq(5).addClass('text-center').text(node.data.Profit);
+                $tdList.eq(6).addClass('text-center').text(node.data.EPL);
+                $tdList.eq(7).addClass('text-center').text(node.data.EPA);
+
+                //$(".select-search").off("select2:select").on("select2:select", function (e) { $(this).parent().data('value', e.params.data.id); console.log(e); });
+            },
+            activate: function (event, data) {
+            },
+            select: function (event, data) {
+            },
+            dnd: {
+                preventVoidMoves: true, // Prevent dropping nodes 'before self', etc.
+                preventRecursiveMoves: true, // Prevent dropping nodes on own descendants
+                autoExpandMS: 400,
+                draggable: {
+                    //zIndex: 1000,
+                    // appendTo: "body",
+                    // helper: "clone",
+                    scroll: false,
+                    revert: "invalid"
+                },
+                dragStart: function (node, data) {
+                    if (data.originalEvent.shiftKey) {
+                        console.log("dragStart with SHIFT");
+                    }
+                    // allow dragging `node`:
+                    return true;
+                },
+                dragEnter: function (node, data) {
+                    // Prevent dropping a parent below another parent (only sort
+                    // nodes under the same parent)
+                    /* 					if(node.parent !== data.otherNode.parent){
+                                            return false;
+                                        }
+                                        // Don't allow dropping *over* a node (would create a child)
+                                        return ["before", "after"];
+                    */
+                    return true;
+                },
+                dragDrop: function (node, data) {
+                    if (!data.otherNode) {
+                        // It's a non-tree draggable
+                        var title = $(data.draggable.element).text() + " (" + (count)++ + ")";
+                        node.addNode({ title: title }, data.hitMode);
+                        alert('dd');
+                        return;
+                    }
+                    data.otherNode.moveTo(node, data.hitMode);
+                    $(node.tr).data('folder', true);
+                    console.log(node.tr);
+                }
+            }
+        });
+    }
+
+    $(document).ready(function () {
+       $("#countries").change(function () {
+            var selectedItem = $(this).val();
+
+            var ddlStates = $("#states");
+
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.RouteUrl("GetStateProvinceByCountryId"))",
+                data: { "countryId": selectedItem, "addSelectStateProvinceItem": "true" },
+                success: function (data) {
+                    ddlStates.html('');
+                    $.each(data, function (id, option) {
+                        if (option.id == 0) option.id = "";
+                        ddlStates.append($('<option selected="selected"></option>').val(option.code).html(option.name));
+                    });
+
+                    $("#states").multiselect('refresh');
+                    $("#states").multiselect('rebuild');
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+       });
+
+        ReportCommon.initReport("ReportAffiliatesByStates");
+    });
+</script>
+
+<div class="input-group">
+    <select id="countries" class="form-control" style="width: 150px">
+        @foreach (var a in Model.ListCountry)
+        {
+            <option value="@a.Value" @Html.Raw((a.Selected ? "selected='selected'" : ""))>@a.Text</option>
+        }
+    </select>
+
+    <select id="states" class="multiselect" multiple="multiple">
+        @foreach (var a in Model.ListStates)
+        {
+            <option value="@a.Value" selected="selected">@a.Text</option>
+        }
+    </select>
+</div>
+
+<div class="table-responsive">
+    <table id="ReportAffiliatesByStates" class="table table-bordered tree-table">
+        <thead>
+            <tr>
+                <th style="width: 80px;"><a href="#" data-col="title" data-order="asc" data-report="ReportAffiliatesByStates" class="sortable-column">Affiliate name / State</a></th>
+                <th style="width: 80px;"><a href="#" data-col="TotalLeads" data-order="asc" data-report="ReportAffiliatesByStates" class="sortable-column">Total leads</a></th>
+                <th style="width: 80px;"><a href="#" data-col="SoldLeads" data-order="asc" data-report="ReportAffiliatesByStates" class="sortable-column">Sold leads</a></th>
+                <th style="width: 80px;"><a href="#" data-col="AcceptRate" data-order="asc" data-report="ReportAffiliatesByStates" class="sortable-column">Accept rate (%)</a></th>
+                <th style="width: 80px;"><a href="#" data-col="RedirectedRate" data-order="asc" data-report="ReportAffiliatesByStates" class="sortable-column">Redirect rate</a></th>
+                <th style="width: 80px;"><a href="#" data-col="Profit" data-order="asc" data-report="ReportAffiliatesByStates" class="sortable-column sortable-column-default">Profit</a></th>
+                <th style="width: 80px;"><a href="#" data-col="EPL" data-order="asc" data-report="ReportAffiliatesByStates" class="sortable-column">EPL</a></th>
+                <th style="width: 80px;"><a href="#" data-col="EPA" data-order="asc" data-report="ReportAffiliatesByStates" class="sortable-column">EPA</a></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+    <br />
+    <br />
+</div>

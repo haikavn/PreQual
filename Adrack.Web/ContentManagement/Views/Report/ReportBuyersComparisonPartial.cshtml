@@ -1,0 +1,230 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.Reports.BuyerReportModel
+
+@{
+   /* Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/core.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/effects.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/uniform.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switchery.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_all.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_childcounter.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/loaders/blockui.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/ui/moment/moment.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/daterangepicker.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/anytime.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/picker.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/picker.date.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/picker.time.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/pickers/pickadate/legacy.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/json2.js").ToLowerInvariant());*/
+}
+
+<script>
+
+    function initReportBuyersComparison() {
+        $("#ReportBuyersComparison").fancytree({
+            extensions: ["table", "dnd"],
+            checkbox: false,
+            table: {
+                indentation: 20,      // indent 20px per node level
+                nodeColumnIdx: 0     // render the node title into the 2nd column
+            },
+            source: [],
+            lazyLoad: function (event, data) {
+                data.result = { url: "ajax-sub2.json" }
+            },
+            renderColumns: function (event, data) {
+                var node = data.node,
+                $tdList = $(node.tr).find(">td");
+
+                $tdList.eq(0).css('text-align', 'left');
+
+                if (!node.folder) {
+
+                }
+
+                var table = '';
+                table =  '<table  class="table table-bordered tree-table"><thead><tr><th width="5">#</th>';
+                for (var i = 0; i < node.data.Date1Buyers.length; i++) {
+                    table += '<th>' + node.data.Date1Buyers[i].title + '</th>';
+                }
+                table += '</tr></thead>';
+                table += '<tbody>';
+                table += '<tr><td>Posted</td>';
+                for (var i = 0; i < node.data.Date1Buyers.length; i++) {
+                    table += '<td>' + node.data.Date1Buyers[i].Posted + '</td>'
+                }
+                table += '</tr>';
+                table += '<tr><td>Sold</td>';
+                for (var i = 0; i < node.data.Date1Buyers.length; i++) {
+                    table += '<td>' + node.data.Date1Buyers[i].Sold + '</td>'
+                }
+                table += '</tr>';
+                table += '<tr><td>Rejected</td>';
+                for (var i = 0; i < node.data.Date1Buyers.length; i++) {
+                    table += '<td>' + node.data.Date1Buyers[i].Rejected + '</td>'
+                }
+                table += '</tr>';
+                table += '</tbody></table>';
+                $tdList.eq(0).addClass('text-center').html(table);
+
+                table = '<table  class="table table-bordered tree-table"><thead><tr><th width="5">#</th>';
+                for (var i = 0; i < node.data.Date2Buyers.length; i++) {
+                    table += '<th>' + node.data.Date2Buyers[i].title + '</th>';
+                }
+                table += '</tr></thead>';
+                table += '<tbody>';
+                table += '<tr><td>Posted</td>';
+                for (var i = 0; i < node.data.Date2Buyers.length; i++) {
+                    table += '<td>' + node.data.Date2Buyers[i].Posted + '</td>'
+                }
+                table += '</tr>';
+                table += '<tr><td>Sold</td>';
+                for (var i = 0; i < node.data.Date2Buyers.length; i++) {
+                    table += '<td>' + node.data.Date2Buyers[i].Sold + '</td>'
+                }
+                table += '</tr>';
+                table += '<tr><td>Rejected</td>';
+                for (var i = 0; i < node.data.Date2Buyers.length; i++) {
+                    table += '<td>' + node.data.Date2Buyers[i].Rejected + '</td>'
+                }
+                table += '</tr>';
+                table += '</tbody></table>';
+                $tdList.eq(1).addClass('text-center').html(table);
+
+                table = '<table  class="table table-bordered tree-table"><thead><tr><th width="5">#</th>';
+                for (var i = 0; i < node.data.Date3Buyers.length; i++) {
+                    table += '<th>' + node.data.Date3Buyers[i].title + '</th>';
+                }
+                table += '</tr></thead>';
+                table += '<tbody>';
+                table += '<tr><td>Posted</td>';
+                for (var i = 0; i < node.data.Date3Buyers.length; i++) {
+                    table += '<td>' + node.data.Date3Buyers[i].Posted + '</td>'
+                }
+                table += '</tr>';
+                table += '<tr><td>Sold</td>';
+                for (var i = 0; i < node.data.Date3Buyers.length; i++) {
+                    table += '<td>' + node.data.Date3Buyers[i].Sold + '</td>'
+                }
+                table += '</tr>';
+                table += '<tr><td>Rejected</td>';
+                for (var i = 0; i < node.data.Date3Buyers.length; i++) {
+                    table += '<td>' + node.data.Date3Buyers[i].Rejected + '</td>'
+                }
+                table += '</tr>';
+                table += '</tbody></table>';
+                $tdList.eq(2).addClass('text-center').html(table);
+
+                //if (node.data.BuyerName != '')
+                  //  $(node.tr).parent().parent().find('>thead').eq(0).find('>tr').eq(0).find(">th").eq(0).find('>a').eq(0).text(node.data.BuyerName);
+
+                //$(".select-search").off("select2:select").on("select2:select", function (e) { $(this).parent().data('value', e.params.data.id); console.log(e); });
+            },
+            activate: function (event, data) {
+            },
+            select: function (event, data) {
+            },
+            dnd: {
+                preventVoidMoves: true, // Prevent dropping nodes 'before self', etc.
+                preventRecursiveMoves: true, // Prevent dropping nodes on own descendants
+                autoExpandMS: 400,
+                draggable: {
+                    //zIndex: 1000,
+                    // appendTo: "body",
+                    // helper: "clone",
+                    scroll: false,
+                    revert: "invalid"
+                },
+                dragStart: function (node, data) {
+                    if (data.originalEvent.shiftKey) {
+                        console.log("dragStart with SHIFT");
+                    }
+                    // allow dragging `node`:
+                    return true;
+                },
+                dragEnter: function (node, data) {
+                    // Prevent dropping a parent below another parent (only sort
+                    // nodes under the same parent)
+                    /* 					if(node.parent !== data.otherNode.parent){
+                                            return false;
+                                        }
+                                        // Don't allow dropping *over* a node (would create a child)
+                                        return ["before", "after"];
+                    */
+                    return true;
+                },
+                dragDrop: function (node, data) {
+                    if (!data.otherNode) {
+                        // It's a non-tree draggable
+                        var title = $(data.draggable.element).text() + " (" + (count)++ + ")";
+                        node.addNode({ title: title }, data.hitMode);
+                        return;
+                    }
+                    data.otherNode.moveTo(node, data.hitMode);
+                    $(node.tr).data('folder', true);
+                    console.log(node.tr);
+                }
+            }
+        });
+    }
+
+    $(document).ready(function () {
+
+    });
+</script>
+
+<div class="table-responsive">
+    <table id="ReportBuyersComparison" class="table table-bordered tree-table">
+        <thead>
+            <tr>
+                <th style="width: 80px;"><a href="#" data-col="Date1" data-order="asc" data-report="ReportBuyersComparison" class="sortable-column" id="ReportBuyersComparison_date1">Date1</a></th>
+                <th style="width: 80px;"><a href="#" data-col="Date2" data-order="asc" data-report="ReportBuyersComparison" class="sortable-column" id="ReportBuyersComparison_date2">Date2</a></th>
+                <th style="width: 80px;"><a href="#" data-col="Date3" data-order="asc" data-report="ReportBuyersComparison" class="sortable-column" id="ReportBuyersComparison_date3">Date3</a></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="table-responsive">
+    <table id="ReportBuyersComparison" class="table table-bordered tree-table">
+        <tbody>
+            <tr>
+                <td rowspan="2">Company</td>
+
+                <td colspan="3">Number off post leads</td>
+            </tr>
+
+            <tr>
+                <td>Feb 21, 2019</td>
+                <td>Feb 20, 2019</td>
+                <td>Feb 14, 2019</td>
+            </tr>
+            <tr>
+                <td>test buyer</td>
+                <td></td>
+                <td>0</td>
+                <td>0</td>
+            </tr>
+            <tr>
+                <td>TOTAL</td>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

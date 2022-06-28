@@ -1,0 +1,140 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.Reports.AdminReportModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    Html.AddPageTitle("Reports of Admin");
+    Html.AddPageMetaDescription("Shows Reports of Admin");
+
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+}
+
+<script src="~/Scripts/core/library/jquery_ui/core.min.js"></script>
+<script src="~/Scripts/core/library/jquery_ui/interactions.min.js"></script>
+<script src="~/Scripts/core/library/jquery_ui/effects.min.js"></script>
+
+<script src="~/Scripts/plugins/forms/selects/bootstrap_multiselect.js"></script>
+<script src="~/Scripts/plugins/trees/fancytree_all.min.js"></script>
+<script src="~/Scripts/plugins/trees/fancytree_childcounter.js"></script>
+
+<script src="~/Scripts/plugins/ui/moment/moment.min.js"></script>
+<script src="~/Scripts/plugins/pickers/daterangepicker.js"></script>
+<script src="~/Scripts/plugins/pickers/anytime.min.js"></script>
+<script src="~/Scripts/plugins/pickers/pickadate/picker.js"></script>
+<script src="~/Scripts/plugins/pickers/pickadate/picker.date.js"></script>
+<script src="~/Scripts/plugins/pickers/pickadate/picker.time.js"></script>
+<script src="~/Scripts/plugins/pickers/pickadate/legacy.js"></script>
+
+<br>
+<script>
+
+    function loadTree(report, source) {
+        if ($('#' + report).length == 0) return;
+        var tree = $('#' + report).fancytree('getTree');
+        tree.reload(source);
+    }
+
+    function loadReport(report)
+    {
+        if (report == undefined) return;
+
+        var dates2 = $('.daterange-single').val().split('-');
+        if (dates2[1] == undefined) {
+            dates2[1] = dates2[0];
+        }
+
+        $.ajax({
+            cache: false,
+            async: false,
+            type: "POST",
+            url: '@Model.BaseUrl' + '/management/report/Get' + report,
+            data: { startDate: dates2[0], endDate: dates2[1] },
+            success: function (data) {
+                loadTree(report, data);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+
+    $(document).ready(function () {
+
+        $('#ReportRefresh').on('click', function () {
+
+            $(".subtabs li").each(function(){
+                if($(this).hasClass('active'))
+                {
+                    var href = $(this).children('a').attr('href');
+                    loadReport($('#' + href.substring(1, href.length)).data('report'));
+                }
+            });
+        });
+
+        $('.nav-tabs li').on('click', function () {
+            var href = $(this).children('a').attr('href');
+            loadReport($('#' + href.substring(1, href.length)).data('report'));
+        });
+
+        if ($('.multiselect').length > 0)
+        {
+
+            $('.multiselect').multiselect({
+                onChange: function () {
+                    loadReport($('.tab-pane.active').data('report'));
+                }
+            });
+        }
+
+        var dtNow = new Date('@Adrack.Web.ContentManagement.Helper.GetTimeZoneStr()');;
+        $('.daterange-single').daterangepicker({
+            applyClass: 'bg-slate-600',
+            cancelClass: 'btn-default',
+            startDate: moment(dtNow),
+            endDate: moment(dtNow),
+            maxDate: moment(dtNow).subtract(-1, 'days'),
+            opens: "right",
+            ranges: {
+                'Today': [moment(dtNow), moment(dtNow)],
+                'Yesterday': [moment(dtNow).subtract(1, 'days'), moment(dtNow).subtract(1, 'days')],
+                'Last 7 Days': [moment(dtNow).subtract(6, 'days'), moment(dtNow)],
+                'Last 30 Days': [moment(dtNow).subtract(29, 'days'), moment(dtNow)],
+                'This Month': [moment(dtNow).startOf('month'), moment(dtNow).endOf('month')],
+                'Last Month': [moment(dtNow).subtract(1, 'month').startOf('month'), moment(dtNow).subtract(1, 'month').endOf('month')],
+                'Last 12 Month': [moment(dtNow).subtract(12, 'month'), moment(dtNow)]
+            },
+            locale: {
+                format: 'MM/DD/YYYY'
+            }
+        });
+
+        $('.daterange-single').on('apply.daterangepicker', function (ev, picker) {
+            //do something, like clearing an input
+            loadReport($('#affiliate-reports-tab .tab-pane.active').data('report'));
+        });
+
+    });
+</script>
+
+<table>
+    <tr>
+        <td width="250">
+            Range
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td width="200">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+                <input id="startDate" type="text" class="form-control daterange-single" value="">
+            </div>
+        </td>
+        <td>
+            &nbsp&nbsp&nbsp<button type="button" id="ReportRefresh" class="btn btn-info btn-ladda btn-ladda-spinner" data-spinner-color="#fff" data-style="zoom-in"><span class="ladda-label">Refresh</span></button>
+        </td>
+    </tr>
+</table>
+
+<div class="tabbable">
+</div>

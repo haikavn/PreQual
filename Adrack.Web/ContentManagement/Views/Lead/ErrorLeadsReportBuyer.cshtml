@@ -1,0 +1,410 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.LeadModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+@using Adrack.Core.Domain.Lead
+
+@{
+    var currentUser = this.AppContext.AppUser;
+
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+    Html.AddPageTitle("Buyer Send Log");
+    Html.AddPageMetaDescription("Displays Error Leads");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    List<Affiliate> affiliates = ViewBag.Affiliates;
+    List<BuyerChannel> buyerChannels = ViewBag.BuyerChannels;
+    List<AffiliateChannel> affiliateChannels = ViewBag.AffiliateChannels;
+    List<Campaign> campaigns = ViewBag.Campaigns;
+}
+
+<script type="text/javascript" src="~/Scripts/plugins/ui/moment/moment.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/daterangepicker.js"></script>
+
+<script type="text/javascript" src="~/Scripts/plugins/buttons/spin.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/buttons/ladda.min.js"></script>
+<br>
+<div class="">
+    <button type="button" id="LeadRefresh2" class="btn btn-info btn-ladda btn-ladda-spinner" data-spinner-color="#fff" data-style="zoom-in"><span class="ladda-label">Refresh</span></button>
+    &nbsp&nbsp&nbsp
+    <button type="button" id="ClearFilters" class="btn btn-danger btn-ladda btn-ladda-spinner" data-spinner-color="#fff" data-style="zoom-in"><span class="ladda-label">Clear Filter</span></button>
+</div>
+
+<input type="hidden" value="1" id="GridPageNumber">
+<div id="DataTables_Table_3_wrapper" class="dataTables_wrapper no-footer">
+    <div class="datatable-scroll">
+        <table width="100%" class="table datatable-scroll-y dataTable no-footer" id="DataTables_Leads" role="grid" aria-describedby="DataTables_Table_3_info" style="width: 100%;">
+            <thead>
+                <tr role="row" style="height: 0px;">
+                    <th width="5%" style="text-align:center">
+                        <input style="width:100%" type="text" id="filter-id" value="" placeholder="ID">
+                    </th>
+                    <th width="5%" style="text-align:center">
+                        <select id="filter-status" style="width:100%">
+                            <option value="0" selected="selected">All</option>
+                            <option value="1">Sold</option>
+                            <option value="2">Error</option>
+                            <option value="3">Reject</option>
+                        </select>
+                    </th>
+                    <th width="10%" style="text-align:left">
+                        <input style="width:45%" type="text" class="daterange-from" value="@Model.TimeZoneNow">
+                        <input style="width:45%" type="text" class="daterange-to" value="@Model.TimeZoneNow">
+                    </th>
+                    <th width="10%" style="text-align:left">
+                        <select id="filter-affiliate-channel" style="width:100%">
+                            <option value="0">All</option>
+                            @foreach (AffiliateChannel a in affiliateChannels)
+                            {
+                                <option value="@a.Id">@a.Name</option>
+                            }
+                        </select>
+                    </th>
+                    <th width="10%" style="text-align:left">
+                        <select id="filter-buyer-channel" style="width:100%">
+                            <option value="0">All</option>
+                            @foreach (BuyerChannel a in buyerChannels)
+                            {
+                                <option value="@a.Id">@a.Name</option>
+                            }
+                        </select>
+                    </th>
+
+                    <th width="10%" style="text-align:left">
+                        <select id="filter-campaign" style="width:100%">
+                            <option value="0">All</option>
+                            @foreach (Campaign a in campaigns)
+                            {
+                                <option value="@a.Id">@a.Name</option>
+                            }
+                        </select>
+                    </th>
+
+                    <th width="10%" style="text-align:left">
+                        <select id="filter-state" class="form-control">
+                            <option value="" selected>All</option>
+                            @foreach (var a in Model.ListStates)
+                            {
+                                <option value="@a.Value">@a.Text</option>
+                            }
+                        </select>
+                    </th>
+
+                    <th width="20%" style="text-align:left">
+                        <input style="width:100%" type="text" id="filter-desc" value="" placeholder="Description">
+                    </th>
+
+                    <th width="20%" style="text-align:left">
+                        <select id="filter-error" style="width:100%">
+                            <option value="0" selected="selected">Reason</option>
+                            <option value="3">Invalid Data</option>
+                            <option value="10">Integration Error</option>
+                            <option value="11">Filter Error</option>
+                            <option value="13">Schedule Cap Limit</option>
+                            <option value="9">Daily Cap Reached</option>
+                            <option value="12">Not Enough Balance</option>
+                            <option value="14">Min Price Error</option>
+                            <option value="17">Timeout Error</option>
+                        </select>
+                    </th>
+
+                    <th width="10%" style="text-align:left">
+                        <input style="width:100%" type="text" id="filter-minprice" value="" placeholder="Min price">
+                    </th>
+                </tr>
+            </thead>
+        </table>
+        <div class="dataTables_scroll">
+            <div class="dataTables_scrollBody" style="width: 100%;">
+                <table width="100%" class="table datatable-scroll-y dataTable no-footer" id="DataTables_Leads" role="grid" aria-describedby="DataTables_Table_3_info" style="width: 100%;">
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="datatable-footer">
+        <div class="dataTables_info" id="DataTables_Table_3_info" role="status" aria-live="polite">
+            Showing page <span id="PageNumberSpan">1</span>
+            <br>Total <span id="totalRecords"></span> entries
+        </div>
+        <div class="dataTables_paginate paging_simple_numbers" id="GridViewLeads_paginate"></div>
+    </div>
+</div>
+
+<br><br><br><br>
+
+<script>
+    var spinnerObj = null;
+    var _TimeZoneNow = "";
+    function GeneratePagination(totalRecords) {
+        $("#GridViewLeads_paginate").html('');
+        var str = '<div class="paginginner">';
+        for (i = 1; i <= totalRecords / 100 + 1; i++) {
+            str += '<a class="paginate_button ' + (i == $("#GridPageNumber").val() ? "first-page current" : "") + '" aria-controls="tbl_GridViewLeads" data-dt-idx="' + i + '" tabindex="0">' + i + '</a>';
+        }
+        str += '</div>';
+        $("#GridViewLeads_paginate").html(str);
+
+        $(".paginginner").css("width", (36 + 2) * (totalRecords / 100 + 1) + "px");
+
+        $(function () {
+            $(".paginate_button").click(function () {
+                $(".paginate_button").removeClass("current");
+                $(this).addClass("current");
+                $("#PageNumberSpan").html($(this).attr("data-dt-idx"));
+                $("#GridPageNumber").val($(this).attr("data-dt-idx"));
+                GenerateGridLeads($(this).attr("data-dt-idx"));
+            });
+
+            $("#NextPage").click(function () {
+                $("#GridPageNumber").val( $("#GridPageNumber").val()+1 );
+
+            });
+
+        });
+
+    }
+
+    function GenerateGridLeads(PageNumber) {
+
+        if( PageNumber==undefined)
+            PageNumber = 1;
+
+        var filterBuyer = 0;
+        @if (ViewBag.SelectedBuyerId != null)
+        {
+            @: filterBuyer = '@ViewBag.SelectedBuyerId';
+        }
+
+        var filterStatus = $("#filter-status").val();
+        @if (ViewBag.SelectedStatus != null)
+        {
+            @: filterStatus = '@ViewBag.SelectedStatus';
+        }
+
+        var filterStartDate = $(".daterange-from").val();
+        @if (ViewBag.SelectedStartDate != null)
+        {
+            @: filterStartDate = '@ViewBag.SelectedStartDate';
+        }
+
+        var filterEndDate = $(".daterange-to").val();
+        @if (ViewBag.SelectedStartDate != null)
+        {
+            @: filterEndDate = '@ViewBag.SelectedEndDate';
+        }
+
+        var filterError = $("#filter-error").val();
+        @if (ViewBag.SelectedErrorType != null)
+        {
+            @: filterError = '@ViewBag.SelectedErrorType';
+        }
+
+        var tbl_tr = '';
+        var data = 'page=' + PageNumber + '&dates=' + filterStartDate + ":" + filterEndDate +
+            "&leadid=" + $("#filter-id").val() +
+            "&affiliatechannel = " + $("#filter-affiliate-channel").val() +
+            "&buyerchannel=" + $("#filter-buyer-channel").val() +
+            "&buyer=" + filterBuyer +
+            "&campaign=" + $("#filter-campaign").val() +
+            "&status=" + filterStatus +
+            "&state=" + $("#filter-state").val() +
+            "&minprice=" + $("#filter-minprice").val() +
+            "&error=" + filterError + '&reportType=1';
+
+        $.post("/Management/Lead/GetErrorLeadsReportAjax", data).done(function (retData) {
+
+            $("#totalRecords").html(retData.recordsTotal);
+
+            $("#DataTables_Leads tbody").empty();
+
+            if (retData.data.length == 0) {
+                $("#DataTables_Leads tbody").append('<div class="h3" style="text-align:center">Nothing Found</div   >');
+            }
+
+            _TimeZoneNow = retData.TimeZoneNowStr;
+
+            retData.data.forEach(function (item, i, arr) {
+
+                if (item) {
+                    tbl_tr = '<tr>';
+                    var tdNumber = 1;
+                    item.forEach(function (item, i, arr) {
+                            var thWidth = $("#DataTables_Leads thead tr th:nth-child(" + tdNumber + ")").attr("width");
+
+                            itemData = item == null ? '' : item;
+                            tbl_tr += '<td style="text-align:center;" width="' + thWidth + '">' + itemData + '</td>';
+                            tdNumber++;
+                    });
+                    tbl_tr += '/<tr>';
+                    $("#DataTables_Leads tbody").append(tbl_tr);
+                }
+            });
+
+            GeneratePagination(retData.recordsTotal);
+
+            $('.idhref').click(function () {
+                var thisObj = $(this);
+                GridSelectedID = $(this).attr('id');
+
+                if (GridSelectedID == 0) return;
+
+                $('#DataTables_Leads tbody tr').removeClass('selected');
+                $(this).toggleClass('selected');
+                $(".tab2tab").removeClass("active");
+                $(".tab3tab").removeClass("active");
+                $(".tab4tab").removeClass("active");
+                $(".tab5tab").removeClass("active");
+                $(".tab1tab").addClass("active");
+                $(".tab-pane2").removeClass("active");
+                $(".tab-pane3").removeClass("active");
+                $(".tab-pane4").removeClass("active");
+                $(".tab-pane5").removeClass("active");
+                $(".tab-pane1").addClass("active");
+
+                $(".btn-info2").trigger("click");
+
+                $("#LeadGeneralInfoContainer").html("");
+
+                var data = 'leadid=' + GridSelectedID;
+
+                $("#left-icon-tab1").html('<img src="/Content/img/ajax-loader.gif" />');
+
+                $.post("/Management/Lead/Item/" + GridSelectedID, data).done(function (retData) {
+                    $("#left-icon-tab1").html(retData);
+                    $("#left-icon-tab2").html($("#tab2content").html());
+                    $("#left-icon-tab3").html($("#tab3content").html());
+                    $("#left-icon-tab4").html($("#tab4content").html());
+                    $("#left-icon-tab5").html($("#tab5content").html());
+
+                    $("#LeadGeneralInfo").hide();
+                    $("#LeadGeneralInfoContainer").html($("#LeadGeneralInfo").html());
+
+                    $("#tab2content").hide();
+                    $("#tab3content").hide();
+                    $("#tab4content").hide();
+                    $("#tab5content").hide();
+
+                    $("#dublicate_count").html('(' + $("#dublicate_count_view").html() + ')');
+
+                    if (thisObj.hasClass("monitor-ico")) {
+                        $(".tab3tab a").trigger("click");
+                    }
+                    if (thisObj.hasClass("redirect-ico")) {
+                        $(".tab5tab a").trigger("click");
+                    }
+                });
+            });
+
+            if (spinnerObj) {
+                spinnerObj.stop();
+            }
+        });
+
+    }
+
+    $(function () {
+        $('.btn-ladda-spinner').click(function (e) {
+            e.preventDefault();
+            spinnerObj = Ladda.create(this);
+            spinnerObj.start();
+            return false;
+        });
+
+        $('.daterange-from').daterangepicker({
+            singleDatePicker: true,
+            startDate: moment(new Date('@Adrack.Web.ContentManagement.Helper.GetTimeZoneStr()')),
+            maxDate: moment(new Date('@Adrack.Web.ContentManagement.Helper.GetTimeZoneStr()')),
+            locale: {
+                format: 'MM/DD/YYYY'
+            }
+        });
+        $('.daterange-to').daterangepicker({
+            singleDatePicker: true,
+            startDate: moment(new Date('@Adrack.Web.ContentManagement.Helper.GetTimeZoneStr()')),
+            maxDate: moment(new Date('@Adrack.Web.ContentManagement.Helper.GetTimeZoneStr()')),
+            locale: {
+                format: 'MM/DD/YYYY'
+            }
+
+        });
+
+        GenerateGridLeads();
+
+        $("#LeadRefresh2").click(function () {
+            $(".paginate_button").removeClass("current");
+            $(".first-page").addClass("current");
+            GenerateGridLeads();
+        });
+
+        $("#ClearFilters").click(function () {
+            $(".paginate_button").removeClass("current");
+            $(".first-page").addClass("current");
+
+            $(".daterange-from").val(_TimeZoneNow);
+            $(".daterange-to").val(_TimeZoneNow);
+
+            $("#filter-id").val('');
+            $("#filter-affiliate").val('');
+            $("#filter-affiliate-channel").val('');
+            $("#filter-state").val('');
+            $("#filter-error").val("-1").change();
+
+            GenerateGridLeads();
+        });
+
+        $('#DataTables_Leads tbody').on('mousedown', 'tr', function (event) {
+
+            GridSelectedID = $(this).find('td:eq(0)').html();
+
+            $('#DataTables_Leads tbody tr').removeClass('selected');
+            $(this).toggleClass('selected');
+        });
+    });
+</script>
+
+<button style="display:none;" type="button" class="btn btn-info2 btn-sm" data-toggle="modal" data-target="#modal_theme_info">Launch <i class="icon-play3 position-right"></i></button>
+
+<!-- Info modal -->
+<div id="modal_theme_info" class="modal fade">
+    <div class="modal-dialog modal-full">
+        <div class="modal-content">
+            <br>
+            <div id="LeadGeneralInfoContainer" class="col-md-12"></div>
+            <div class="tabbable">
+
+                <ul class="nav nav-tabs nav-tabs-highlight">
+                    <li class="tab1tab active"><a href="#left-icon-tab1" data-toggle="tab"><i class="icon-mention position-left"></i> Lead Common Information</a></li>
+                    <li class="tab2tab"><a href="#left-icon-tab2" data-toggle="tab"><i class="icon-menu7 position-left"></i> Logs</a></li>
+                    <li class="tab3tab"><a href="#left-icon-tab3" data-toggle="tab"><i class="glyphicon glyphicon-eye-open position-left"></i> Dublicate Monitor  <span class="text-danger" id="dublicate_count"></span></a></li>
+                    <li class="tab4tab"><a href="#left-icon-tab4" data-toggle="tab"><i class="glyphicon glyphicon-log-in position-left"></i> Affiliate responses  <span class="text-danger" id="affiliate_responses"></span></a></li>
+                    <li class="tab5tab"><a href="#left-icon-tab5" data-toggle="tab"><i class="glyphicon glyphicon-share-alt position-left"></i> Redirect </a></li>
+                </ul>
+            </div>
+
+            <div class="modal-body">
+                <div class="tab-content">
+                    <div class="tab-pane tab-pane1 active" style="height:400px; overflow-x:auto;" id="left-icon-tab1">
+                        <img src="\Content\img\ajax-loader.gif" />
+                    </div>
+                    <div class="tab-pane tab-pane2" style="height:400px; overflow-x:auto;" id="left-icon-tab2">
+                        <img src="\Content\img\ajax-loader.gif" />
+                    </div>
+                    <div class="tab-pane tab-pane3" style="height:400px; overflow-x:auto;" id="left-icon-tab3">
+                        <img src="\Content\img\ajax-loader.gif" />
+                    </div>
+
+                    <div class="tab-pane tab-pane4" style="height:400px; overflow-x:auto;" id="left-icon-tab4">
+                        <img src="\Content\img\ajax-loader.gif" />
+                    </div>
+
+                    <div class="tab-pane tab-pane5" style="height:400px; overflow-x:auto;" id="left-icon-tab5">
+                        <img src="\Content\img\ajax-loader.gif" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /info modal -->

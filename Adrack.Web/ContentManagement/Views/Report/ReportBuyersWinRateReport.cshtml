@@ -1,0 +1,309 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.Reports.BuyerReportModel
+
+@{
+    Html.AddPageTitle("Report Buyers Win Rate Report");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+}
+
+<script src="~/Scripts/core/library/jquery_ui/core.min.js"></script>
+<script src="~/Scripts/core/library/jquery_ui/interactions.min.js"></script>
+<script src="~/Scripts/core/library/jquery_ui/effects.min.js"></script>
+<script src="~/Scripts/plugins/forms/selects/bootstrap_multiselect.js"></script>
+<script src="~/Scripts/plugins/trees/fancytree_all.min.js"></script>
+<script src="~/Scripts/plugins/trees/fancytree_childcounter.js"></script>
+
+<script src="~/Scripts/plugins/ui/moment/moment.min.js"></script>
+<script src="~/Scripts/plugins/pickers/daterangepicker.js"></script>
+<script src="~/Scripts/plugins/pickers/anytime.min.js"></script>
+<script src="~/Scripts/plugins/pickers/pickadate/picker.js"></script>
+<script src="~/Scripts/plugins/pickers/pickadate/picker.date.js"></script>
+<script src="~/Scripts/plugins/pickers/pickadate/picker.time.js"></script>
+<script src="~/Scripts/plugins/pickers/pickadate/legacy.js"></script>
+
+<script>
+
+    function initReportWinRateReport() {
+        $("#ReportBuyersWinRateReport").fancytree({
+            extensions: ["table", "dnd"],
+            checkbox: false,
+            table: {
+                indentation: 20,      // indent 20px per node level
+                nodeColumnIdx: 0     // render the node title into the 2nd column
+            },
+            source: [],
+            lazyLoad: function (event, data) {
+                data.result = { url: "ajax-sub2.json" }
+            },
+            renderColumns: function (event, data) {
+                var node = data.node,
+                $tdList = $(node.tr).find(">td");
+
+                $tdList.eq(0).css('text-align', 'left');
+
+                if (!node.folder) {
+
+                }
+
+                $tdList.eq(1).addClass('text-center').text(node.data.SoldLeads);
+                $tdList.eq(2).addClass('text-center').text(node.data.RejectedLeads);
+                $tdList.eq(3).addClass('text-center').text(node.data.MinPriceErrorLeads);
+
+                if (node.title == 'Total') {
+                    for (var i = 0; i < $tdList.length; i++) {
+                        $tdList.eq(i).html('<b>' + $tdList.eq(i).text() + '</b>');
+                    }
+                }
+
+                //$(".select-search").off("select2:select").on("select2:select", function (e) { $(this).parent().data('value', e.params.data.id); console.log(e); });
+            },
+            activate: function (event, data) {
+            },
+            select: function (event, data) {
+            },
+            dnd: {
+                preventVoidMoves: true, // Prevent dropping nodes 'before self', etc.
+                preventRecursiveMoves: true, // Prevent dropping nodes on own descendants
+                autoExpandMS: 400,
+                draggable: {
+                    //zIndex: 1000,
+                    // appendTo: "body",
+                    // helper: "clone",
+                    scroll: false,
+                    revert: "invalid"
+                },
+                dragStart: function (node, data) {
+                    if (data.originalEvent.shiftKey) {
+                        console.log("dragStart with SHIFT");
+                    }
+                    // allow dragging `node`:
+                    return true;
+                },
+                dragEnter: function (node, data) {
+                    return true;
+                },
+                dragDrop: function (node, data) {
+                    if (!data.otherNode) {
+                        // It's a non-tree draggable
+                        var title = $(data.draggable.element).text() + " (" + (count)++ + ")";
+                        node.addNode({ title: title }, data.hitMode);
+                        alert('dd');
+                        return;
+                    }
+                    data.otherNode.moveTo(node, data.hitMode);
+                    $(node.tr).data('folder', true);
+                    console.log(node.tr);
+                }
+            }
+        });
+    }
+
+    function loadTree(source) {
+        var tree = $('#ReportBuyersWinRateReport').fancytree('getTree');
+        tree.reload(source);
+    }
+
+    function loadReport(csv) {
+        if (csv == undefined) csv = false;
+
+        var data = [];
+
+        $('.campaign-field').each(function () {
+            var field = $(this).text();
+            var index = $(this).data('index');
+            var validator = $(this).data('validator');
+            var value1 = $('#filter-value1-' + index).val();
+            var value2 = $('#filter-value2-' + index).val();
+            var exclude = $('#filter-exclude-' + index).is(':checked');
+
+            data.push({ field: field, value1: value1, value2: value2, exclude: exclude, validator: validator });
+        });
+
+        var buyerChannels = $('#buyerChannels').val();
+        var buyerChannelIds = '0';
+        if (buyerChannels != undefined) {
+            if (buyerChannels.length > 0)
+                buyerChannelIds += ',';
+            for (var i = 0; i < buyerChannels.length; i++) {
+                buyerChannelIds += buyerChannels[i];
+                if (i < buyerChannels.length - 1)
+                    buyerChannelIds += ',';
+            }
+        }
+
+        var datajson = JSON.stringify(data);
+
+        if (!csv) {
+
+            ShowLoader();
+
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "POST",
+                url: '@Model.BaseUrl' + '/management/report/GetReportBuyersWinRateReport',
+                data: { data: datajson, buyerChannelIds: buyerChannelIds, startDate: $('#startDate').val(), endDate: $('#endDate').val() },
+                success: function (data) {
+                    HideLoader();
+                    loadTree(data);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    HideLoader();
+                }
+            });
+        }
+        else {
+            location.href = '@Model.BaseUrl' + '/management/report/GetReportBuyersWinRateReport?data=' + datajson + '&buyerChannelIds=' + buyerChannelIds +
+                '&startDate=' + $('#startDate').val() + '&endDate=' + $('#endDate').val() + '&csv=true';
+        }
+    }
+
+    $(document).ready(function () {
+
+        initReportWinRateReport();
+
+
+        $('#startDate').pickadate({
+            formatSubmit: 'mm/dd/yyyy',
+            format: 'mm/dd/yyyy',
+            onSet: function (context) {
+            },
+            onStart: function ()
+            {
+                var date = new Date();
+                date.setDate(date.getDate() - 1);
+                this.set('select', date);
+            }
+        });
+
+        $('#endDate').pickadate({
+            formatSubmit: 'mm/dd/yyyy',
+            format: 'mm/dd/yyyy',
+            onSet: function (context) {
+            },
+            onStart: function ()
+            {
+                var date = new Date();
+                this.set('select', date);
+            }
+        });
+
+        $('#refresh-btn').on('click', function () {
+            loadReport();
+        });
+
+        $('#download-btn').on('click', function () {
+            loadReport(true);
+        });
+
+        $('.multiselect').multiselect({
+            enableCaseInsensitiveFiltering: true,
+            numberDisplayed: 1
+        });
+
+        $('.select').select2();
+
+        //initReportBuyersByCampaigns();
+        $('#campaigns').on('change', function () {
+            $.ajax({
+                cache: false,
+                async: false,
+                type: "POST",
+                url: '@Model.BaseUrl' + '/management/buyerchannel/GetBuyerChannelsByCampaign',
+                data: { id: $(this).val(), mode: 1 },
+                success: function (data) {
+                    var $dropdown = $("#buyerChannels");
+                    $dropdown.find('option').remove();
+                    $('.multiselect').multiselect('destroy').multiselect({
+                        enableCaseInsensitiveFiltering: true,
+                        numberDisplayed: 1
+                    });
+                    $.each(data.data, function () {
+                        console.log(this);
+                        $dropdown.append($("<option />").val(this[0]).text(this[1]));
+                    });
+                    $('.multiselect').multiselect('destroy').multiselect({
+                        enableCaseInsensitiveFiltering: true,
+                        numberDisplayed: 1
+                    });
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+        });
+    });
+</script>
+<br>
+<div class="row">
+    <div class="col-md-5">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label>Campaign</label><br />
+                    <select id="campaigns" class="form-control select">
+                        <option value="0">Select campaign</option>
+                        @foreach (var a in Model.ListCampaigns)
+                        {
+                            <option value="@a.Value">@a.Text</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-12 bulk-filter">
+                <div class="form-group">
+                    <label>Buyer channels</label><br />
+                    <select id="buyerChannels" class="multiselect" multiple="multiple">
+                        @foreach (var a in Model.ListBuyerChannels)
+                        {
+                            <option value="@a.Value">@a.Text</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Start</label><br />
+                            <input type="date" id="startDate" class="form-control" placeholder="Start date" min="1" value="1" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>End</label><br />
+                            <input type="date" id="endDate" class="form-control" placeholder="End date" value="10" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <button id="refresh-btn" class="btn btn-info">Refresh</button>
+                <button id="download-btn" class="btn btn-default">Download CSV</button>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-md-7">
+        <div class="table-responsive">
+            <br>
+            <table id="ReportBuyersWinRateReport" class="table table-bordered tree-table">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;"><a href="#" data-col="title" data-order="asc" data-report="ReportBuyersWinRateReport" class="sortable-column">Price</a></th>
+                        <th style="width: 80px;"><a href="#" data-col="SoldLeads" data-order="asc" data-report="ReportBuyersWinRateReport" class="sortable-column">Sold leads</a></th>
+                        <th style="width: 80px;"><a href="#" data-col="RejectedLeads" data-order="asc" data-report="ReportBuyersWinRateReport" class="sortable-column">Rejected leads</a></th>
+                        <th style="width: 80px;"><a href="#" data-col="MinPriceErrorLeads" data-order="asc" data-report="ReportBuyersWinRateReport" class="sortable-column">Rejected by min price</a></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

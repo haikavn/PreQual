@@ -1,0 +1,102 @@
+﻿@model Adrack.Web.ContentManagement.Models.Accounting.BuyerInvoiceModel
+<script type="text/javascript" src="~/Scripts/plugins/ui/moment/moment.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/daterangepicker.js"></script>
+
+<h2>Invoices</h2>
+<div style="width: 360px; float: left;">
+    <input style="display:inline-block; width:95px" type="text" class="daterange-from-inv form-control" value="" placeholder="Date From">
+    <input style="display:inline-block; width:95px" type="text" class="daterange-to-inv form-control" value="" placeholder="Date To">
+    <button id="InvoiceRefresh" class="btn btn-default btn-labeled btn-xs margin-lr" type="button"><b><i class="glyphicon glyphicon-search"></i></b> Go</button>
+    <button id="ShowAll" class="btn btn-default btn-xs margin-lr" type="button">Show All</button>
+</div>
+<label><b>Total Invoices Sum: <span id="TotalSum"></span></b></label>
+
+<div id="GridViewBuyersInvoices"></div>
+<script>
+    GenerateGridTable("GridViewBuyersInvoices", "/Management/Accounting/GetBuyerInvoices/?buyerid="+@ViewBag.EntityId, "ID, Invoice Number, Date From / To, Date Created, Invoice Sum, Total, Paid, Outstanding");
+</script>
+
+<script>
+    $(function () {
+        var dtNow = new Date('@Adrack.Web.ContentManagement.Helper.GetTimeZoneStr()');
+        $('.daterange-from-inv').daterangepicker({
+            singleDatePicker: true,
+            startDate: moment(dtNow),
+            maxDate: moment(dtNow).subtract(-1, 'days'),
+            locale: {
+                format: 'MM/DD/YYYY'
+            }
+        });
+        $('.daterange-to-inv').daterangepicker({
+            singleDatePicker: true,
+            startDate: moment(dtNow),
+            maxDate: moment(dtNow).subtract(-1, 'days'),
+            locale: {
+                format: 'MM/DD/YYYY'
+            }
+        });
+        $('.daterange-from-inv').val('');
+        $('.daterange-to-inv').val('');
+
+        $('.datatable-html tbody').on('click', 'tr', function () {
+            $("#InvoiceApprove").removeClass("disabled");
+            $("#InvoiceDisable").removeClass("disabled");
+            $("#InvoicePay").removeClass("disabled");
+            $("#InvoiceDownload").removeClass("disabled");
+
+            var checkedCount = 0;
+            $(".row_checkbox").each(function () {
+                if ($(this).is(':checked')) {
+                    checkedCount++;
+                }
+            });
+            if(checkedCount > 1)
+            {
+                $("#InvoiceDisable").addClass("disabled");
+                $("#InvoicePay").addClass("disabled");
+                $("#InvoiceDownload").addClass("disabled");
+            }
+        });
+
+        $("#InvoiceDownload").click(function () {
+            if ($("#InvoiceDownload").hasClass("disabled"))
+                return false;
+
+            var Status = $("tbody .selected td:nth-child(16)").text();
+            if (Status == "Deleted" || Status == "NotApproved") {
+                alert("You Cannot Download " + Status + " Invoice");
+                return false;
+            }
+
+            if (!GridSelectedID) {
+                alert("Plaese Select a Row");
+                return false;
+            }
+
+            window.open('/Management/Accounting/Pdf/' + GridSelectedID);
+        });
+
+        $("#InvoiceRefresh").click(function () {
+            var dataParam = "?dates=" + $('.daterange-from-inv').val() + ":" + $('.daterange-to-inv').val() + "&buyerid=" + @ViewBag.EntityId;
+            GenerateGridTable("GridViewBuyersInvoices", "/Management/Accounting/GetBuyerInvoices/" + dataParam, "ID, Invoice Number, Date From / To, Date Created, Invoice Sum, Total, Paid, Outstanding");
+        });
+
+        $("#ShowAll").click(function () {
+            $('.daterange-from-inv').val('');
+            $('.daterange-to-inv').val('');
+
+            var dataParam = "?buyerid=" + @ViewBag.EntityId;
+            GenerateGridTable("GridViewBuyersInvoices", "/Management/Accounting/GetBuyerInvoices/" + dataParam, "ID, Invoice Number, Date From / To, Date Created, Invoice Sum, Total, Paid, Outstanding");
+        });
+
+        $(document).ajaxSend(function () {
+        }).ajaxComplete(function () {
+            var sum = 0;
+            $("#GridViewBuyersInvoices tbody td:nth-child(6)").each(function () {
+                sum += parseFloat($(this).text().replace(",", "").replace("$", ""));;
+            });
+            $("#TotalSum").html("$" + sum.toFixed(2).toString());
+        });
+
+    });
+</script>

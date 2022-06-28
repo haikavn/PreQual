@@ -1,0 +1,156 @@
+﻿@using Adrack.Service.Helpers
+
+@{
+    Html.Partial("_Master.Browser");
+
+    var currentUser = this.AppContext.AppUser;
+}
+
+<!DOCTYPE html>
+<html @Html.AppPageCustom(PageLayoutPosition.HtmlAttribute)>
+<head>
+    <meta charset="utf-8">
+    <title>@Html.AppPageTitle(true)</title>
+    <meta name="description" content="@(Html.AppPageMetaDescription())">
+    <meta name="keywords" content="@(Html.AppPageMetaKeyword())">
+    @Html.AppPageCustom(PageLayoutPosition.Head, true)
+    @Html.AppPageCanonicalUrl()
+    @Html.AppPageCss(PageLayoutPosition.Head, this.Url, true)
+    @Html.AppPageScript(PageLayoutPosition.Head, this.Url, true)
+</head>
+<body @Html.AppPageCustom(PageLayoutPosition.BodyAttribute)>
+
+    <!--[if lt IE 8]>
+        <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+
+    @RenderBody()
+
+    @Html.AppPageCss(PageLayoutPosition.Body, this.Url)
+    @Html.AppPageScript(PageLayoutPosition.Body, this.Url)
+
+@if (currentUser != null && (currentUser.UserTypeId == SharedData.AffiliateUserTypeId || currentUser.UserTypeId == SharedData.BuyerUserTypeId))
+{
+    <div class="popup-support">
+        <div class="visible-part">
+            TICKET DESK
+        </div>
+        <div class="hidden-part">
+@using (Html.BeginForm("AddTicket", "Support", FormMethod.Post, new { @class = "form-validation", id = "popup-ticket-form" }))
+{
+            <input class="form-control" name="subject" placeholder="Subject" required="required">
+            <br>
+            <textarea class="form-control" name="message" placeholder="Message" required="required"></textarea>
+            <br>
+            <label>Prority</label><br />
+            <select name="priority" class="form-control">
+                <option value="3">High</option>
+                <option value="2" selected="selected">Normal</option>
+                <option value="1">Low</option>
+            </select><br />
+            <label>Send to</label><br />
+            <select name="sendto" class="form-control">
+                <option value="1">Administrator</option>
+                <option value="2" selected="selected">Account manager</option>
+            </select><br />
+            <button type="submit" id="submit-ticket-btn" class="btn btn-success">Submit</button>
+            <span id="popup-ticket-message" style="display: none; font-size: 16px"></span>
+}
+        </div>
+    </div>
+
+    <style>
+        .popup-support {
+            width: 360px;
+            height: 370px;
+            position: fixed;
+            bottom: 200px;
+            right: -320px;
+            background-color: #eef;
+            z-index: 30000;
+        }
+
+        .visible-part {
+            background-color: #4CAF50;
+            cursor: pointer;
+            position: absolute;
+            top: 163px;
+            left: -163px;
+            -webkit-transform: rotate(-90deg);
+            -moz-transform: rotate(-90deg);
+            -ms-transform: rotate(-90deg);
+            -o-transform: rotate(-90deg);
+            transform: rotate(-90deg);
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+            width: 370px;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .hidden-part {
+            float: right;
+            width: 320px;
+            padding: 25px;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            $('body').not(".visible-part").not(".popup-support").on('click', function () {
+                //$(".popup-support").animate({ "right": "-320px" }, 100);
+            });
+
+            $('#popup-ticket-form').on('submit', function (e) {
+                e.preventDefault();
+
+                $('#submit-ticket-btn').attr('disabled', 'disabled');
+                $(".popup-support").animate({ "right": "-320px" }, 100);
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: "POST",
+                    async: false,
+                    data: $(this).serialize(),
+                    dataType: "json",
+                    success: function (data) {
+                        $('#submit-ticket-btn').removeAttr('disabled');
+                        if (data.id != 0) {
+                            $('#popup-ticket-message').css('color', 'green');
+                            $('#popup-ticket-message').html('<b>Ticket sent</b>');
+                            setTimeout(function () {
+                                location.href = '/Management/Support/Tickets';
+                            }, 2000);
+                        }
+                        else {
+                            $('#popup-ticket-message').css('color', 'red');
+                            $('#popup-ticket-message').html('<b>Error occured, please try again later.</b>');
+                        }
+                        $('#popup-ticket-message').show();
+                    },
+                    error: function (jXHR, textStatus, errorThrown) {
+                        $('#submit-ticket-btn').removeAttr('disabled');
+                    }
+                });
+
+                return false;
+            });
+
+            $(".visible-part").click(function () {
+                if ($(".popup-support").css('right') != '0px')
+                    $(".popup-support").animate({ "right": "0px" }, 500);
+                else
+                    $(".popup-support").animate({ "right": "-320px" }, 500);
+                
+                return false;
+            });
+        });
+    </script>
+}
+
+    <div style="position: fixed; right: 10px; bottom:10px; z-index:10000;">
+        <a href="/home/clearcachemanager?redirect=1" onclick="return confirm('Are you sure you want to clear the system cache of all Adrack machines?')"><img src="/ContentManagement/Content/images/cache.png" width="25" title="Clear the system cache" /></a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,22 @@
+﻿@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+    Html.AddPageTitle("Departments");
+    Html.AddPageMetaDescription("Add/Edit Departments");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+}
+
+<br>
+@if (permissionService.Authorize(PermissionProvider.SettingsDepartmentsAdd))
+{
+<button id="add_new" type="button" class="btn btn-success btn-sm">
+    <i class="icon-add-to-list position-left"></i>Add department
+</button>
+}
+
+<div id="GridView1" style="width: 460px;"></div>
+<script src="~/Scripts/pages-js/DepartmentList.js"></script>

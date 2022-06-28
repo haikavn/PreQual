@@ -1,0 +1,118 @@
+﻿@model Adrack.Web.ContentManagement.Models.Support.SupportTicketsModel
+
+<div class="SupportMessageContainer">
+    <br>
+    <div>
+        <button id="AddTicketBtn" type="button" data-target="#modal_form_add_ticket" data-toggle="modal" class="btn btn-success btn-sm">
+            <i class="icon-add-to-list position-left"></i> Add New Ticket !
+        </button>
+    </div>
+
+    <div id="GridViewSupportTickets"></div>
+    <script>
+        GenerateGridTable("GridViewSupportTickets", "/Management/Support/GetSupportTickets", "ID, Subject, Author Name, Assigned To, Priority, Status, Date/Time");
+    </script>
+</div>
+
+<div id="modal_form_add_ticket" class="modal fade">
+    <div class="modal-dialog modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Add New Ticket</h5>
+            </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label>Subject:</label>
+                            <input id="TicketSubject" class="form-control" type="text" placeholder="Subject" required="required" aria-required="true" aria-invalid="true">
+                        </div>
+                        <p>&nbsp;</p>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+
+                                <label>Assign To:</label>
+                                <select id="AssignTo" class="select">
+                                    @if (ViewBag.ManagerUser != null)
+                                    {
+                                        <option value="@ViewBag.ManagerUser.Id">@ViewBag.ManagerUserName (@ViewBag.ManagerUser.Email)</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <!--
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label>CC To:</label>
+                                    <select id="AssignToCC" multiple="multiple" class="select">
+                                        @foreach (KeyValuePair<string, long> userList in Model.UsersNameList)
+                                        {
+                                            <option value="@userList.Value">@userList.Key</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+    -->
+                        <div class="col-sm-offset-10">
+                            <label>Priority:</label>
+                            <select id="TicketPriority" class="form-control">
+                                <option value="3">High</option>
+                                <option value="2" selected="selected">Normal</option>
+                                <option value="1">Low</option>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label>Message:</label>
+                                <textarea id="TicketMessage" class="form-control" placeholder="Type Message" rows="4"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <span class="help-block">Attach a file (Max: 2MB.)</span>
+                            <input type="file" id="attach-file" class="file-input" data-show-caption="false" data-show-upload="false" data-browse-class="btn btn-primary btn-xs" data-remove-class="btn btn-default btn-xs">
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                    <button id="Btn_AddTicket" type="button" data-target="#modal_form_add_payment" data-toggle="modal" class="btn btn-success btn-sm">
+                        <i class="icon-add-to-list position-left"></i> Add Ticket
+                    </button>
+                </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        $("#AddTicketBtn").click(function () {
+            $("#TicketSubject").val("");
+            $("#TicketMessage").val("");
+
+        });
+
+        $("#Btn_AddTicket").click(function () {
+
+            if ($.trim($("#TicketSubject").val()) == '' || $.trim($("#TicketMessage").val()) == '') {
+                return;
+            }
+
+            var url = "/Management/Support/AddTicket";
+            var data = "managerid=" + $("#AssignTo").val() + "&cc=" + null + "&subject=" + $("#TicketSubject").val() + "&message=" + $("#TicketMessage").val() + "&priority=" + $("#TicketPriority").val();
+
+            $.post(url, data).done(function (retData) {
+                console.log(retData);
+                $(".close").trigger("click");
+                GenerateGridTable("GridViewSupportTickets", "/Management/Support/GetSupportTickets", "ID, Subject, Author Name, Assigned To, Priority, Status, Date/Time");
+            });
+        });
+
+    });
+</script>

@@ -1,0 +1,17 @@
+﻿@using Adrack.Service.Helpers
+
+@{
+    Html.AddPageTitle("History");
+    Html.AddPageMetaDescription("Shows System Logs for selected period");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    var currentUser = this.AppContext.AppUser;
+}
+
+@if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+{
+    @RenderPage("../Shared/AffiliateSubMenu.cshtml")
+}
+
+@{ Html.RenderAction("IndexPartial", "History", new { id = ViewBag.SelectedAffiliateId, entity = "Affiliate" }); }

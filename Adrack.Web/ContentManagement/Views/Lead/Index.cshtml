@@ -1,0 +1,419 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.LeadModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+@using Adrack.Service.Helpers
+
+<style>
+    body{ overflow: hidden !important; }
+    #DataTables_Table_3_wrapper input {min-width:25px !important;}
+</style>
+
+@{
+    var currentUser = this.AppContext.AppUser;
+    string buyerChannelSelect = "";
+
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+
+    Html.AddPageTitle("Leads");
+    Html.AddPageMetaDescription("Shows All Posted Leads");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+
+    int columnIndex = 1;
+
+    DateTime tzNow = Model.TimeZoneNow;
+}
+
+<script type="text/javascript" src="~/Scripts/plugins/ui/moment/moment.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/daterangepicker.js"></script>
+
+<script type="text/javascript" src="~/Scripts/plugins/buttons/spin.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/buttons/ladda.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/forms/selects/select2.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/forms/selects/bootstrap_multiselect.js"></script>
+
+<button style="display:none;" type="button" class="btn btn-addnote btn-sm" data-toggle="modal" data-target="#lead_note_modal">Add Note <i class="icon-play3 position-right"></i></button>
+<br>
+<div class="" style="margin-bottom:20px">
+    <button type="button" id="LeadRefresh2" class="btn btn-info btn-ladda btn-ladda-spinner" data-spinner-color="#fff" data-style="zoom-in"><span class="ladda-label">Refresh</span></button>
+
+    <button type="button" id="ClearFilters" class="btn btn-danger btn-ladda btn-ladda-spinner" data-spinner-color="#fff" data-style="zoom-in"><span class="ladda-label">Clear Filter</span></button>
+
+    <div style="float: right">
+        <label>
+            Show
+            <select id="PageSizeSelect">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option selected value="50">50</option>
+                <option value="100">100</option>
+            </select>
+            Rows per page
+            &nbsp;&nbsp;&nbsp;
+        </label>
+
+        <div style="display: inline-block" id="DataTables_Table_3_info" role="status" aria-live="polite">
+            &nbsp;&nbsp;&nbsp;
+            Total <b><span id="totalRecords"></span></b> entries
+            &nbsp;&nbsp;&nbsp;
+            <a id="export-to-excel" class="btn btn-info" data-dismiss="modal" title="Export to Excel" nohref="nohref" data-toggle="modal" data-target="#modal_form_excel_pass">Export to CSV</a>
+
+            <img id="download-excel-loader" src="/Content/img/loading7.gif" width="16px" style="display: none" />
+            <a href="" id="export-to-excel-download" download style="display:none">Download</a>
+        </div>
+        &nbsp;&nbsp;&nbsp;
+
+        <div class="table-options-container">
+            <i class="icon-gear table-options-button"></i>
+            <div class="table-options-list">
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> ID<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> Email<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> First name<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> Last name<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> Date<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> IP<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> Zip code<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> State<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> Affiliate<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> Aff. Ch. ID<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> Buyer<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> Buyer Ch. ID<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> Campaign ID<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> Status<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> Monitor<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> Proc. Time<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> Sold amount<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> Affiliate profit<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> Profit<br>
+                <br>
+                <button class="btn btn-info" id="table-options-list-btn">Done</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" value="1" id="GridPageNumber">
+<div id="DataTables_Table_3_wrapper" class="dataTables_wrapper no-footer" style="width:100%; overflow: auto; height:calc(100vh - 162px - 25px)">
+    <div class="datatable-scroll" style="min-width: 1024px;">
+
+        <table width="100%" class="table datatable-scroll-y000 dataTable no-footer" id="DataTables_Leads" role="grid" aria-describedby="DataTables_Table_3_info" style="width: 100%;">
+            <thead>
+                <tr role="row">
+                    <th width="5%">
+                        <input style="width:95%;" type="text" id="filter-id" value="" placeholder="ID">
+                    </th>
+                    <th width="8%">
+                        <input style="width:95%" type="text" id="filter-email" value="" placeholder="Email">
+                    </th>
+                    <th width="8%">
+                        <input style="width:95%" type="text" id="filter-firstname" value="" placeholder="First name">
+                    </th>
+                    <th width="8%">
+                        <input style="width:95%" type="text" id="filter-lastname" value="" placeholder="Last name">
+                    </th>
+                    <th width="8%">
+                        <input type="text" id="filter-created" class="daterange" value="@ViewBag.TimeZoneNowStr">
+                    </th>
+                    <th width="8%">
+                        <input style="width:95%" type="text" id="filter-ip" value="" placeholder="IP">
+                    </th>
+                    <th width="5%">
+                        <input style="width:95%" type="text" id="filter-zip" value="" placeholder="Zip Code">
+                    </th>
+                    <th width="35px">
+                        <input style="width:35px" type="text" id="filter-state" value="" placeholder="State">
+                    </th>
+                   @if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+                   {
+                    <th width="10%">
+                        <select id="filter-affiliate" style="width:95%" data-placeholder="Select an Affiliate..."  class="multiselect" multiple="multiple">
+
+                            @foreach (Adrack.Core.Domain.Lead.Affiliate af in ViewBag.AllAffiliatesList)
+                            {
+                                <option value="@af.Id">@af.Name</option>
+                            }
+                        </select>
+                    </th>
+                    <th width="8%">
+                        <select id="filter-affiliate-channel-id" style="width:95%" data-placeholder="Select an Affiliate Channel..."  class="multiselect" multiple="multiple">
+                            @foreach (Adrack.Core.Domain.Lead.AffiliateChannel afch in ViewBag.AllAffiliateChannelsList)
+                            {
+                                <option value="@afch.Id">@afch.Name</option>
+                            }
+                        </select>
+                    </th>
+
+                    <th width="8%">
+                        <select id="filter-buyer-id" style="width:95%" data-placeholder="Select a Buyer..." class="multiselect" multiple="multiple">
+                            @foreach (Adrack.Core.Domain.Lead.Buyer bu in ViewBag.AllBuyersList)
+                            {
+                                <option value="@bu.Id">@bu.Name</option>
+                            }
+                        </select>
+                    </th>
+                    <th width="8%">
+                        <select id="filter-buyer-channel-id" style="width:95%" data-placeholder="Select an Buyer Channel..." class="multiselect" multiple="multiple">
+                            @foreach (Adrack.Core.Domain.Lead.BuyerChannel buch in ViewBag.AllBuyerChannelsList)
+                            {
+                                <option value="@buch.Id" @buyerChannelSelect>@buch.Name</option>
+                            }
+                        </select>
+                    </th>
+
+                   }
+                    <th width="8%">
+                        <select id="filter-campaign-id" style="width:95%" data-placeholder="Select an Campaign..." class="multiselect" multiple="multiple">
+                            @foreach (Adrack.Core.Domain.Lead.Campaign ca in ViewBag.AllCampaignsList)
+                            {
+                                <option value="@ca.Id">@ca.Name</option>
+                            }
+                        </select>
+                    </th>
+                    <th width="6%">
+                        <select id="filter-status">
+                            <option value="-1" selected="selected">Status</option>
+                            <option value="1">Sold</option>
+                            <option value="2">Error</option>
+                            <option value="3">Reject</option>
+                            <option value="4">Processing</option>
+                        </select>
+                    </th>
+                    <th width="5%">Monitor</th>
+                    @if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+                    {
+                        <th width="4%">Proc.<br>Time</th>
+                    }
+                    else
+                    {
+                        <th width="4%">Notes</th>
+                    }
+
+                    <th width="4%">Sold Amount</th>
+                    <th width="4%">Affiliate Profit</th>
+                    <th width="4%">Profit</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="17"><div class="h3" style="text-align:center"><img src="/Content/img/ajax-loader.gif" /></div></td></tr>
+            </tbody>
+        </table>
+<!--
+        <div class="dataTables_scroll">
+            <div class="dataTables_scrollBody0" style="width: 100%;">
+                <table width="100%" class="table dataTable no-footer" id="DataTables_Leads" role="grid" aria-describedby="DataTables_Table_3_info" style="width: 100%;">
+
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+-->
+    </div>
+    <div class="datatable-footer">
+        <!-- <a class="paginate_button previous disabled" id="PreviousPage">←</a> -->
+        <div class="dataTables_paginate paging_simple_numbers" id="GridViewLeads_paginate"></div>
+        <!-- <a class="paginate_button next" id="NextPage">→</a> -->
+    </div>
+</div>
+
+<br><br><br><br>
+
+<script type="text/javascript" src="~/Scripts/pages-js/Lead.js"></script>
+<script>
+    LeadViewParams.init(@Html.Raw(ViewBag.VisibleColumns == null ? "[true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false]" : "[" + ViewBag.VisibleColumns + "]"), '@Adrack.Web.ContentManagement.Helper.GetTimeZoneStr()');
+</script>
+
+<button style="display:none;" type="button" class="btn btn-info2 btn-sm" data-toggle="modal" data-target="#modal_theme_info">Launch <i class="icon-play3 position-right"></i></button>
+
+    <!-- Info modal -->
+    <div id="modal_theme_info" class="modal fade">
+        <div class="modal-dialog modal-full">
+            <div class="modal-content">
+                <br>
+                    <div id="LeadGeneralInfoContainer" class="col-md-12"></div>
+                    <div class="tabbable">
+
+                        <ul class="nav nav-tabs nav-tabs-highlight">
+                            <li class="tab1tab active"><a href="#left-icon-tab1" data-toggle="tab"><i class="icon-mention position-left"></i> Lead Common Information</a></li>
+                            <li class="tab2tab"><a href="#left-icon-tab2" data-toggle="tab"><i class="icon-menu7 position-left"></i> Logs</a></li>
+                            <li class="tab3tab"><a href="#left-icon-tab3" data-toggle="tab"><i class="glyphicon glyphicon-eye-open position-left"></i> Dublicate Monitor  <span class="text-danger" id="dublicate_count"></span></a></li>
+                            <li class="tab4tab"><a href="#left-icon-tab4" data-toggle="tab"><i class="glyphicon glyphicon-log-in position-left"></i> Affiliate responses  <span class="text-danger" id="affiliate_responses"></span></a></li>
+                            <li class="tab5tab"><a href="#left-icon-tab5" data-toggle="tab"><i class="glyphicon glyphicon-share-alt position-left"></i> Redirect </a></li>
+                            <li class="tab6tab"><a href="#left-icon-tab6" data-toggle="tab"><i class="glyphicon glyphicon-share-alt position-left"></i> Lead journey </a></li>
+                        </ul>
+                    </div>
+
+                <div class="modal-body">
+
+                    <div class="tab-content">
+                        <div class="tab-pane tab-pane1 active" style="height:400px; overflow-x:auto;" id="left-icon-tab1">
+                            <img src="\Content\img\ajax-loader.gif" />
+                        </div>
+                        <div class="tab-pane tab-pane2" style="height:400px; overflow-x:auto;" id="left-icon-tab2">
+                            <img src="\Content\img\ajax-loader.gif" />
+                        </div>
+                        <div class="tab-pane tab-pane3" style="height:400px; overflow-x:auto;" id="left-icon-tab3">
+                            <img src="\Content\img\ajax-loader.gif" />
+                        </div>
+
+                        <div class="tab-pane tab-pane4" style="height:400px; overflow-x:auto;" id="left-icon-tab4">
+                            <img src="\Content\img\ajax-loader.gif" />
+                        </div>
+
+                        <div class="tab-pane tab-pane5" style="height:400px; overflow-x:auto;" id="left-icon-tab5">
+                            <img src="\Content\img\ajax-loader.gif" />
+                        </div>
+
+                        <div class="tab-pane tab-pane6" style="height:400px; overflow-x:auto;" id="left-icon-tab6">
+                            <img src="\Content\img\ajax-loader.gif" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    @if (permissionService.Authorize(PermissionProvider.LeadsRefundRequest))
+                    {
+                        <div id="RefundNoteContainer" class="">
+                            <div class="col-sm-6">
+                                <textarea placeholder="Leave a Reason" id="RefundNote" class="form-control" style="width: 100%"></textarea>
+                            </div>
+                            <div class="col-sm-6">
+                                <label>Select a Buyer</label><br>
+                                <select id="RefundLeadBuyer" data-placeholder="Select a Buyer..." class="select-search0 form-control" style="width: 100%">
+                                </select>
+                            </div>
+                        </div>
+                        <br>
+                        <button type="button" id="Btn_AddRefund" class="btn btn-info btn-ladda "><span class="ladda-label">Request Lead Refund</span></button>
+                    }
+
+                    <button type="button" class="btn btn-link" data-dismiss="modal" data-target="#modal_theme_info">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /info modal -->
+
+<!-- Lead Note Modal -->
+<div id="lead_note_modal" class="modal fade">
+    <div class="modal-dialog modal-title">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Add Note for Lead ID: <span id="addnoteleadid"></span></h5>
+            </div>
+
+            <div class="modal-body">
+                Title:<br>
+                <div class="col-md-10">
+                    <select name="" id="LeadNoteTitle" placeholder="Choose a Title..." class="form-control">
+                        <option value="0">Pending Contact</option>
+                        @{
+                            foreach (Adrack.Core.Domain.Lead.NoteTitle nt in ViewBag.AllLeadNotes)
+                            {
+                                if(nt.Title.Trim() != "")
+                                {
+                                    <option value="@nt.Id.ToString()">@nt.Title</option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-0"> <a data-dismiss="modal" nohref="nohref" data-toggle="modal" data-target="#note_title_modal"><i class="glyphicon glyphicon-pencil"></i> Edit Titles</a></div>
+                <br />
+                Author:<br />
+                <input type="text" id="LeadNoteAuthor" class="form-control" />
+                <br>
+                Note:<br>
+                <textarea id="LeadNoteText" class="form-control" style="width:100%" rows="4"></textarea>
+                <br>
+                Notes history:
+                <div style="width: 100%; height:140px; overflow: auto">
+                    <table id="LeadAllNotes" class="table">
+                        <thead>
+                            <tr>
+                                <th style="text-align: left">Created</th>
+                                <th style="text-align: left">Title</th>
+                                <th style="text-align: left">Note</th>
+                                <th style="text-align: left">Author</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <button id="Btn_AddLeadNote" type="button" data-target="#lead_note_modal" data-toggle="modal" class="btn btn-success btn-sm">
+                    <i class="icon-add-to-list position-left"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Lead Note Modal -->
+
+<!-- Note Title Modal -->
+<div id="note_title_modal" class="modal fade">
+    <div class="modal-dialog modal-title">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Edit Note Titles:</h5>
+            </div>
+
+            <div class="modal-body">
+                Title:<br>
+                <div class="col-md-12 notes-container">
+                @{
+                    foreach (Adrack.Core.Domain.Lead.NoteTitle nt in ViewBag.AllLeadNotes)
+                    {
+                        <div style="width:25px; display:inline-block; text-align: center;">@nt.Id.ToString()</div> <input type="text" data-id="@nt.Id.ToString()" class="form-control" value="@nt.Title" style="display:inline-block; width:90%; margin-bottom:3px;" /><br>
+                    }
+                }
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <button id="Btn_SaveNoteTitle" type="button" data-target="#note_title_modal" data-toggle="modal" class="btn btn-success btn-sm">
+                    <i class="icon-add-to-list position-left"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Note Title Modal -->
+
+<!--Edit Payment Modal Window-->
+<div id="modal_form_excel_pass" class="modal fade">
+    <div class="modal-dialog modal-xs">
+        <div class="modal-content">
+
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Please Enter Your Password</h5>
+            </div>
+
+            <form action="#">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <input class="form-control" type="password" id="excel-password" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                    <button id="Btn_export-excel" type="button" data-target="#modal_form_excel_pass" data-toggle="modal" class="btn btn-success btn-sm">
+                        <i class="icon-add-to-list position-left"></i> Export to CSV
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

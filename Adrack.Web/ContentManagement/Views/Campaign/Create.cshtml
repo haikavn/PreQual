@@ -1,0 +1,914 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.CampaignModel
+
+@using Adrack.Service.Helpers
+
+@{
+    Html.AddPageTitle("Create Campaign");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/core.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/effects.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/uniform.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/blockui.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_all.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_childcounter.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/form.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/form.wizard.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jasny.bootstrap.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/validate.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/ui/moment/moment.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/ContentManagement/Scripts/plugins/notifications/pnotify.min.js").ToLowerInvariant());
+
+    //Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/domain/membership/register.js").ToLowerInvariant());
+    Html.AppendPageCustom(PageLayoutPosition.ContainerAttribute, "login-container");
+}
+
+<script type="text/javascript">
+
+    var xmlTpl = '';
+    var currentFilterSettingsButton = null;
+
+    function loadFilterSetings(e) {
+        currentFilterSettingsButton = $(e);
+        $('#filter-type').val(1);
+        $('#filter-type-value').val('');
+
+        try {
+            var obj = $(e).data('settings');
+
+            if (obj !== undefined && obj !== null && obj.constructor != Object) {
+                obj = $.parseJSON($(e).data('settings'));
+            }
+
+            $('#filter-type').val(obj.filterType);
+            $('#filter-type-value').val(obj.filterTypeValue);
+        }
+        catch (ex) {
+
+        }
+    }
+
+    function getValidatorType(type, element, select) {
+        $.ajax({
+            cache: false,
+            async: false,
+            type: "GET",
+            url: "/GetValidatorType/" + type,
+            success: function (data) {
+                var obj = null;
+
+                try {
+                    obj = jQuery.parseJSON(data);
+                }
+                catch (err) {
+
+                }
+
+                $(element).html('');
+                $(element).hide();
+
+                if (obj == null) {
+                    $(element).html(data);
+                    $(element).show();
+                }
+                else {
+                    var res = obj.validators.split(',');
+                    //select.parent().parent().children(".validator-select option").removeAttr('disabled');
+                    //select.parent().parent().children(".validator-select option:first").attr('selected','selected');
+                    //$('#data-types-' + select.data('row')).children("option").prop('disabled', false);
+                    //$('#data-types-' + select.data('row')).children("option").prop('selected', false);
+                    //$('#data-types-' + select.data('row')).children("option:first").prop('selected', true);
+
+                    if (obj.validators != '') {
+                        var gfound = false;
+                        //select.parent().parent().children(".validator-select option").each(function ()
+                        $('#data-types-' + select.data('row')).children("option").each(function () {
+                            $(this).prop('selected', false);
+                            $(this).prop('disabled', false);
+
+                            var found = false;
+
+                            for (var i = 0; i < res.length; i++) {
+                                if (res[i] == $(this).val()) {
+                                    if (!gfound) {
+                                        console.log(res[i], $(this).val(), $(this));
+                                        $(this).prop('selected', true);
+                                    }
+                                    gfound = true;
+                                    found = true;
+                                    break;
+                                }
+                            }
+
+                            if (!found && $(this).val() != 0) {
+                                $(this).prop('disabled', true);
+                            }
+                        });
+
+                        $('#data-types-' + select.data('row')).trigger('change');
+                    }
+                    else {
+                        $(element).html('');
+
+                        $('#data-types-' + select.data('row')).children("option").each(function () {
+                            $(this).prop('selected', false);
+                            $(this).prop('disabled', false);
+                        });
+
+                        $('#data-types-' + select.data('row')).find("option:first").prop('selected', true);
+                    }
+
+                    //select.parent().parent().children(".validator-select").trigger('change');
+
+                    //$(".validator-select").select2();
+                    select.parent().parent().find('.field-description').val(obj.format);
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+
+    function loadTree(source)
+    {
+        var tree = $('.tree-table').fancytree('getTree');
+        tree.reload(source);
+
+        $(".fancytree-container tr td:first-child").hide();
+        $(".fancytree-container tr th:first-child").hide();
+
+        $('#required-all-check').change(function () {
+            $('.required-check').prop('checked', $(this).is(':checked'));
+            $.uniform.update();
+        });
+
+        $('#hash-all-check').change(function () {
+            $('.hash-check').prop('checked', $(this).is(':checked'));
+            $.uniform.update();
+        });
+
+        $('#filter-all-check').change(function () {
+            $('.filter-check').prop('checked', $(this).is(':checked'));
+            $.uniform.update();
+        });
+
+        $('#hidden-all-check').change(function () {
+            $('.hidden-check').prop('checked', $(this).is(':checked'));
+            $.uniform.update();
+        });
+
+        //$(".styled").uniform({ radioClass: 'choice' });
+    }
+
+    var rowNum = 1;
+
+    function initTree()
+    {
+        rowNum = 1;
+
+        $(".tree-table").fancytree({
+            extensions: ["table", "dnd"],
+            checkbox: true,
+            keyboard: false,
+            selectMode: 1,
+            table: {
+                indentation: 20,      // indent 20px per node level
+                nodeColumnIdx: 1,     // render the node title into the 2nd column
+                checkboxColumnIdx: 0  // render the checkboxes into the 1st column
+            },
+            source: [],
+            lazyLoad: function (event, data) {
+                data.result = { url: "ajax-sub2.json" }
+            },
+            renderColumns: function (event, data) {
+                var node = data.node,
+                $tdList = $(node.tr).find(">td");
+
+                $(node.tr).data('folder', node.folder);
+                $(node.tr).data('tplid', node.data.Id);
+
+                $tdList.eq(0).data('name', "n");
+                $tdList.eq(1).data('name', "template field");
+                $tdList.eq(2).data('name', "system field");
+                $tdList.eq(3).data('name', "validator");
+                $tdList.eq(4).data('name', "comments");
+                $tdList.eq(5).data('name', "possible");
+                $tdList.eq(6).data('name', "required");
+                $tdList.eq(7).data('name', "hash");
+                $tdList.eq(8).data('name', "hidden");
+                $tdList.eq(9).data('name', "filterable");
+                $tdList.eq(10).data('name', "filtersettings");
+                //$tdList.eq(10).data('name', "actions");
+
+                /* $tdList.eq(1).data('value', node.parent.title);
+                 $tdList.eq(2).data('value', node.data.DatabaseField);
+                 $tdList.eq(3).data('value', node.data.Validator);
+                 $tdList.eq(5).data('value', node.data.Required);*/
+
+                // (index #0 is rendered by fancytree by adding the checkbox)
+
+                if (!node.folder)
+                {
+                    var sel = '';
+
+                    var systemFields = '<select id="system-fields-' + rowNum + '" class="select-search form-control" data-row="' + rowNum + '">';
+
+                    /*if (node.title == 'channelid' || node.title == 'CHANNELID' ||
+                        node.title == 'password' || node.title == 'PASSWORD' ||
+                        node.title == 'affsubid' || node.title == 'AFFSUBID' ||
+                        node.title == 'referringurl' || node.title == 'REFERRINGURL' ||
+                        node.title == 'minprice' || node.title == 'MINPRICE' ||
+                        node.title == 'ip' || node.title == 'IP')
+                        systemFields = '<select class="select-search form-control" disabled style="color:lightgray;">';*/
+
+                    @foreach (var item in Model.ListSystemField)
+                    {
+                        @Html.Raw("if (node.data.DatabaseField.toLowerCase() == '" + item.Text.ToLower() + "' || node.title.toLowerCase() == '" + item.Text.ToLower() + "' ) { sel = 'selected'; } else { sel = ''; }");
+                        @Html.Raw("systemFields += '<option value=\"" + item.Text + "\" ' + sel + '>" + item.Text + "</option>';")
+                    }
+
+                    systemFields += '</select>';
+
+                    var dataTypes = '<select id="data-types-' + rowNum + '" class="select-search validator-select form-control" data-row="' + rowNum + '">';
+
+                    /*if (node.title == 'channelid' || node.title == 'CHANNELID' ||
+                        node.title == 'password' || node.title == 'PASSWORD' ||
+                        node.Title == 'affsubid' || node.title == 'AFFSUBID' ||
+                        node.title == 'referringurl' || node.title == 'REFERRINGURL' ||
+                        node.title == 'minprice' || node.title == 'MINPRICE' ||
+                        node.title == 'ip' || node.title == 'IP')
+                        dataTypes = '<select class="select-search validator-select" disabled data-row="' + rowNum + '" style="color:lightgray;">';*/
+
+                    @foreach(var item in Model.ListDataType)
+                    {
+                        @Html.Raw("if (node.data.Validator == " + item.Value + ") { sel = 'selected'; } else { sel = ''; }");
+                        @Html.Raw("dataTypes += '<option value=\"" + item.Value + "\" ' + sel +' >" + item.Text + "</option>';")
+                    }
+
+                    dataTypes += '</select>';
+
+                    //dataTypes += '<div style="display: ' + (node.data.Validator == 1 ? 'block' : 'none') + '"><table><tr><td>Min len.</td><td>Max len.</td></tr><tr><td><input type="text" class="minLength" value="' + node.data.MinLength + '"></td><td><input type="text" class="maxLength" value="' + node.data.MaxLength + '"></td></tr></table></div>';
+
+                    dataTypes += '<div id="data-format-html-' + rowNum + '" style="display: block;">' + node.data.DataFormatHtml + '</div>';
+
+                    $tdList.eq(2).addClass('text-center').html(systemFields);
+                    $tdList.eq(3).addClass('text-center').html(dataTypes);
+
+                    //Pogran upravlenie
+
+                    // (index #2 is rendered by fancytree)
+                    $tdList.eq(4).addClass('text-center').html("<input type='text' class='field-description form-control'  maxlength='300' name='comment' value='" + (node.data.Description != 'null' ? node.data.Description : '') + "'>");
+                    $tdList.eq(6).addClass('text-center').html("<input type='checkbox' class='styled required-check' " + (node.data.Required ? "checked='checked'" : "") + " >");
+                    $tdList.eq(8).addClass('text-center').html("<input type='checkbox' class='styled hidden-check' " + (node.data.IsHidden ? "checked='checked'" : "") + " style='display: none' >");
+                    $tdList.eq(7).addClass('text-center').html("<input type='checkbox' class='styled hash-check' " + (node.data.IsHash ? "checked='checked'" : "") + " >");
+
+                    var blackLists = '<select class="select-search form-control">';
+
+                    @foreach (var item in Model.ListBlackListType)
+                    {
+                        @Html.Raw("blackLists += '<option value=\"" + item.Value + "\">" + item.Text + "</option>';")
+                    }
+
+                    blackLists += '</select>';
+
+                    //$tdList.eq(6).addClass('text-center').html(blackLists);
+
+                    var actions = '<div class="btn-group">'+
+                        '<button type="button" class="btn btn-primary btn-icon dropdown-toggle" data-toggle="dropdown">' +
+                            '<i class="icon-menu7"></i> &nbsp;<span class="caret"></span>' +
+                        '</button>' +
+
+                        '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0)" onclick="addNodeDialog()"><i class="icon-screen-full"></i>Add</a></li>' +
+                            '<li><a href="javascript:void(0)" onclick="editRow()"><i class="icon-menu7"></i>Edit</a></li>' +
+                            '<li><a href="javascript:void(0)" onclick="deleteRow()"><i class="icon-screen-full"></i>Delete</a></li>' +
+                        '</ul>'
+                    '</div>';
+
+                    $tdList.eq(9).addClass('text-center').html("<input type='checkbox' class='styled filter-check' " + (node.data.IsFilterable ? "checked='checked'" : "") + " >");
+                    //$tdList.eq(10).addClass('text-center').html(actions);
+                    $tdList.eq(5).addClass('text-center').html("<input type='text' name='possible' class='form-control' value='" + (node.data.PossibleValue != 'null' ? node.data.PossibleValue : '') + "'>");
+
+
+                    $tdList.eq(10).addClass('text-center').html("<button type='button' class='btn btn-default btn-sm' data-toggle='modal' data-target='#filter_settings_modal' onclick='loadFilterSetings(this)' data-settings=''>Filter settings</button>");
+
+
+                    $(node.tr).find(".select-search").change(function (e) {
+                        getValidatorType($(this).find(":selected").val(), $('#data-format-html-' + $(this).data('row')), $(this));
+                    });
+
+                    rowNum++;
+                }
+                else
+                {
+                    $tdList.eq(8).addClass('text-center').html("<input type='checkbox' class='styled hidden-check' " + (node.data.IsHidden ? "checked='checked'" : "") + " >");
+                }
+                $(node.tr).find(".styled").uniform({ radioClass: 'choice' });
+                //$(".select-search").off("select2:select").on("select2:select", function (e) { $(this).parent().data('value', e.params.data.id); console.log(e); });
+            },
+            activate: function(event, data) {
+                selectedNode = data.node;
+            },
+            select: function(event, data) {
+            },
+            dnd: {
+                preventVoidMoves: true, // Prevent dropping nodes 'before self', etc.
+                preventRecursiveMoves: true, // Prevent dropping nodes on own descendants
+                autoExpandMS: 400,
+                draggable: {
+                    //zIndex: 1000,
+                    // appendTo: "body",
+                    // helper: "clone",
+                    scroll: false,
+                    revert: "invalid"
+                },
+                dragStart: function (node, data) {
+                    if (data.originalEvent.shiftKey) {
+                    }
+                    // allow dragging `node`:
+                    return true;
+                },
+                dragEnter: function (node, data) {
+                    // Prevent dropping a parent below another parent (only sort
+                    // nodes under the same parent)
+                    /* 					if(node.parent !== data.otherNode.parent){
+                                            return false;
+                                        }
+                                        // Don't allow dropping *over* a node (would create a child)
+                                        return ["before", "after"];
+                    */
+                    return true;
+                },
+                dragDrop: function (node, data) {
+                    if (!data.otherNode) {
+                        // It's a non-tree draggable
+                        var title = $(data.draggable.element).text() + " (" + (count)++ + ")";
+                        node.addNode({ title: title }, data.hitMode);
+                        alert('dd');
+                        return;
+                    }
+                    data.otherNode.moveTo(node, data.hitMode);
+                    $(node.tr).data('folder', true);
+
+                }
+            }
+        });
+    }
+
+    function LoadCampaignTemplate(campaignid, isClone)
+    {
+        $.ajax({
+            cache: false,
+            async: false,
+            type: "POST",
+            dataType: "json",
+            url: "@(Url.RouteUrl("getcampaigninfo"))",
+            data: { campaignid: campaignid, xml: $('#xml_template').val(), isClone: isClone },
+            success: function (data) {
+                xmlTpl = data.xml;
+                loadTree(data.items);
+                console.log(data.items);
+            //setTimeout(function () { $('#modal_default').hide(); }, 500);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+
+    function getNodes(tree, parent, parentName, ar)
+    {
+        if (parent.children != null)
+        {
+            if (parent.children.length > 0 && parent.title != parentName)
+            {
+                $tdList = $(parent.tr).find(">td");
+
+                ar.push([]);
+
+                ar[ar.length - 1].push($(parent.tr).data('tplid'));
+                ar[ar.length - 1].push(parent.title);
+                ar[ar.length - 1].push("NONE");
+                ar[ar.length - 1].push("0");
+                ar[ar.length - 1].push("");
+                ar[ar.length - 1].push("");
+                ar[ar.length - 1].push(false);
+                ar[ar.length - 1].push(false);
+                if ($tdList.eq(8).data('name') == "hidden") {
+                    ar[ar.length - 1].push($tdList.eq(8).find("input").is(':checked'));
+                }
+                ar[ar.length - 1].push(false);
+                ar[ar.length - 1].push("");
+                ar[ar.length - 1].push(parentName);
+            }
+
+            for(var i = 0; i < parent.children.length; i++)
+            {
+                if (parent.children[i].children == null || parent.children[i].children.length == 0)
+                {
+                    ar.push([]);
+
+                    ar[ar.length - 1].push($(parent.children[i].tr).data('tplid'));
+
+                    $(parent.children[i].tr).children('td').each(function () {
+                        var value = null;
+
+                        if ($(this).data('name') == "template field") {
+                            value = $(this).find(".fancytree-title").text();
+
+                        }
+                        else
+                            if ($(this).data('name') == "system field" || $(this).data('name') == "validator" || $(this).data('name') == "blacklist") {
+                                value = $(this).find("select").val();
+                                if ($(this).data('name') == "validator") {
+
+                                    $(this).find("select").parent().find("[name^='df_']").each(function () {
+                                        value += ';' + $(this).val();
+                                    });
+
+                                    if (value == null)
+                                    {
+                                        value = "";
+                                    }
+                                }
+                            }
+                            else
+                                if ($(this).data('name') == "comments") {
+                                    value = $(this).find("input").val();
+                                }
+                                else
+                                    if ($(this).data('name') == "required") {
+                                        value = $(this).find("input").is(':checked');
+                                    }
+                                    else
+                                        if ($(this).data('name') == "possible") {
+                                            value = $(this).find("input").val();
+                                        }
+                                        else
+                                            if ($(this).data('name') == "hash") {
+                                                value = $(this).find("input").is(':checked');
+                                            }
+                                            else
+                                                if ($(this).data('name') == "hidden") {
+                                                    value = $(this).find("input").is(':checked');
+                                                }
+                                                else
+                                                    if ($(this).data('name') == "filterable") {
+                                                        value = $(this).find("input").is(':checked');
+                                                    }
+                                                    else
+                                                        if ($(this).data('name') == "filtersettings") {
+                                                            value = $(this).find("button").data('settings');
+                                                        }
+
+                        if (value != null)
+                            ar[ar.length - 1].push(value);
+                    });
+
+                    ar[ar.length - 1].push(parent.title);
+                }
+                else
+                    ar = getNodes(tree, parent.children[i], parent.title, ar);
+            }
+        }
+
+        return ar;
+    }
+
+    var step2Clone = null;
+
+    $(function () {
+
+        $('#filter-settings-save').click(function () {
+
+            var settingJson = '{ "filterType": "' + $('#filter-type').val() + '", "filterTypeValue": "' + $('#filter-type-value').val() + '" }';
+            if (currentFilterSettingsButton != null) {
+                currentFilterSettingsButton.data('settings', settingJson);
+            }
+        });
+
+        $(".styled").uniform({ radioClass: 'choice' });
+
+        $(".form-validation").formwizard({
+            disableUIStyles: true,
+            validationEnabled: true,
+            inDuration: 150,
+            outDuration: 150,
+            validationOptions: {
+                ignore: 'input[type=hidden], .select2-search__field',
+                errorClass: 'validation-error-label',
+                successClass: 'validation-valid-label',
+                highlight: function (element, errorClass) {
+                    $(element).removeClass(errorClass);
+                },
+                unhighlight: function (element, errorClass) {
+                    $(element).removeClass(errorClass);
+                },
+                // Different components require proper error label placement
+                errorPlacement: function (error, element) {
+
+                    // Styled checkboxes, radios, bootstrap switch
+                    if (element.parents('div').hasClass("checker") || element.parents('div').hasClass("choice") || element.parent().hasClass('bootstrap-switch-container')) {
+                        if (element.parents('label').hasClass('checkbox-inline') || element.parents('label').hasClass('radio-inline')) {
+                            error.appendTo(element.parent().parent().parent().parent());
+                        }
+                        else {
+                            error.appendTo(element.parent().parent().parent().parent().parent());
+                        }
+                    }
+                        // Unstyled checkboxes, radios
+                    else if (element.parents('div').hasClass('checkbox') || element.parents('div').hasClass('radio')) {
+                        error.appendTo(element.parent().parent().parent());
+                    }
+
+                        // Input with icons and Select2
+                    else if (element.parents('div').hasClass('has-feedback') || element.hasClass('select2-hidden-accessible')) {
+                        error.appendTo(element.parent());
+                    }
+
+                        // Inline checkboxes, radios
+                    else if (element.parents('label').hasClass('checkbox-inline') || element.parents('label').hasClass('radio-inline')) {
+                        error.appendTo(element.parent().parent());
+                    }
+
+                        // Input group, styled file input
+                    else if (element.parent().hasClass('uploader') || element.parents().hasClass('input-group')) {
+                        error.appendTo(element.parent().parent());
+                    }
+
+                    else {
+                        error.insertAfter(element);
+                    }
+                },
+                rules: {
+                    Email: {
+                        email: true
+                    },
+                    NetworkTargetRevenue: {
+                        number: true
+                    },
+                    NetworkMinimumRevenue: {
+                        number: true
+                    },
+                    Password: {
+                        minlength: 5
+                    },
+                    ConfirmPassword: {
+                        minlength: 5,
+                        equalTo: "#Password"
+                    }
+                }
+            }
+        });
+
+        $(".form-validation").bind("before_step_shown", function (event, data) {
+            if ($("#@Html.FieldIdFor(x => x.CampaignType)").val() == '1')
+            {
+                console.log(event, data);
+            }
+        });
+
+        $(".form-validation").bind("step_shown", function (event, data) {
+            console.log(data);
+
+            if (data.currentStep == "step2")
+            {
+            }
+
+        });
+
+        $('.select').select2();
+
+        $("#@Html.FieldIdFor(x => x.CampaignType)").change(function () {
+            if ($(this).val() == 1) {
+                step2Clone = $('#step2').clone(true);
+                $('#step2').remove();
+            }
+            else
+            {
+                step2Clone.insertAfter('#step1');
+                step2Clone = null;
+            }
+            $(".form-validation").formwizard("update_steps");
+        });
+
+        $("#@Html.FieldIdFor(x => x.VerticalId)").change(function () {
+            var selectedItem = $(this).val();
+
+            var ddlStates = $("#campaigns");
+            var ddlStates2 = $("#campaignstpl");
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@(Url.RouteUrl("GetCampaignsByVerticalId"))",
+                data: { "verticalId": selectedItem },
+                success: function (data) {
+                    ddlStates.html('');
+                    $.each(data, function (id, option) {
+                        ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                    });
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@(Url.RouteUrl("GetCampaignTemplatesByVerticalId"))",
+                data: { "verticalId": selectedItem },
+                success: function (data) {
+                    ddlStates2.html('');
+                    $.each(data, function (id, option) {
+                        ddlStates2.append($('<option></option>').val(option.id).html(option.name));
+                    });
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+        });
+
+        $('#load_template_btn').click(function () {
+
+            $('.modal-body').block({
+                message: '<i class="icon-spinner2 spinner"></i>',
+                overlayCSS: {
+                    backgroundColor: '#1B2024',
+                    opacity: 0.85,
+                    cursor: 'wait'
+                },
+                css: {
+                    border: 0,
+                    padding: 0,
+                    backgroundColor: 'none',
+                    color: '#fff'
+                }
+            });
+
+            xmlTpl = $('#xml_template').val();
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@(Url.RouteUrl("loadfromxml"))",
+                data: { xml: $('#xml_template').val() },
+                success: function (data) {
+                    changed = true;
+                    loadTree(data);
+                    $('.modal-body').unblock();
+                    $('#modal_default').modal('hide');
+                    //setTimeout(function () { $('#modal_default').hide(); }, 500);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    $('.modal-body').unblock();
+                    $('#modal_default').modal('hide');
+                    alert('Error loading XML.');
+                }
+            });
+        });
+
+        $("#campaigns").change(function () {
+            var selectedItem = $(this).val();
+            if (selectedItem > 0)
+                LoadCampaignTemplate(selectedItem, true);
+        });
+
+        $("#campaignstpl").change(function () {
+            var selectedItem = $(this).val();
+            if (selectedItem > 0)
+                LoadCampaignTemplate(selectedItem, true);
+        });
+
+        initTree();
+
+        $('#item-form').on('submit', function (e) {
+            e.preventDefault();
+
+            var sn = null;
+            var lastsn = "";
+
+            tpl = [];
+
+            var tree = $(".tree-table").fancytree("getTree");
+            if (tree.rootNode != undefined) {
+                tpl = getNodes(tree, tree.rootNode, "root", tpl);
+
+                if (tpl.length == 0) {
+                    alert('Campaign template is not defined');
+                    return false;
+                }
+            }
+
+            var tpljson = JSON.stringify(tpl);
+
+            var distrib = [];
+            var djson = JSON.stringify(distrib);
+
+            ShowLoader();
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: "POST",
+                async: true,
+                data: $(this).serialize() + '&json=' + tpljson + '&distrib=' + djson + '&xml=' + xmlTpl + '&changed=true',
+                success: function (data) {
+                    HideLoader();
+                    NotificationPopup('Success', 'Campaign successfully saved');
+
+                    if (data.error != undefined) {
+                        alert(data.error);
+                    }
+                    else {
+                        campaignid = data.id;
+                        window.location = '/management/campaign/item/' + campaignid;
+                    }
+
+                    canRedirect = false;
+                },
+                error: function (jXHR, textStatus, errorThrown) {
+                    HideLoader();
+                }
+            });
+
+            return false;
+        });
+
+    });
+</script>
+
+@using (Html.BeginForm("Item", null, FormMethod.Post, new { @class = "form-validation", id = "item-form" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel registration-form">
+                <div class="panel-body">
+
+                    <div class="text-center">
+                        <h4 class="content-group-lg">
+                            Create campaign
+                        </h4>
+                    </div>
+
+                    <fieldset class="step" id="step1">
+
+                        <h6 class="form-wizard-title text-semibold">
+                            <span class="form-wizard-count">1</span>
+                            <span>General info</span>
+                        </h6>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(x => x.Name)
+                                    @Html.TextBoxFor(x => x.Name, new { @class = "form-control", tabindex = 1, placeholder = "Campaign name", required = "required" })
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    @Html.Label("Status")<br />
+                                    @Html.DropDownList("Status", Model.ListStatus, new { @class = "select", required = "required", style = "width: 100px" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    @Html.Label("Vertical")<br />
+                                    @Html.DropDownListFor(x => x.VerticalId, Model.ListVertical, new { @class = "select", required = "required", style = "width: 170px" })
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="value_div">
+                                    @Html.Label("Network target revenue %", new { id = "option_value" })<br />
+                                    @Html.TextBoxFor(x => x.NetworkTargetRevenue, new { @class = "form-control", tabindex = 1, placeholder = "Network target revenue", required = "required", type = "number", max = 100, min = 0 })<br />
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group" id="revenue_div">
+                                    @Html.Label("Network minimum revenue $")<br />
+                                    @Html.TextBoxFor(x => x.NetworkMinimumRevenue, new { @class = "form-control", tabindex = 1, placeholder = "Network minimum revenue", required = "required", type = "number", max = 100, min = 0 })
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="step" id="step2">
+
+                        <h6 class="form-wizard-title text-semibold">
+                            <span class="form-wizard-count">2</span>
+                            <span>Integration</span>
+                        </h6>
+
+                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#modal_default">Load template (XML) <i class="icon-play3 position-right"></i></button>
+                        <!--<button type="button" id="add_node_dialog" class="btn btn-default btn-sm">Add node<i class="icon-play3 position-right"></i></button>-->
+                        Clone from campaign: <select id="campaigns" style="width: 180px; height: 30px"><option value="0">Select campaign</option></select>
+                        Create from template: <select id="campaignstpl" style="width: 180px; height: 30px"><option value="0" class="form-control">Select campaign template</option></select>
+                        Enable prioritized filters: @Html.CheckBoxFor(x => x.PrioritizedEnabled, new { tabindex = 1, placeholder = "Enable prioritized filters" })
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered tree-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 20px;">#</th>
+                                        <th style="width: 80px;">Campaign field</th>
+                                        <th style="width: 180px;">System field</th>
+                                        <th style="width: 120px;">Data Format</th>
+                                        <th style="width: 200px;">Description</th>
+                                        <th style="width: 150px;">Possible value</th>
+                                        <th style="width: 5px;">Required <input id="required-all-check" type='checkbox' class='styled' /></th>
+                                        <th style="width: 5px;">Hash <input id="hash-all-check" type='checkbox' class='styled' /></th>
+                                        <th style="width: 5px;">Hidden <input id="hidden-all-check" type='checkbox' class='styled' /></th>
+                                        <th style="width: 5px;">Filterable <input id="filter-all-check" type='checkbox' class='styled' /></th>
+                                        <th style="width: 5px;">Filter settings</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </fieldset>
+
+                    <div style="color:red">
+                        @Html.ValidationSummary()
+                    </div>
+
+                    <div class="form-wizard-actions">
+                        <input name="CampaignType" id="CampaignType" type="hidden" value="0" />
+                        <input class="btn btn-default" id="validation-back" value="Back" type="reset">
+                        <input class="btn btn-info" id="validation-next" value="Next" type="submit">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div id="modal_default" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Template</h5>
+            </div>
+
+            <div class="modal-body">
+                <textarea id="xml_template" cols="80" rows="15" style="width: 100%"></textarea>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <button id="load_template_btn" type="button" class="btn btn-primary">Apply</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="filter_settings_modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Template</h5>
+            </div>
+
+            <div class="modal-body">
+                <label>Filter value type</label><br />
+                <select id="filter-type" class="form-control">
+                    <option value="1">Text</option>
+                    <option value="2">Dropdown</option>
+                </select>
+                <br />
+                <label>Filter type content</label><br />
+                <textarea id="filter-type-value" class="form-control"></textarea>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <button id="filter-settings-save" type="button" class="btn btn-success" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>

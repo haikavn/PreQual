@@ -1,0 +1,6 @@
+﻿DataProvider: SQLServer
+DataConnectionString2: Data Source=tcp:dot818us.database.windows.net,1433;Initial Catalog=AdrackDatabaseStress;User ID=grigor;Password=P@ssw0rd;MultipleActiveResultSets=True
+DataConnectionString3: Data Source=tcp:dot818us.database.windows.net,1433;Initial Catalog=AdrackArrowshadeDemo;User ID=grigor;Password=P@ssw0rd;MultipleActiveResultSets=True
+DataConnectionString5: Data Source=prod-rack-lead-db1.database.windows.net,1433;Initial Catalog=Demo;User ID=Prod-Lead-User;Password=P@ssw0rd;MultipleActiveResultSets=True
+DataConnectionString1: Data Source=prod-rack-lead-db1.database.windows.net,1433;Initial Catalog=Leads;User ID=Prod-Lead-User;Password=P@ssw0rd;MultipleActiveResultSets=True
+DataConnectionString: Data Source=DESKTOP-VM8NGB3\SQLEXPRESS;Initial Catalog=Adrack.Database;Integrated Security=True

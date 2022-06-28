@@ -1,0 +1,164 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.Reports.AffiliateReportModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+@using Adrack.Service.Helpers
+
+@{
+    Html.AddPageTitle("Reports of Affiliates");
+    Html.AddPageMetaDescription("Shows Reports of Affiliates");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/ContentManagement/Scripts/plugins/duallistbox.min.js").ToLowerInvariant());
+
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+    var currentUser = this.AppContext.AppUser;
+}
+
+<script src="~/Scripts/core/library/jquery_ui/core.min.js"></script>
+<script src="~/Scripts/core/library/jquery_ui/interactions.min.js"></script>
+<script src="~/Scripts/core/library/jquery_ui/effects.min.js"></script>
+<script src="~/Scripts/plugins/forms/selects/bootstrap_multiselect.js"></script>
+<script src="~/Scripts/plugins/trees/fancytree_all.min.js"></script>
+<script src="~/Scripts/plugins/trees/fancytree_childcounter.js"></script>
+<script src="~/Scripts/plugins/ui/moment/moment.min.js"></script>
+<script src="~/Scripts/plugins/pickers/daterangepicker.js"></script>
+<script src="~/Scripts/plugins/pickers/anytime.min.js"></script>
+<script src="~/Scripts/plugins/pickers/pickadate/picker.js"></script>
+<script src="~/Scripts/plugins/pickers/pickadate/picker.date.js"></script>
+<script src="~/Scripts/plugins/pickers/pickadate/picker.time.js"></script>
+<script src="~/Scripts/plugins/pickers/pickadate/legacy.js"></script>
+<script src="~/Scripts/pages-js/Reports.js"></script>
+
+<script>
+    var affiliateid = @Model.AffiliateId;
+
+    $(document).ready(function () {
+
+        ReportCommon.ready('@Adrack.Web.ContentManagement.Helper.GetTimeZoneStr()', 'affiliate', '@Model.BaseUrl');
+
+        setTimeout(function () {
+            ReportCommon.loadReport('ReportAffiliatesByAffiliateChannels');
+            $(".sortable-column-default").trigger('click');
+        }, 300);
+    });
+</script>
+
+<table class="table-padding">
+    <tr>
+        <td width="250">
+            Range
+        </td>
+        @if (@Model.AffiliateId == 0)
+        {
+            <td>
+                Affiliates
+            </td>
+        }
+        <td></td>
+        <td>Affiliate channels</td><td></td>
+    </tr>
+    <tr>
+        <td>
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+                <input id="startDate" type="text" class="form-control daterange-single" value="">
+            </div>
+        </td>
+        @if (@Model.AffiliateId == 0)
+        {
+            <td>
+                <div class="input-group">
+                    <select id="affiliates" class="multiselect" multiple="multiple">
+                        @foreach (var a in Model.ListAffiliates)
+                        {
+                            <option value="@a.Value" selected="selected">@a.Text</option>
+                        }
+                    </select>
+                </div>
+            </td>
+            <td>
+                <div class="input-group">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-info multiselect-toggle-selection-button" data-selector="affiliates">Deselect All</button>
+                    </div>
+                </div>
+            </td>
+        }
+
+        <td>
+            <div class="input-group">
+                <select id="affiliateChannels" class="multiselect" multiple="multiple">
+                    @foreach (var a in Model.ListAffiliateChannels)
+                    {
+                        <option value="@a.Value" selected="selected">@a.Text</option>
+                    }
+                </select>
+            </div>
+        </td>
+
+        <td>
+            <div class="input-group">
+                <div class="input-group-btn">
+                    <button type="button" class="btn btn-info multiselect-toggle-selection-button" data-selector="affiliateChannels">Deselect All</button>
+                </div>
+            </div>
+        </td>
+
+        <td>
+            <button type="button" id="report-refresh" class="btn btn-info btn-ladda btn-ladda-spinner" data-spinner-color="#fff" data-style="zoom-in"><span class="ladda-label">Refresh</span></button>
+        </td>
+        <td>
+            <button type="button" id="report-download" class="btn btn-info btn-ladda btn-ladda-spinner" data-spinner-color="#fff" data-style="zoom-in"><span class="ladda-label">Download CSV</span></button>
+        </td>
+
+    </tr>
+</table><br />
+
+<div class="tabbable">
+    <ul class="nav nav-tabs nav-tabs-highlight subtabs">
+        @if (permissionService.Authorize(PermissionProvider.AffiliateReportsByAffiliateChannels))
+        {
+            <li class="active"><a href="#reportaffiliatesbyaffiliatechannels-tab" data-toggle="tab">By affiliate channels</a></li>
+        }
+        @if (permissionService.Authorize(PermissionProvider.AffiliateReportsByCampaigns))
+        {
+            <li><a href="#reportaffiliatesbycampaigns-tab" data-toggle="tab">By campaigns</a></li>
+        }
+        @if (permissionService.Authorize(PermissionProvider.AffiliateReportsByStates))
+        {
+            <li><a href="#reportaffiliatesbystates-tab" data-toggle="tab">By states</a></li>
+        }
+
+        <li><a href="#reportclickmain-tab" data-toggle="tab">Clicks</a></li>
+
+    </ul>
+
+    <div class="tab-content" id="reports-tab">
+        @if (permissionService.Authorize(PermissionProvider.AffiliateReportsByAffiliateChannels))
+        {
+            <div class="tab-pane active" id="reportaffiliatesbyaffiliatechannels-tab" data-report="ReportAffiliatesByAffiliateChannels">
+                @{ Html.RenderAction("ReportAffiliatesByAffiliateChannels", "Report"); }
+            </div>
+        }
+        @if (permissionService.Authorize(PermissionProvider.AffiliateReportsByCampaigns))
+        {
+            <div class="tab-pane" id="reportaffiliatesbycampaigns-tab" data-report="ReportAffiliatesByCampaigns">
+                @{ Html.RenderAction("ReportAffiliatesByCampaigns", "Report"); }
+            </div>
+        }
+        @if (permissionService.Authorize(PermissionProvider.AffiliateReportsByStates))
+        {
+            <div class="tab-pane" id="reportaffiliatesbystates-tab" data-report="ReportAffiliatesByStates">
+                @{ Html.RenderAction("ReportAffiliatesByStates", "Report"); }
+            </div>
+        }
+
+        <div class="tab-pane" id="reportclickmain-tab" data-report="ReportClickMain">
+            @{ Html.RenderAction("ReportClickMain", "Report"); }
+        </div>
+
+        <!--<div class="tab-pane" id="reportaffiliatesbyepl-tab" data-report="ReportAffiliatesByEpl">
+        @{ Html.RenderAction("ReportAffiliatesByEpl", "Report"); }
+    </div>-->
+    </div>
+</div>

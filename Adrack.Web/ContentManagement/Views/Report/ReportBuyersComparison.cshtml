@@ -1,0 +1,520 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.Reports.BuyerReportModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+@using Adrack.Service.Helpers
+
+@{
+    Html.AddPageTitle("Reports of Buyers");
+    Html.AddPageMetaDescription("Shows Reports of Buyers");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/ContentManagement/Scripts/plugins/duallistbox.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+    var currentUser = this.AppContext.AppUser;
+    var classActive = "class='active'";
+    var classActive2 = "active";
+
+}
+
+    <script src="~/Scripts/core/library/jquery_ui/core.min.js"></script>
+    <script src="~/Scripts/core/library/jquery_ui/interactions.min.js"></script>
+    <script src="~/Scripts/core/library/jquery_ui/effects.min.js"></script>
+
+    <script src="~/Scripts/plugins/uniform.min.js"></script>
+
+    <script src="~/Scripts/plugins/forms/selects/bootstrap_multiselect.js"></script>
+    <script src="~/Scripts/plugins/trees/fancytree_all.min.js"></script>
+    <script src="~/Scripts/plugins/trees/fancytree_childcounter.js"></script>
+
+    <script src="~/Scripts/plugins/ui/moment/moment.min.js"></script>
+    <script src="~/Scripts/plugins/pickers/daterangepicker.js"></script>
+    <script src="~/Scripts/plugins/pickers/anytime.min.js"></script>
+    <script src="~/Scripts/plugins/pickers/pickadate/picker.js"></script>
+    <script src="~/Scripts/plugins/pickers/pickadate/picker.date.js"></script>
+    <script src="~/Scripts/plugins/pickers/pickadate/picker.time.js"></script>
+    <script src="~/Scripts/plugins/pickers/pickadate/legacy.js"></script>
+
+<style>
+    .td-rr-hidden{
+        display: none
+    }
+</style>
+
+<script>
+    var buyerid = @Model.BuyerId;
+
+    function sortTable(){
+        var rows = $('#ReportBuyersComparison tbody tr').get();
+
+        rows.sort(function(a, b) {
+            var A = parseFloat($(a).children('td').eq(7).text().replace("$", ""));
+            var B = parseFloat($(b).children('td').eq(7).text().replace("$", ""));
+
+            if(A < B) {
+                return -1;
+            }
+
+            if(A > B) {
+                return 1;
+            }
+
+            return 0;
+        });
+
+        $.each(rows, function(index, row) {
+            $('#ReportBuyersComparison').children('tbody').append(row);
+        });
+    }
+
+    function multiselect_selected($el) {
+        var ret = true;
+        $('option', $el).each(function(element) {
+            if (!!!$(this).prop('selected')) {
+                ret = false;
+            }
+        });
+        return ret;
+    }
+    function multiselect_selectAll($el) {
+        $('option', $el).each(function(element) {
+            $el.multiselect('select', $(this).val());
+        });
+    }
+    function multiselect_deselectAll($el) {
+        $('option', $el).each(function(element) {
+            $el.multiselect('deselect', $(this).val());
+        });
+    }
+    function multiselect_toggle($el, $btn) {
+        if (multiselect_selected($el)) {
+            multiselect_deselectAll($el);
+            $btn.text("Select All");
+        }
+        else {
+            multiselect_selectAll($el);
+            $btn.text("Deselect All");
+        }
+    }
+
+    function GetArrowCompare(a, b) {
+        if (a == b) return '';
+        var html = '';
+        html = a < b ?
+            '<span class="text-success-600"> <i class="icon-stats-growth2 position-left"></i> </span>' :
+            '<span class="text-danger"> <i class="icon-stats-decline2 position-left"></i> </span>';
+
+        html += (a > 0 ? Math.round(Math.abs(b - a) / a * 100) : 100) + '%';
+
+        return html;
+    }
+
+    function loadReport(report)
+    {
+        if (report == undefined) return;
+
+        var byBuyer = true;
+
+        var a = $('#buyers').val();
+        if ($('#buyerSelect').val() == "2") {
+            byBuyer = false;
+            a = $('#buyerChannels').val();
+        }
+
+        var ids = buyerid;
+
+        if (a != undefined)
+        {
+            if (a.length > 0)
+                ids += ',';
+            for (var i = 0; i < a.length; i++)
+            {
+                ids += a[i];
+                if (i < a.length - 1)
+                    ids += ',';
+            }
+        }
+
+        var campaignIds = '';
+        a = $('#campaigns').val();
+        if (a != undefined)
+        {
+            for (var i = 0; i < a.length; i++)
+            {
+                campaignIds += a[i];
+                if (i < a.length - 1)
+                    campaignIds += ',';
+            }
+        }
+
+        ShowLoader();
+
+        $.ajax({
+            cache: false,
+            async: false,
+            type: "POST",
+            url: '@Model.BaseUrl' + '/management/report/Get' + report,
+            data: { ids: ids, date1: $('#date1').val(), date2: $('#date2').val(), date3: $('#date3').val(), bybuyers: byBuyer, campaignIds: campaignIds },
+            success: function (data) {
+                HideLoader();
+
+            var value = $('#include-rr').val();
+            var cRejected = '';
+            var cRedirected = '';
+
+            if (value == 0) {
+                cRejected = 'td-rr-hidden';
+                cRedirected = 'td-rr-hidden';
+            }
+            else
+            if (value == 1) {
+                cRejected = '';
+                cRedirected = '';
+            }
+            else
+            if (value == 2) {
+                cRejected = '';
+                cRedirected = 'td-rr-hidden';
+            }
+            else
+            if (value == 3) {
+                cRejected = 'td-rr-hidden';
+                cRedirected = '';
+            }
+
+                //$("#ReportBuyersComparison tbody").find("tr:not(:nth-child(1)):not(:nth-child(2))").remove();
+                $("#ReportBuyersComparison tbody").find("tr").remove();
+                var rows = '';
+
+                for (var i = 0; i < data.length - 1; i++) {
+                    rows += '<tr><td>' + data[i].title + '</td>';
+
+                    rows += '<td>' + data[i].Date1Buyers.Posted + '</td>';
+                    rows += '<td>' + data[i].Date2Buyers.Posted + GetArrowCompare(data[i].Date1Buyers.Posted, data[i].Date2Buyers.Posted)  + '</td>';
+                    rows += '<td>' + data[i].Date3Buyers.Posted + GetArrowCompare(data[i].Date2Buyers.Posted, data[i].Date3Buyers.Posted) + '</td>';
+
+                    rows += '<td>' + data[i].Date1Buyers.Sold + '</td>';
+                    rows += '<td>' + data[i].Date2Buyers.Sold + GetArrowCompare(data[i].Date1Buyers.Sold, data[i].Date2Buyers.Sold) + '</td>';
+                    rows += '<td>' + data[i].Date3Buyers.Sold + GetArrowCompare(data[i].Date2Buyers.Sold, data[i].Date3Buyers.Sold) + '</td>';
+
+                    rows += '<td class="td-rejected ' + cRejected + '">' + data[i].Date1Buyers.Rejected + '</td>';
+                    rows += '<td class="td-rejected ' + cRejected + '">' + data[i].Date2Buyers.Rejected + GetArrowCompare(data[i].Date1Buyers.Rejected, data[i].Date2Buyers.Rejected) + '</td>';
+                    rows += '<td class="td-rejected ' + cRejected + '">' + data[i].Date3Buyers.Rejected + GetArrowCompare(data[i].Date2Buyers.Rejected, data[i].Date3Buyers.Rejected) + '</td>';
+
+                    rows += '<td class="td-redirected ' + cRedirected + '">' + data[i].Date1Buyers.Redirected + '</td>';
+                    rows += '<td class="td-redirected ' + cRedirected + '">' + data[i].Date2Buyers.Redirected + GetArrowCompare(data[i].Date1Buyers.Redirected, data[i].Date2Buyers.Redirected) + '</td>';
+                    rows += '<td class="td-redirected ' + cRedirected + '">' + data[i].Date3Buyers.Redirected + GetArrowCompare(data[i].Date2Buyers.Redirected, data[i].Date3Buyers.Redirected) + '</td>';
+
+                    rows += '<td>' + '$' + data[i].Date1Buyers.Revenue + '</td>';
+                    rows += '<td>' + '$' + data[i].Date2Buyers.Revenue + GetArrowCompare(data[i].Date1Buyers.Revenue, data[i].Date2Buyers.Revenue) + '</td>';
+                    rows += '<td>' + '$' + data[i].Date3Buyers.Revenue + GetArrowCompare(data[i].Date2Buyers.Revenue, data[i].Date3Buyers.Revenue) + '</td>';
+
+                    rows += '</tr>';
+                }
+
+                $("#ReportBuyersComparison tbody").append(rows);
+
+                sortTable();
+
+                rows = '';
+
+               for (var i = data.length - 1; i < data.length; i++) {
+                    rows += '<tr><td><b>' + data[i].title + '</td>';
+
+                    rows += '<td><b>' + data[i].Date1Buyers.Posted + '</b></td>';
+                    rows += '<td><b>' + data[i].Date2Buyers.Posted + GetArrowCompare(data[i].Date1Buyers.Posted, data[i].Date2Buyers.Posted)  + '</b></td>';
+                    rows += '<td><b>' + data[i].Date3Buyers.Posted + GetArrowCompare(data[i].Date2Buyers.Posted, data[i].Date3Buyers.Posted) + '</b></td>';
+
+                    rows += '<td><b>' + data[i].Date1Buyers.Sold + '</td>';
+                    rows += '<td><b>' + data[i].Date2Buyers.Sold + GetArrowCompare(data[i].Date1Buyers.Sold, data[i].Date2Buyers.Sold) + '</b></td>';
+                    rows += '<td><b>' + data[i].Date3Buyers.Sold + GetArrowCompare(data[i].Date2Buyers.Sold, data[i].Date3Buyers.Sold) + '</b></td>';
+
+                    rows += '<td class="td-rejected ' + cRejected + '"><b>' + data[i].Date1Buyers.Rejected + '</b></td>';
+                    rows += '<td class="td-rejected ' + cRejected + '"><b>' + data[i].Date2Buyers.Rejected + GetArrowCompare(data[i].Date1Buyers.Rejected, data[i].Date2Buyers.Rejected) + '</b></td>';
+                    rows += '<td class="td-rejected ' + cRejected + '"><b>' + data[i].Date3Buyers.Rejected + GetArrowCompare(data[i].Date2Buyers.Rejected, data[i].Date3Buyers.Rejected) + '</b></td>';
+
+                    rows += '<td class="td-redirected ' + cRedirected + '"><b>' + data[i].Date1Buyers.Redirected + '</b></td>';
+                    rows += '<td class="td-redirected ' + cRedirected + '"><b>' + data[i].Date2Buyers.Redirected + GetArrowCompare(data[i].Date1Buyers.Redirected, data[i].Date2Buyers.Redirected) + '</b></td>';
+                    rows += '<td class="td-redirected ' + cRedirected + '"><b>' + data[i].Date3Buyers.Redirected + GetArrowCompare(data[i].Date2Buyers.Redirected, data[i].Date3Buyers.Redirected) + '</b></td>';
+
+                    rows += '<td><b>' + '$' + data[i].Date1Buyers.Revenue + '</b></td>';
+                    rows += '<td><b>' + '$' + data[i].Date2Buyers.Revenue + GetArrowCompare(data[i].Date1Buyers.Revenue, data[i].Date2Buyers.Revenue) + '</b></td>';
+                    rows += '<td><b>' + '$' + data[i].Date3Buyers.Revenue + GetArrowCompare(data[i].Date2Buyers.Revenue, data[i].Date3Buyers.Revenue) + '</b></td>';
+
+                    rows += '</tr>';
+                }
+
+                $("#ReportBuyersComparison tbody").append(rows);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                HideLoader();
+            }
+        });
+    }
+
+    $(document).ready(function () {
+
+        $('#include-rr').on('change', function () {
+
+            var value = $(this).val();
+
+            if (value == 0) {
+                $('.td-rejected').addClass('td-rr-hidden');
+                $('.td-redirected').addClass('td-rr-hidden');
+            }
+            else
+            if (value == 1) {
+                $('.td-rejected').removeClass('td-rr-hidden');
+                $('.td-redirected').removeClass('td-rr-hidden');
+            }
+            else
+            if (value == 2) {
+                $('.td-rejected').removeClass('td-rr-hidden');
+                $('.td-redirected').addClass('td-rr-hidden');
+            }
+            else
+            if (value == 3) {
+                $('.td-rejected').addClass('td-rr-hidden');
+                $('.td-redirected').removeClass('td-rr-hidden');
+            }
+
+        });
+
+        $('#include-rr').trigger('change');
+
+        $('#buyerSelect').on('change', function () {
+            if ($(this).val() == "1") {
+                $('#gBuyers').show();
+                $('#gBuyerChannels').hide();
+            }
+            else {
+                $('#gBuyers').hide();
+                $('#gBuyerChannels').show();
+            }
+        });
+
+        $('#date1').pickadate({
+            formatSubmit: 'mm/dd/yyyy',
+            format: 'mm/dd/yyyy',
+            onSet: function (context) {
+                if (this.get().length > 0)
+                $('.ReportBuyersComparison-date1').text(this.get());
+            },
+            onStart: function ()
+            {
+                var date = new Date();
+                this.set('select', date);
+            }
+        });
+
+        $('#date2').pickadate({
+            formatSubmit: 'mm/dd/yyyy',
+            format: 'mm/dd/yyyy',
+            onSet: function (context) {
+                if (this.get().length > 0)
+                $('.ReportBuyersComparison-date2').text(this.get());
+            },
+            onStart: function ()
+            {
+                var date = new Date();
+                date.setDate(date.getDate() - 1);
+                this.set('select', date);
+            }
+        });
+
+        $('#date3').pickadate({
+            formatSubmit: 'mm/dd/yyyy',
+            format: 'mm/dd/yyyy',
+            onSet: function (context) {
+                if (this.get().length > 0)
+                $('.ReportBuyersComparison-date3').text(this.get());
+            },
+            onStart: function ()
+            {
+                var date = new Date();
+                date.setDate(date.getDate() - 21);
+                this.set('select', date);
+            }
+        });
+
+        if ($('.multiselect').length > 0)
+        {
+            $('.multiselect').multiselect({
+                enableCaseInsensitiveFiltering: true,
+                onChange: function () {
+                    //loadReport($('#buyer-reports-tab .tab-pane.active').data('report'));
+                }
+            });
+
+            $(".multiselect-toggle-selection-button").click(function(e) {
+                e.preventDefault();
+                multiselect_toggle($('#' + $(this).data('selector')), $(this));
+                $.uniform.update();
+            });
+        }
+
+        $('.select').select2();
+
+        $('#report-refresh').click(function () {
+            loadReport('ReportBuyersComparison');
+        });
+
+        loadReport('ReportBuyersComparison');
+        //window['initReportBuyersComparison']();
+        //loadReport('ReportBuyersComparison');
+    });
+</script>
+
+<div class="row">
+    <div class="bulk-filter col-md-12">
+        <div class="form-group">
+            <table class="table">
+                <tr>
+                    <td><b>Date 1</b></td>
+                    <td><b>Date 2</b></td>
+                    <td><b>Date 3</b></td>
+                </tr>
+                <tr>
+                    <td>
+                        <input id="date1" type="text" class="form-control" value="">
+                    </td>
+                    <td>
+                        <input id="date2" type="text" class="form-control" value="">
+                    </td>
+                    <td>
+                        <input id="date3" type="text" class="form-control" value="">
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="bulk-filter col-md-12">
+        <table class="table">
+            <tr>
+                @if (@Model.BuyerId == 0)
+                {
+                    <td width="200px">
+                        <b>Buyers</b>
+                    </td>
+                }
+                <td><b>Campaigns</b></td>
+                <td><b>Include</b></td>
+                <td></td>
+            </tr>
+            <tr>
+                @if (@Model.BuyerId == 0)
+                {
+                    <td>
+                        <table>
+                            <tr>
+                                <td>
+                                    <div class="input-group">
+                                        <select id="buyerSelect" class="form-control select">
+                                            <option value="1">Buyers</option>
+                                            <option value="2">Buyer channels</option>
+                                        </select>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div id="gBuyers" class="input-group" style="width: 500px;">
+                                        <select id="buyers" class="multiselect" multiple="multiple">
+                                            @foreach (var a in Model.ListBuyers)
+                                            {
+                                                <option value="@a.Value" selected>@a.Text</option>
+                                            }
+                                        </select>
+                                        <div class="input-group-btn">
+                                            <button type="button" class="btn btn-default multiselect-toggle-selection-button" data-selector="buyers">Deselect All</button>
+                                        </div>
+                                    </div>
+
+                                    <div id="gBuyerChannels" class="input-group" style="display: none; width: 500px;">
+                                        <select id="buyerChannels" class="multiselect" multiple="multiple">
+                                            @foreach (var a in Model.ListBuyerChannels)
+                                            {
+                                                <option value="@a.Value">@a.Text</option>
+                                            }
+                                        </select>
+                                        <div class="input-group-btn">
+                                            <button type="button" class="btn btn-default multiselect-toggle-selection-button" data-selector="buyerChannels">Deselect All</button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                }
+
+                <td>
+                    <div class="input-group">
+                        <select id="campaigns" class="multiselect" multiple="multiple">
+                            @foreach (var a in Model.ListCampaigns)
+                            {
+                                <option value="@a.Value">@a.Text</option>
+                            }
+                        </select>
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default multiselect-toggle-selection-button" data-selector="campaigns">Deselect All</button>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <select id="include-rr" class="form-control">
+                        <option value="0">None</option>
+                        <option value="1">All</option>
+                        <option value="2">Rejected</option>
+                        <option value="3">Redirected</option>
+                    </select>
+                </td>
+                <td>
+                    <button id="report-refresh" class="btn btn-primary">Refresh</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<br>
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <table id="ReportBuyersComparison" class="table table-bordered tree-table">
+                <thead>
+                    <tr>
+                        <td rowspan="2" class="text-center">Company</td>
+                        <td colspan="3" class="text-center">Post leads</td>
+                        <td colspan="3" class="text-center">Sold leads</td>
+                        <td colspan="3" class="text-center td-rejected">Rejected leads</td>
+                        <td colspan="3" class="text-center td-redirected">Redirected leads</td>
+                        <td colspan="3" class="text-center">Revenue</td>
+                    </tr>
+
+                    <tr>
+                        <td><span class="ReportBuyersComparison-date1">Date not selected</span></td>
+                        <td><span class="ReportBuyersComparison-date2">Date not selected</span></td>
+                        <td><span class="ReportBuyersComparison-date3">Date not selected</span></td>
+                        <td><span class="ReportBuyersComparison-date1">Date not selected</span></td>
+                        <td><span class="ReportBuyersComparison-date2">Date not selected</span></td>
+                        <td><span class="ReportBuyersComparison-date3">Date not selected</span></td>
+                        <td class="td-rejected"><span class="ReportBuyersComparison-date1">Date not selected</span></td>
+                        <td class="td-rejected"><span class="ReportBuyersComparison-date2">Date not selected</span></td>
+                        <td class="td-rejected"><span class="ReportBuyersComparison-date3">Date not selected</span></td>
+                        <td class="td-redirected"><span class="ReportBuyersComparison-date1 td-redirected">Date not selected</span></td>
+                        <td class="td-redirected"><span class="ReportBuyersComparison-date2 td-redirected">Date not selected</span></td>
+                        <td class="td-redirected"><span class="ReportBuyersComparison-date3 td-redirected">Date not selected</span></td>
+                        <td><span class="ReportBuyersComparison-date1">Date not selected</span></td>
+                        <td><span class="ReportBuyersComparison-date2">Date not selected</span></td>
+                        <td><span class="ReportBuyersComparison-date3">Date not selected</span></td>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

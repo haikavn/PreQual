@@ -1,0 +1,238 @@
+body {
+  /*background: #12936a !important;*/
+}
+
+.sf-shortform {
+  width: 100%;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  text-align: center;
+  color: #ffffff;
+  padding: 16px 0;
+  min-width: 240px;
+}
+
+.sf-shortform .sf-toLeft {
+  float: left;
+}
+
+.sf-shortform .sf-toRight {
+  float: right;
+}
+
+.sf-shortform .sf-clearfix {
+  overflow: hidden;
+}
+
+.sf-shortform .sf-clear {
+  clear: both;
+}
+
+.sf-shortform a {
+  color: #ffffff;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.sf-shortform a:hover {
+  opacity: 0.7;
+}
+
+.sf-shortform .sf-page-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  padding: 0 12px;
+}
+
+.sf-shortform .sf-tip {
+  font-size: 12px;
+  margin-top: 24px;
+  padding: 0 12px;
+}
+
+.sf-shortform .sf-sbumit-row {
+  margin-top: 24px;
+
+}
+
+.sf-shortform .sf-col {
+  padding: 12px;
+}
+
+.sf-shortform .sf-col-half {
+  width: calc(50% - 24px);
+  padding: 12px;
+  float: left;
+}
+
+.sf-shortform .sf-input-label {
+  line-height: 40px;
+  padding: 0 16px;
+  position: absolute;
+  background: #ffffff;
+  color: #12936a;
+  border-top-left-radius: 7px;
+  border-bottom-left-radius: 7px;
+  margin: 1px;
+  white-space: nowrap;
+  z-index: 1;
+  min-width: 100px;
+  text-align: right;
+}
+
+.sf-shortform input[type="text"],
+.sf-shortform input[type="email"] {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.15);
+  border: solid 1px #ffffff;
+  border-radius: 8px;
+  color: #ffffff;
+  outline: none;
+  height: 42px;
+  line-height: 42px;
+  font-size: 14px;
+  padding-left: 80px;
+  padding-right: 16px;
+  text-align: right;
+}
+
+.sf-shortform input[type="text"].error,
+.sf-shortform input[type="email"].error {
+  border: solid 1px #af3232 !important;
+}
+
+.sf-shortform input[type="text"]::placeholder,
+.sf-shortform input[type="email"]::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.sf-shortform input[type="button"],
+.sf-shortform input[type="submit"] {
+  height: 42px;
+  line-height: 42px;
+  outline: none;
+  padding: 0 32px;
+  border-radius: 26px;
+  background: #ffffff;
+  color: #12936a;
+  cursor: pointer;
+  min-width: 64px;
+  text-transform: uppercase;
+  font-weight: 600;
+  border: solid 1px transparent;
+}
+
+.sf-shortform input[type="button"]:hover,
+.sf-shortform input[type="submit"]:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.sf-shortform .custom-dropdown {
+  position: relative;
+}
+
+.sf-shortform .custom-dropdown select {
+  border: solid 1px #fff;
+  border-radius: 8px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.15);
+  font-size: 14px;
+  position: relative;
+  padding: 0 32px 0 0px;
+  min-width: 62px;
+  height: 42px;
+  outline: none;
+  margin: 0;
+  text-overflow: '';
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+  right: 0;
+  width: 100%;
+  cursor: pointer;
+}
+
+.sf-shortform .custom-dropdown select::-ms-expand {
+  display: none;
+}
+
+.sf-shortform .custom-dropdown select option {
+  color: #000;
+}
+
+.sf-shortform .custom-dropdown::before,
+.sf-shortform .custom-dropdown::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.sf-shortform .custom-dropdown::after {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid #fff;
+  position: absolute;
+  right: 16px;
+  top: 8px;
+}
+
+.sf-shortform .custom-dropdown::after {
+  color: rgba(0, 0, 0, .6);
+}
+
+.sf-shortform.sf-green {
+  color: #12936a;
+}
+
+.sf-shortform.sf-green a {
+  color: #12936a;
+}
+
+.sf-shortform.sf-green .custom-dropdown select {
+  color: #12936a;
+  border-color: #12936a;
+  background-color: rgba(18, 147, 106, 0.07);
+}
+
+.sf-shortform.sf-green .custom-dropdown::after {
+  border-top-color: #12936a;
+}
+
+.sf-shortform.sf-green input[type="text"],
+.sf-shortform.sf-green input[type="email"] {
+  color: #12936a;
+  border-color: #12936a;
+  background-color: rgba(18, 147, 106, 0.07);
+}
+
+.sf-shortform.sf-green .sf-input-label {
+  color: #ffffff;
+  background-color: #12936a;
+}
+
+.sf-shortform.sf-green input[type="button"],
+.sf-shortform.sf-green input[type="submit"] {
+  color: #ffffff;
+  background-color: #12936a;
+}
+
+.sf-shortform.sf-green input[type="button"]:hover,
+.sf-shortform.sf-green input[type="submit"]:hover {
+  background: rgba(18, 147, 106, 0.07);
+  border-color: #12936a;
+  color: #12936a;
+}
+
+@media only screen and (max-width: 480px) {
+  .sf-shortform .sf-col-half {
+    width: auto;
+    padding: 8px 16px;
+    float: none;
+  }
+}

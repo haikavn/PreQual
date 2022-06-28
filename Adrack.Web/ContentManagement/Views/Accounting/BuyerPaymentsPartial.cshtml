@@ -1,0 +1,45 @@
+﻿@model Adrack.Web.ContentManagement.Models.Accounting.BuyerPaymentModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    Html.AddPageTitle(T("PageTitle.Register").Text);
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+}
+@{
+    ViewBag.Title = "BuyerPayments";
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+}
+<hr>
+<h2>Payments</h2>
+<br />
+<div id="GridViewPayments"></div>
+<script>
+    var dataParam2 = "?datefrom=" + $('.daterange-from-inv').val() + "&dateto=" + $('.daterange-to-inv').val() + "&buyerid=" + @ViewBag.EntityId;
+    GenerateGridTable("GridViewPayments", "/Management/Accounting/GetBuyerPayments" + dataParam2, "ID, Payment Date, Amount, Payment Method, Note, Created");
+</script>
+
+<script type="text/javascript" src="~/Scripts/plugins/ui/moment/moment.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/daterangepicker.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/anytime.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/pickadate/picker.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/pickadate/picker.date.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/pickadate/picker.time.js"></script>
+
+<script type="text/javascript" src="~/Scripts/plugins/forms/selects/select2.min.js"></script>
+
+<style>
+    .daterangepicker.dropdown-menu {
+        z-index: 2000;
+    }
+</style>
+
+<script>
+    $(function () {
+        $("#InvoiceRefresh").click(function () {
+            var dataParam2 = "?datefrom=" + $('.daterange-from-inv').val() + "&dateto=" + $('.daterange-to-inv').val() + "&buyerid=" + @ViewBag.EntityId;
+            GenerateGridTable("GridViewPayments", "/Management/Accounting/GetBuyerPayments" + dataParam2, "ID, Payment Date, Amount, Payment Method, Note, Created");
+        });
+    });
+</script>

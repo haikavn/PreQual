@@ -1,0 +1,253 @@
+﻿@{
+    Layout = "~/Views/Shared/_Master.Layout.cshtml";
+    Html.AddPageTitle(T("PageTitle.Post Specification").Text);
+}
+
+@model Adrack.Web.ContentManagement.Models.Lead.AffiliateChannelModel
+
+<div class="tab-pane" id="posting-tab">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+            <h5 class="panel-title">Protocol Details</h5>
+            <div class="heading-elements">
+                <ul class="icons-list">
+                    <li><a data-action="collapse"></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <div class="content">
+                <table class="table">
+                    <tr>
+                        <td width="180px"><b>Request Format:</b></td>
+                        <td><code>HTTPS POST</code></td>
+                    </tr>
+                    <tr>
+                        <td><b>Request Service:</b></td>
+                        <td><code>@ViewBag.postingurl@Html.Raw("Import/")</code></td>
+                    </tr>
+                    <tr>
+                        <td><b>ChannelID:</b></td>
+                        <td><code>@ViewBag.CHANNELID</code></td>
+                    </tr>
+                    <tr>
+                        <td><b>Password:</b></td>
+                        <td><code>@ViewBag.PASSWORD</code></td>
+                    </tr>
+                    <tr>
+                        <td><b>Response Format:</b></td>
+                        <td><code>XML 1.0</code></td>
+                    </tr>
+                    <tr>
+                        <td><b>Response Encodingtd:</b></td>
+                        <td><code>UTF-8</code></td>
+                    </tr>
+                    <tr>
+                        <td><b>Tech Contact:</b></td>
+                        <td><code>support@adrack.com</code></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+            <h5 class="panel-title">Sample PHP codes</h5>
+            <div class="heading-elements">
+                <ul class="icons-list">
+                    <li><a data-action="collapse"></a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <div class="col-md-6">
+                <div class="table-responsive">
+                    <div class="content">
+                        <p class="text-bold">PHP sample 1</p>
+                        <pre class="language-markup content-group">
+<code>&lt;?php
+    $url = &quot;https://post.adrack.com/Import/&quot;; //POST URL
+    $file = &quot;/home/user/example.xml&quot;; //full path to xml file
+    $ch = curl_init();
+    if (!$ch) {
+            die(&quot;Couldn't initialize a cURL handle&quot;);
+        }
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, array(&quot;Lead[xml]&quot; =&gt; &quot;$file&quot;));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    curl_close($ch);
+?&gt;</code>
+                                            </pre>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="table-responsive">
+                    <div class="content">
+                        <p class="text-bold">PHP sample 2</p>
+                        <pre class="language-markup content-group">
+<code>&lt;?php
+    function do_post_request($url, $fildName, $pathFile = null) {
+        if (is_file($pathFile))
+            $fileContents = file_get_contents($pathFile);
+        else
+            throw new Exception(&quot;Problem with $pathFile&quot;);
+        $boundary = &quot;---------------------&quot; . substr(md5(rand(0, 32000)), 0, 10);
+        $data = &quot;--$boundary\n&quot;;
+        $data .= &quot;Content-Disposition: form-data; name=\&quot;{$fildName}\&quot;; filename=\&quot;tempfname\&quot;\n&quot;;
+        $data .= &quot;Content-Type: text/xml\n&quot;;
+        $data .= &quot;Content-Transfer-Encoding: binary\n\n&quot;;
+        $data .= $fileContents . &quot;\n&quot;;
+        $data .= &quot;--$boundary--\n&quot;;
+        $params = array(&quot;http&quot; =&gt; array(
+                &quot;method&quot; =&gt; &quot;POST&quot;,
+                &quot;header&quot; =&gt; &quot;Content-Type: multipart/form-data; boundary=&quot; . $boundary,
+                &quot;content&quot; =&gt; $data
+        ));
+        $ctx = stream_context_create($params);
+        $fp = fopen($url, &quot;rb&quot;, false, $ctx);
+        if (!$fp) {
+            throw new Exception(&quot;Problem with $url, $php_errormsg&quot;);
+        }
+        $response = stream_get_contents($fp);
+        if ($response === false) {
+            throw new Exception(&quot;Problem reading data from $url, $php_errormsg&quot;);
+        }
+        return $response;
+    }
+    $pathFile = &quot;/home/user/example.xml&quot;;//full path to xml file
+    $fildName = &quot;Lead[xml]&quot;;// IMPORTANT !!!
+    $url = &quot;https://post.adrack.com/Import/&quot;; //POST URL
+    $response = do_post_request($url, $fildName, $pathFile);
+?&gt;</code>
+                                            </pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!---->
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+            <h5 class="panel-title">Lead Import XML Example. Can be used for testing.</h5>
+            <div class="heading-elements">
+                <ul class="icons-list">
+                    <li><a data-action="collapse"></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <div class="content">
+
+                <textarea id="XmlTemplateText" rows="25" style="width:100%" readonly>
+@(ViewBag.Campaign != null ? ViewBag.XmlTemplate : "")
+                </textarea>
+            </div>
+        </div>
+    </div>
+
+    <!---->
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+            <h5 class="panel-title">Request Fields (Description and data format)</h5>
+            <div class="heading-elements">
+                <ul class="icons-list">
+                    <li><a data-action="collapse"></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <div class="content">
+
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th><p class="text-center">Description</p></th>
+                                <th><p class="text-center">Type</p></th>
+                                <th><p class="text-center">Format</p></th>
+                                <th><p class="text-center">Status</p></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (Adrack.Web.ContentManagement.Controllers.AffiliateChannelController.LocalCampaignTemplate ct in ViewBag.CampaignTemplateList)
+                            {
+                                if (ct.TemplateField.ToLower() == "request" ||
+                                    ct.TemplateField.ToLower() == "referral" ||
+                                    ct.TemplateField.ToLower() == "customer" ||
+                                    ct.TemplateField.ToLower() == "personalinfo" ||
+                                    ct.TemplateField.ToLower() == "bankinfo")
+                                {
+                                    continue;
+                                }
+
+                                string[] format = ct.Format.Split(new char[1] { '#' });
+
+                                if (format[0].ToLower() == "date of birth")
+                                {
+                                    format[0] = "Date";
+                                }
+
+                                <tr>
+                                    <td><p class="text-center">@ct.TemplateField</p></td>
+                                    <td><p class="text-center">@ct.Description</p></td>
+                                    <td><p class="text-center">@format[0]</p></td>
+                                    <td>
+                                        <p class="text-center">
+                                            @if (format.Length > 1)
+                                            {
+                                                @Html.Raw(format[1])
+                                            }
+                                            else
+                                            {
+                                                @Html.Raw("Undefined")
+                                            }
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <p class="text-center">
+                                            @if (ct.Required == true)
+                                            { <span>Required</span> }
+                                            @if (ct.Required == false)
+                                            { <span>Optional</span> }
+                                        </p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+            <h5 class="panel-title">Sample response</h5>
+            <div class="heading-elements">
+                <ul class="icons-list">
+                    <li><a data-action="collapse"></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <div class="content">
+                <pre class="language-markup content-group">
+                    <code><b>Sold:</b> <br />&lt;response&gt;<br />&nbsp; &lt;id&gt;0001&lt;/id&gt;<br />&nbsp; &lt;status&gt;sold&lt;/status&gt;<br />&nbsp; &lt;message&gt;&lt;/message&gt;<br />&nbsp; &lt;price&gt;0.5&lt;/price&gt;<br />&nbsp; &lt;redirect&gt;&lt;![CDATA[]]&gt;&lt;/redirect&gt;<br />&lt;/response&gt;<br />
+                    <b>Reject:</b><br />&lt;response&gt;<br />&nbsp; &lt;id&gt;0&lt;/id&gt;<br />&nbsp; &lt;status&gt;reject&lt;/status&gt;<br />&nbsp; &lt;message&gt;lead was not sold in marketplace&lt;/message&gt;<br />&nbsp; &lt;price&gt;&lt;/price&gt;<br />&nbsp; &lt;redirect&gt;&lt;/redirect&gt;<br />&lt;/response&gt;<br /><br />
+                    <b>Error:</b><br />&lt;response&gt;<br />&nbsp; &lt;id&gt;0&lt;/id&gt;<br />&nbsp; &lt;status&gt;error&lt;/status&gt;<br />&nbsp; &lt;message&gt;error message here&lt;/message&gt;<br />&nbsp; &lt;price&gt;&lt;/price&gt;<br />&nbsp; &lt;redirect&gt;&lt;/redirect&gt;<br />&lt;/response&gt;<br /><br />
+                    <b>Test:</b><br />&lt;response&gt;<br />&nbsp; &lt;id&gt;0&lt;/id&gt;<br />&nbsp; &lt;status&gt;test&lt;/status&gt;<br />&nbsp; &lt;message&gt;message on lead quality&lt;/message&gt;<br />&nbsp; &lt;price&gt;1&lt;/price&gt;<br />&nbsp; &lt;redirect&gt;&lt;![CDATA[]]&gt;&lt;/redirect&gt;<br />&lt;/response&gt;
+                    </code>
+                </pre>
+            </div>
+        </div>
+    </div>
+</div>

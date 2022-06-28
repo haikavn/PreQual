@@ -1,0 +1,524 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.CampaignModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    Html.AddPageTitle("Campaign");
+    Html.AddPageMetaDescription("Shows selected Campaign");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/ContentManagement/Scripts/common.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/ContentManagement/Scripts/campaign.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/core.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/effects.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/uniform.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switchery.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_all.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_childcounter.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/loaders/blockui.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/extensions/buttons.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/extensions/select.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/extensions/row_reorder.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/extensions/responsive.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/json2.js").ToLowerInvariant());
+
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+}
+
+<script src="~/Scripts/pages-js/CampaignList.js"></script>
+
+<script>
+    var pingTable;
+    var pingTreeList;
+
+    function insertAt(ar, index, item) {
+        var newAr = [];
+        console.log(newAr);
+        for (var i = 0; i <= index - 1; i++) {
+            console.log(ar[i]);
+            newAr.push(ar[i]);
+        }
+
+        newAr.push(item);
+        newAr.push(ar[index]);
+
+
+        for (var i = index + 1; i < ar.length; i++) {
+            newAr.push(ar[i]);
+        }
+
+        return newAr;
+    }
+
+    function distrib_sort(e, index, event, onchange, id)
+    {
+        if (!onchange && event.keyCode != 13) {
+            return;
+        }
+
+        console.log(index);
+
+        var orderNum = $(e).val();
+
+        if (isNaN(orderNum)) {
+            orderNum = 0;
+            $(e).val('0');
+        }
+
+        var tableRow = pingTable.row(index);
+        var rowdata = tableRow.data();
+
+        pingTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
+            var data = this.data();
+            if (data['id'] == id) {
+                rowdata = data;
+            }
+        });
+
+        if (rowdata['fixed']) return;
+
+        rowdata['row'] = orderNum;
+        rowdata['order'] = orderNum;
+
+        pingTable.rows().invalidate().draw();
+        pingTable
+            .order([0, 'asc'])
+            .draw();
+
+        AdrackCampaign.pingTreeList = [];
+
+        pingTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
+            var data = this.data();
+            AdrackCampaign.pingTreeList.push({ id: data['id'], order: data['order'], fixed: data['fixed'], rate: data['rate'] });
+        });
+    }
+
+    function distrib_rate(e, index, event, onchange, id) {
+        if (!onchange && event.keyCode != 13) {
+            return;
+        }
+
+        var rate = $(e).val();
+
+        if (isNaN(rate)) {
+            rate = 1;
+            $(e).val('0');
+        }
+
+        var tableRow = pingTable.row(index);
+        var rowdata = tableRow.data();
+
+        rowdata['rate'] = rate;
+
+        pingTable.rows().invalidate().draw();
+        pingTable
+            .order([0, 'asc'])
+            .draw();
+
+        AdrackCampaign.pingTreeList = [];
+
+        pingTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
+            var data = this.data();
+            AdrackCampaign.pingTreeList.push({ id: data['id'], order: data['order'], fixed: data['fixed'], rate: data['rate'] });
+        });
+    }
+
+    function fixedChanged(e, id, index)
+    {
+        $('#bcorder-' + id).prop('readonly', $(e).is(":checked"));
+        var tableRow = pingTable.row(index);
+        var rowdata = tableRow.data();
+
+        rowdata['fixed'] = $(e).is(":checked");
+
+        pingTable.rows().invalidate().draw();
+        pingTable
+            .order([0, 'asc'])
+            .draw();
+
+        AdrackCampaign.pingTreeList = [];
+
+        pingTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
+            var data = this.data();
+            AdrackCampaign.pingTreeList.push({ id: data['id'], order: data['order'], fixed: data['fixed'], rate: data['rate'] });
+        });
+    }
+
+    var editor;
+
+    $(document).ready(function () {
+        $('#filter-settings-save').click(function () {
+            var settingJson = '{ "filterType": "' + $('#filter-type').val() + '", "filterTypeValue": "' + $('#filter-type-value').val() + '" }';
+            if (AdrackCampaign.currentFilterSettingsButton != null) {
+                AdrackCampaign.currentFilterSettingsButton.data('settings', settingJson);
+            }
+        });
+
+        $(".styled").uniform({ radioClass: 'choice' });
+
+        pingTable = $('#buyer_channels').DataTable({
+            ajax: '/GetBuyerChannels?o=1&deleted=0&Params=@Model.CampaignId',
+            columns: [
+                {
+                    data: 'row', render: function (data, type, row) {
+                        return '<b>' + data + '</b>';
+                    }
+                },
+                {
+                    data: 'order', render: function (data, type, row, meta) {
+                        return '<input id="bcorder-' + row.id + '" type="number" min="0" class="form-control" value="' + data + '" onkeyup="distrib_sort(this, ' + meta.row + ', event, false, ' + row.id + ')"  onchange="distrib_sort(this, ' + meta.row + ', event, true, ' + row.id + ')" data-id="' + row.id + '">';
+                    }
+                },
+                {
+                    data: 'rate', render: function (data, type, row, meta) {
+                        return '<input id="bcrate-' + row.id + '" type="number" min="0" class="form-control" value="' + data + '" onkeyup="distrib_rate(this, ' + meta.row + ', event, false, ' + row.id + ')" onchange="distrib_rate(this, ' + meta.row + ', event, true, ' + row.id + ')" data-id="' + row.id + '">';
+                    }
+                },
+                {
+                    data: 'name'
+                },
+                {
+                    data: 'status'
+                },
+                {
+                    data: 'bprice'
+                },
+                {
+                    data: 'buyerPriceOption', render: function (data, type, row, meta) {
+                        return data == 0 ? 'Fixed' : 'Dynamic';
+                    }
+                },
+                {
+                    data: 'isfixed', render: function (data, type, row, meta) {
+                        if (row.fixed)
+                            return '<input id="fx-' + row.id + '" type="checkbox" checked onchange="fixedChanged(this,' + row.id + ', ' + meta.row + ')">';
+                        else
+                            return '<input id="fx-' + row.id + '" type="checkbox" onchange="fixedChanged(this,' + row.id + ', ' + meta.row + ')">';
+                    }
+                }
+            ],
+            columnDefs: [
+                { orderable: true, targets: [0, 1, 2, 3, 4, 5, 6] },
+                { targets: [0], visible: false },
+                { className: "text-center", targets: [0, 1, 2, 3, 4, 5, 6] },
+                { width: "5px", "targets": 0 },
+                { width: "5px", "targets": 1 },
+                { width: "5px", "targets": 2 },
+                { width: "30px", "targets": 3 },
+                { width: "30px", "targets": 4 },
+                { width: "30px", "targets": 5 },
+                { width: "30px", "targets": 6 },
+                { width: "30px", "targets": 7 }
+            ],
+            select: true,
+            paging: false,
+            autoWidth: false,
+            searching: true
+        });
+
+        $("#buyer_channels tr td:first-child").hide();
+
+        @foreach (var item in Model.ListSystemField)
+        {
+            @: AdrackCampaign.addSystemField('@item.Text', '@item.Text');
+        }
+
+        @foreach(var item in Model.ListDataType)
+        {
+            @: AdrackCampaign.addDataType('@item.Text', '@item.Value');
+        }
+
+        @foreach (var item in Model.ListBlackListType)
+        {
+            @: AdrackCampaign.addDataType('@item.Text', '@item.Value');
+        }
+
+        AdrackCampaign.init(@Model.CampaignId, "@(Url.RouteUrl("getcampaigninfo"))", "@(Url.RouteUrl("GetCampaignsByVerticalId"))", "@(Url.RouteUrl("GetCampaignTemplatesByVerticalId"))", "@(Url.RouteUrl("loadfromxml"))", false);
+    });
+</script>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-validation", id = "item-form" }))
+{
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+            <h5 class="panel-title">@Html.Raw(@Model.Name + " / " + @Model.CampaignId.ToString())</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="tabbable">
+                <ul class="nav nav-tabs nav-tabs-highlight">
+                    <li class="active"><a id="tab-main" class="general-tab" href="#general-tab" data-toggle="tab">General</a></li>
+                    @if (Model.CampaignType == 0)
+                    {
+                        <li><a class="integration-tab" href="#integration-tab" data-toggle="tab">Integration</a></li>
+                    }
+                    <li><a class="filters-tab" href="#filters-tab" data-toggle="tab">Filter sets</a></li>
+                    @if (permissionService.Authorize(PermissionProvider.CampaignsBuyerChannelsView))
+                    {
+                        <li><a class="buyers-tab" href="#buyers-tab" data-toggle="tab">Buyer channels / ping tree</a></li>
+                    }
+                    @if (permissionService.Authorize(PermissionProvider.CampaignsAffiliateChannelsView))
+                    {
+                        <li><a class="affiliates-tab" href="#affiliates-tab" data-toggle="tab">Affiliate channels</a></li>
+                    }
+                    <li><a href="#history-tab" data-toggle="tab" class="tab-link">History</a></li>
+                </ul>
+
+                <div class="tab-content panel-body">
+                    <div class="tab-pane active" id="general-tab">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(x => x.Name)
+                                    @Html.TextBoxFor(x => x.Name, new { @class = "form-control", tabindex = 1, placeholder = "Campaign name", required = "required" })
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    @Html.Label("Status")<br />
+                                    @Html.DropDownList("Status", Model.ListStatus, new { @class = "select", required = "required", style = "width: 100px" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    @Html.Label("Vertical")<br />
+                                    @Html.DropDownList("VerticalId", Model.ListVertical, new { @class = "select", required = "required", style = "width: 170px" })
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group" id="value_div">
+                                    @Html.Label("Dafault Network target revenue %", new { id = "option_value" })<br />
+                                    @Html.TextBoxFor(x => x.NetworkTargetRevenue, new { @class = "form-control", tabindex = 1, placeholder = "Default Network target revenue", required = "required" })<br />
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group" id="revenue_div">
+                                    @Html.Label("Default Network minimum revenue $")<br />
+                                    @Html.TextBoxFor(x => x.NetworkMinimumRevenue, new { @class = "form-control", tabindex = 1, placeholder = "Default Network minimum revenue", required = "required" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (Model.CampaignType == 0)
+                    {
+                        <div class="tab-pane" id="integration-tab">
+                            @if (Model.CampaignId == 0)
+                            {
+                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#modal_default">Load template (XML) <i class="icon-play3 position-right"></i></button>
+                                <span>Clone from campaign:</span> <select id="campaigns" style="width: 150px; height: 20px"><option value="0">Select campaign</option></select>
+                                <span>Create from template:</span> <select id="campaignstpl" style="width: 150px;  height: 20px"><option value="0">Select campaign template</option></select>
+                            }
+                            Enable prioritized filters: @Html.CheckBoxFor(x => x.PrioritizedEnabled, new { tabindex = 1, placeholder = "Enable prioritized filters" })
+                            <!--<button type="button" id="add_node_dialog" class="btn btn-default btn-sm">Add node<i class="icon-play3 position-right"></i></button>-->
+                            <br>
+                            @*<button type="button" class="btn btn-default btn-sm" onclick="window.location.href = '/Management/Campaign/Form/@Model.CampaignId';">Generate HTML form <i class="icon-play3 position-right"></i></button>*@
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered tree-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 20px;">#</th>
+                                            <th style="width: 80px;">Campaign field</th>
+                                            <th style="width: 180px;">System field</th>
+                                            <th style="width: 150px;">Data Format</th>
+                                            <th style="width: 200px;">Description</th>
+                                            <th style="width: 150px;">Possible value</th>
+                                            <th style="width: 5px;">Required <input id="required-all-check" type='checkbox' class='styled' /></th>
+                                            <th style="width: 5px;">Hash <input id="hash-all-check" type='checkbox' class='styled' /></th>
+                                            <th style="width: 5px;">Hidden <input id="hidden-all-check" type='checkbox' class='styled' /></th>
+                                            <th style="width: 5px;">Filterable <input id="filter-all-check" type='checkbox' class='styled' /></th>
+                                            <th style="width: 5px;">Filter settings</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+
+                    @if (permissionService.Authorize(PermissionProvider.CampaignsBuyerChannelsView))
+                    {
+                        <div class="tab-pane" id="buyers-tab">
+
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        @Html.Label("Ping tree leads distribution period")<br />
+                                        @Html.DropDownList("PingTreeCycle", Model.ListPingTreeCycle, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (permissionService.Authorize(PermissionProvider.CampaignsBuyerChannelsModify))
+                            {
+                                <button id="add_new_buyer" type="button" class="btn btn-success btn-sm">
+                                    <i class="icon-add-to-list position-left"></i>Add buyer channel
+                                </button><br>
+                            }
+
+                            <table id="buyer_channels" class="table datatable-row-events" style="width: 60% !important">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Order</th>
+                                        <th>Accept leads(%)</th>
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                        <th>Buyer price</th>
+                                        <th>Buyer price option</th>
+                                        <th>Fixed</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    }
+
+                    @if (permissionService.Authorize(PermissionProvider.CampaignsAffiliateChannelsView))
+                    {
+                        <div class="tab-pane" id="affiliates-tab">
+                            @if (permissionService.Authorize(PermissionProvider.CampaignsAffiliateChannelsModify))
+                            {
+                                <button id="add_new_affiliate" type="button" class="btn btn-success btn-sm">
+                                    <i class="icon-add-to-list position-left"></i>Add affiliate channel
+                                </button><br>
+                            }
+                            <div id="affiliate_channels"></div>
+                            <script>
+                            GenerateGridTable("affiliate_channels", "/GetAffiliateChannels", "ID, Key, Name, Affiliate, Campaign, Status", null, null, null, "@Model.CampaignId");
+                            </script>
+                        </div>
+                    }
+
+                    <div class="tab-pane" id="filters-tab">
+                        <button id="add_new_filter" type="button" class="btn btn-success btn-sm" @if (Model.CampaignId == 0) { Html.Raw("disabled"); }>
+                            <i class="icon-add-to-list position-left"></i>Add filter set
+                        </button>
+                        <br />
+
+                        <div id="filtersGridView"></div>
+                        <script>
+                            GenerateGridTable("filtersGridView", "/GetFilters", "ID, Name, Campaign, Action", null, null, null, @Model.CampaignId);
+                        </script>
+                    </div>
+
+                    <div class="tab-pane panel-body" id="history-tab">
+                        @{ Html.RenderAction("IndexPartial", "History", new { id = Model.CampaignId, entity = "Campaign" }); }
+                    </div>
+
+
+                </div>
+            </div>
+
+            <div style="color:red">
+                @Html.ValidationSummary()
+            </div>
+
+            <div class="text-right">
+                <input name="CampaignType" id="CampaignType" type="hidden" value="@Model.CampaignType" />
+                <input type="hidden" name="campaignid" id="campaignid" value="@Model.CampaignId" />
+                <a href="#" class="btn btn-default" data-close="2" onclick="history.go(-1);">Close <i class="icon-cross position-right"></i></a>
+                <button id="btnSubmitClose" type="submit" class="btn btn-primary" data-close="1">Save and close <i class="icon-arrow-right14 position-right"></i></button>
+                <button id="btnSubmit" type="submit" class="btn btn-success" data-close="0">Save <i class="icon-arrow-right14 position-right"></i></button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Basic modal -->
+<div id="modal_default" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Template</h5>
+            </div>
+
+            <div class="modal-body">
+                <textarea id="xml_template" cols="80" rows="15"></textarea>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <button id="load_template_btn" type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal_add_node" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Field name</h5>
+            </div>
+
+            <div class="modal-body">
+                <input id="node_name" type="text" class="form-control" />
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <button id="add_node_btn" type="button" class="btn btn-primary">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /basic modal -->
+
+<div id="filter_settings_modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Template</h5>
+            </div>
+
+            <div class="modal-body">
+                <label>Filter value type</label><br />
+                <select id="filter-type" class="form-control">
+                    <option value="1">Text</option>
+                    <option value="2">Dropdown</option>
+                </select>
+                <br />
+                <label>Filter type content</label><br />
+                <textarea id="filter-type-value" class="form-control"></textarea>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <button id="filter-settings-save" type="button" class="btn btn-success" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>

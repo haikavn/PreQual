@@ -1,0 +1,226 @@
+﻿@model ProfileModel
+
+@using Adrack.Service.Helpers
+
+@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+
+    Html.AddPageTitle("User Profile");
+    Html.AddPageMetaDescription(" ");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/core.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/form.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/form.wizard.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/uniform.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/blockui.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/validate.min.js").ToLowerInvariant());
+
+    var currentUser = this.AppContext.AppUser;
+}
+
+<script>
+    $(document).ready(function () {
+
+        $("#change-password-form").formwizard({
+            disableUIStyles: true,
+            validationEnabled: true,
+            inDuration: 150,
+            outDuration: 150,
+            validationOptions: {
+                ignore: 'input[type=hidden], .select2-search__field', // ignore hidden fields
+                errorClass: 'validation-error-label',
+                successClass: 'validation-valid-label',
+                highlight: function (element, errorClass) {
+                    $(element).removeClass(errorClass);
+                },
+                unhighlight: function (element, errorClass) {
+                    $(element).removeClass(errorClass);
+                },
+
+                // Different components require proper error label placement
+                errorPlacement: function (error, element) {
+
+                    // Styled checkboxes, radios, bootstrap switch
+                    if (element.parents('div').hasClass("checker") || element.parents('div').hasClass("choice") || element.parent().hasClass('bootstrap-switch-container')) {
+                        if (element.parents('label').hasClass('checkbox-inline') || element.parents('label').hasClass('radio-inline')) {
+                            error.appendTo(element.parent().parent().parent().parent());
+                        }
+                        else {
+                            error.appendTo(element.parent().parent().parent().parent().parent());
+                        }
+                    }
+
+                    // Unstyled checkboxes, radios
+                    else if (element.parents('div').hasClass('checkbox') || element.parents('div').hasClass('radio')) {
+                        error.appendTo(element.parent().parent().parent());
+                    }
+
+                    // Input with icons and Select2
+                    else if (element.parents('div').hasClass('has-feedback') || element.hasClass('select2-hidden-accessible')) {
+                        error.appendTo(element.parent());
+                    }
+
+                    // Inline checkboxes, radios
+                    else if (element.parents('label').hasClass('checkbox-inline') || element.parents('label').hasClass('radio-inline')) {
+                        error.appendTo(element.parent().parent());
+                    }
+
+                    // Input group, styled file input
+                    else if (element.parent().hasClass('uploader') || element.parents().hasClass('input-group')) {
+                        error.appendTo(element.parent().parent());
+                    }
+
+                    else {
+                        error.insertAfter(element);
+                    }
+                },
+                rules: {
+                    NewPassword: {
+                        minlength: 8,
+                        maxlength: 30
+                    },
+                    ConfirmNewPassword: {
+                        minlength: 8,
+                        equalTo: "#NewPassword"
+                    }
+                }
+            }
+        });
+
+        setTimeout(function () {
+            $('.btn-info').removeAttr('disabled');
+            $('.btn-info').val('Submit');
+        }, 10);
+    });
+</script>
+
+<br>
+@if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+{
+    <a href="/Management/Home/Dashboard"><b>< Back to Dashboard</b></a>
+}
+
+@if (currentUser.UserTypeId == SharedData.BuyerUserTypeId)
+{
+    <a href="/Management/Buyer/Dashboard"><b>< Back to Dashboard</b></a>
+}
+
+@if (currentUser.UserTypeId == SharedData.AffiliateUserTypeId)
+{
+    <a href="/Management/Affiliate/Dashboard"><b>< Back to Dashboard</b></a>
+}
+
+<br><br>
+<div class="tabbable">
+    <ul class="nav nav-tabs nav-tabs-highlight">
+        <li class="active"><a href="#info-tab" data-toggle="tab">Information</a></li>
+        <li><a href="#change-password-tab" data-toggle="tab">Change Password</a></li>
+        <li><a href="#menu-type-tab" data-toggle="tab">Menu type</a></li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane active" id="info-tab">
+            @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-validation", enctype = "multipart/form-data" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group has-feedback">
+                            @Html.Label("First name")<br />
+                            @Html.TextBoxFor(x => x.FirstName, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, required = "required" })
+                        </div>
+                        <div class="form-group has-feedback">
+                            @Html.Label("Last name")<br />
+                            @Html.TextBoxFor(x => x.LastName, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, required = "required" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        @Html.Label("Profile image")<br />
+                        <input type="file" class="file-styled" name="ProfileImage">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <br />
+                </div>
+
+                <div style="color:red; text-align:left">
+                    @Model.Result
+                </div>
+
+                <div class="text-left">
+                    @Html.HiddenFor(x => x.Id)
+                    @Html.HiddenFor(x => x.UserId)
+                    <input value="Submit" type="submit" class="btn btn-info">
+                </div>
+
+            }
+        </div>
+
+        <div class="tab-pane" id="change-password-tab">
+            @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-validation", id = "change-password-form" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group has-feedback">
+                            @Html.PasswordFor(x => x.OldPassword, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = T("Membership.Field.ChangePassword.OldPassword"), required = "required" })
+                            <div class="form-control-feedback">
+                                <i class="icon-lock2 text-muted"></i>
+                            </div>
+                        </div>
+                        <div class="form-group has-feedback">
+                            @Html.PasswordFor(x => x.NewPassword, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = T("Membership.Field.ChangePassword.NewPassword") })
+                            <div class="form-control-feedback">
+                                <i class="icon-lock2 text-muted"></i>
+                            </div><br />
+                            @{ Html.RenderAction("PasswordStrength", "User", new { id = "NewPassword" }); }
+                        </div>
+                        <div class="form-group has-feedback">
+                            @Html.PasswordFor(x => x.ConfirmNewPassword, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = T("Membership.Field.ChangePassword.ConfirmNewPassword") })
+                            <div class="form-control-feedback">
+                                <i class="icon-lock2 text-muted"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="color:red; text-align:left">
+                    @Model.Result
+                </div>
+
+                <div class="text-left">
+                    @Html.HiddenFor(x => x.Id)
+                    <input value="Submit" type="submit" class="btn btn-info" onclick="if ($(this).val() == 'Submit') return validatePassword(); return true;">
+                </div>
+
+            }
+        </div>
+
+        <div class="tab-pane" id="menu-type-tab">
+            @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-validation" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group has-feedback">
+                            @Html.DropDownList("MenuType", Model.MenuTypes, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+
+                <div style="color:red; text-align:left">
+                    @Model.Result
+                </div>
+
+                <div class="text-left">
+                    @Html.HiddenFor(x => x.Id)
+                    <input value="Submit" type="submit" class="btn btn-info">
+                </div>
+
+            }
+        </div>
+    </div>
+</div>

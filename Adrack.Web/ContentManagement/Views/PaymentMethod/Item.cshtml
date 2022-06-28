@@ -1,0 +1,233 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.PaymentMethodModel
+
+@{
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switchery.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+}
+
+<script>
+    $(function () {
+
+        $("#@Html.FieldIdFor(x => x.CountryId)").change(function () {
+            var selectedItem = $(this).val();
+
+        });
+
+        $('.select').select2();
+
+        $("#@Html.FieldIdFor(x => x.BankPhone)").intlTelInput({
+            // allowDropdown: false,
+            autoHideDialCode: false,
+            // autoPlaceholder: false,
+            // dropdownContainer: "body",
+            // excludeCountries: ["us"],
+            // geoIpLookup: function(callback) {
+            //   $.get("http://ipinfo.io", function() {}, "jsonp").always(function(resp) {
+            //     var countryCode = (resp && resp.country) ? resp.country : "";
+            //     callback(countryCode);
+            //   });
+            // },
+            // initialCountry: "auto",
+            // nationalMode: false,
+            // numberType: "MOBILE",
+            // onlyCountries: ['us', 'gb', 'ch', 'ca', 'do'],
+            // preferredCountries: ['cn', 'jp'],
+            // separateDialCode: true,
+            utilsScript: "/Scripts/plugins/tel/js/utils.js"
+        });
+
+        $("#@Html.FieldIdFor(x => x.BankPhone)").on("countrychange", function (e, countryData) {
+            $(this).val('+' + countryData.dialCode);
+            $('#country_code').val(countryData.iso2);
+        });
+
+        $("#@Html.FieldIdFor(x => x.AccountOwnerPhone)").intlTelInput({
+            // allowDropdown: false,
+            autoHideDialCode: false,
+            // autoPlaceholder: false,
+            // dropdownContainer: "body",
+            // excludeCountries: ["us"],
+            // geoIpLookup: function(callback) {
+            //   $.get("http://ipinfo.io", function() {}, "jsonp").always(function(resp) {
+            //     var countryCode = (resp && resp.country) ? resp.country : "";
+            //     callback(countryCode);
+            //   });
+            // },
+            // initialCountry: "auto",
+            // nationalMode: false,
+            // numberType: "MOBILE",
+            // onlyCountries: ['us', 'gb', 'ch', 'ca', 'do'],
+            // preferredCountries: ['cn', 'jp'],
+            // separateDialCode: true,
+            utilsScript: "/Scripts/plugins/tel/js/utils.js"
+        });
+
+        $("#@Html.FieldIdFor(x => x.AccountOwnerPhone)").on("countrychange", function (e, countryData) {
+            // do something with countryData
+            console.log(countryData);
+            $(this).val('+' + countryData.dialCode);
+            $('#country_code').val(countryData.iso2);
+        });
+
+        $(".AddPaymentMethod").click(function () {
+            if ($("#PaymentType").val() == '' || $("#NameOnAccount").val() == '' || $("#AccountNumber").val() == '' || $("#SwiftRoutingNumber").val() == '')
+            {
+                alert("Plaese fill required fields");
+                return false;
+            }
+
+            var data =
+               'PaymentMethodId=' + $("#PaymentMethodId").val() +
+               '&PaymentType=' + $("#PaymentType").val() +
+               '&NameOnAccount=' + $("#NameOnAccount").val() +
+               '&AffiliateId=' + $("#AffiliateId").val() +
+               '&BankName=' + $("#BankName").val() +
+               '&AccountNumber=' + $("#AccountNumber").val() +
+               '&BankAddress=' + $("#BankAddress").val() +
+               '&BankPhone=' + $("#BankPhone").val() +
+               '&AccountOwnerAddress=' + $("#AccountOwnerAddress").val() +
+               '&AccountOwnerPhone=' + $("#AccountOwnerPhone").val() +
+               '&SwiftRoutingNumber=' + $("#SwiftRoutingNumber").val() +
+               '&IsPrimary=' + $("#IsPrimary").val();
+
+            $.post("/Management/PaymentMethod/AddEdit/", data).done(function (retData) {
+                GeneratePaymentMethodGrid();
+            });
+
+        });
+
+    });
+</script>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-validation" }))
+{
+
+    @Html.AntiForgeryToken()
+
+        <div class="panel-body">
+                        <div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group has-feedback">
+                                        @Html.Label("Payment Type")<br />
+                                        @Html.DropDownList("PaymentType", Model.ListPaymentMethod, new { @class = "select", required = "required" })
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group has-feedback">
+                                        <label for="PaymentType">Affiliate ID/ Name</label> <br>
+
+                                        <input type="text" readonly="readonly" value="" id="AffiliateId" style="width: 40px; border: 0;" />
+                                        <input type="text" readonly="readonly" value="" id="AffiliateName" style="border: 0;" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group has-feedback">
+                                        @Html.Label("Name On Account *")
+                                        @Html.TextBoxFor(x => x.NameOnAccount, new { @class = "form-control", tabindex = 1, placeholder = "Name on account", required = "required" })
+                                        <div class="form-control-feedback">
+                                            <i class="icon-user-plus text-muted"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group has-feedback">
+                                        @Html.Label("Bank Name")
+                                        @Html.TextBoxFor(x => x.BankName, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Bank name", required = "required" })
+                                        <div class="form-control-feedback">
+                                            <i class="icon-user-plus text-muted"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group has-feedback">
+                                        @Html.Label("Account Number *")
+                                        @Html.TextBoxFor(x => x.AccountNumber, new { @class = "form-control", tabindex = 1, required = "required" })
+                                        <div class="form-control-feedback">
+                                            <i class="icon-user-plus text-muted"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group has-feedback">
+                                        @Html.Label("Swift Routing Number *")
+                                        @Html.TextBoxFor(x => x.SwiftRoutingNumber, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, required = "required" })
+                                        <div class="form-control-feedback">
+                                            <i class="icon-user-plus text-muted"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group has-feedback">
+                                        @Html.Label("Bank Address")
+                                        @Html.TextBoxFor(x => x.BankAddress, new { @class = "form-control", tabindex = 1, required = "required" })
+                                        <div class="form-control-feedback">
+                                            <i class="icon-user-plus text-muted"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group has-feedback">
+                                        @Html.Label("Bank Phone")<br />
+                                        @Html.TextBoxFor(x => x.BankPhone, new { required = "required", type = "tel" })
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group has-feedback">
+                                        @Html.Label("Account Owner Address")
+                                        @Html.TextBoxFor(x => x.AccountOwnerAddress, new { @class = "form-control", tabindex = 1, required = "required" })
+                                        <div class="form-control-feedback">
+                                            <i class="icon-user-plus text-muted"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group has-feedback">
+                                        @Html.Label("Account Owner Phone")<br />
+                                        @Html.TextBoxFor(x => x.AccountOwnerPhone, new { required = "required", type = "tel" })
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group has-feedback">
+                                        @Html.Label("Is Primary")
+                                        @Html.CheckBoxFor(x => x.IsPrimary)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                <div style="color:red">
+                    @Html.ValidationSummary()
+                </div>
+
+                <div>
+                    @Html.HiddenFor(x => x.PaymentMethodId)
+                    <input type="hidden" id="country_code" value="" />
+
+                    <button type="button" data-target="#modal_form_add_payment" data-toggle="modal" class="AddPaymentMethod btn btn-success btn-sm">
+                        <i class="icon-add-to-list position-left"></i> @if( Model.NameOnAccount == null ){ @Html.Raw("Add") } else {@Html.Raw("Save")}
+                    </button>
+                </div>
+        </div>
+}

@@ -1,0 +1,73 @@
+<?php
+    // header('Content-type: application/xml');
+
+$xmpStr = '<REQUEST>
+	<REFERRAL>
+		<CHANNELID>6c88f6a</CHANNELID>
+		<PASSWORD>2076edd1</PASSWORD>
+		<MINPRICE>0</MINPRICE>
+	</REFERRAL>
+	<CUSTOMER>
+		<PERSONAL>
+			<IPADDRESS>' . $_SERVER['REMOTE_HOST'] . '</IPADDRESS>
+			<REQUESTEDAMOUNT>'.$_POST["REQUESTEDAMOUNTMIN"].'</REQUESTEDAMOUNT>
+			<TITLE></TITLE>
+			<SIN>'.$_POST["SIN"].'</SIN>
+            <FIRSTNAME>' . $_POST["FIRSTNAME"] . '</FIRSTNAME>
+            <LASTNAME>' . $_POST["LASTNAME"] . '</LASTNAME>
+			<DOB>' . $_POST["DOB"] . '</DOB>
+			<EMAIL>' . $_POST["EMAIL"] . '</EMAIL>
+			<HOMEPHONE>' . $_POST["HOMEPHONE"] . '</HOMEPHONE>
+			<WORKPHONE>' . $_POST["WORKPHONE"] . '</WORKPHONE>
+			<CELLPHONE>' . $_POST["MOBILEPHONE"] . '</CELLPHONE>
+			<ADDRESS>' . $_POST["ADDRESS"] . '</ADDRESS>
+			<CITY>' . $_POST["CITY"] . '</CITY>
+			<PROVINCE>' . $_POST["PROVINCE"] . '</PROVINCE>
+			<POSTCODE>' . $_POST["POSTCODE"] . '</POSTCODE>
+			<ADDRESSMONTH>' . $_POST["ADDRESSMONTH"] . '</ADDRESSMONTH>
+			<OWNHOME>' . $_POST["HOMEOWNER"] . '</OWNHOME>
+		</PERSONAL>
+		<EMPLOYMENT>
+			<INCOMETYPE>' . $_POST["INCOMETYPE"] . '</INCOMETYPE>
+			<EMPNAME>' . $_POST["EMPNAME"] . '</EMPNAME>
+			<JOBTITLE>' . $_POST["JOBTITLE"] . '</JOBTITLE>
+			<EMPTIME>' . $_POST["EMPTIME"] . '</EMPTIME>
+			<NETMONTHLYINCOME>' . $_POST["NETMONTHLYINCOME"] . '</NETMONTHLYINCOME>
+			<PAYFREQUENCY>' . $_POST["PAYFREQUENCY"] . '</PAYFREQUENCY>
+			<NEXTPAYDATE>' . $_POST["NEXTPAYDATE"] . '</NEXTPAYDATE>
+			<SECONDPAYDATE>' . $_POST["NEXTPAYDATE"] . '</SECONDPAYDATE>
+			<EMPADDRESS>' . $_POST["EMPADDRESS"] . '</EMPADDRESS>
+			<EMPCITY>' . $_POST["EMPCITY"] . '</EMPCITY>
+			<EMPPROVINCE>' . $_POST["EMPPROVINCE"] . '</EMPPROVINCE>
+			<EMPPOSTCODE>' . $_POST["EMPPOSTCODE"] . '</EMPPOSTCODE>
+		</EMPLOYMENT>
+		<BANK>
+			<INSTITUTIONNUMBER>' . $_POST["INSTITUTIONNUMBER"] . '</INSTITUTIONNUMBER>
+			<BANKNAME>' . $_POST["BANKNAME"] . '</BANKNAME>
+			<BRACHNUMBER>' . $_POST["BRACHNUMBER"] . '</BRACHNUMBER>
+			<ACCOUNTNUMBER>' . $_POST["ACCOUNTNUMBER"] . '</ACCOUNTNUMBER>
+			<BANKMONTHS>' . $_POST["BANKMONTHS"] . '</BANKMONTHS>
+			<DIRECTDEPOSIT>' . $_POST["DIRECTDEPOSIT"] . '</DIRECTDEPOSIT>
+			<ACCOUNTTYPE>' . $_POST["ACCOUNTTYPE"] . '</ACCOUNTTYPE>
+		</BANK>
+	</CUSTOMER>
+</REQUEST>';
+
+ 
+    $url = "https://proffiliant.adrack.com/Import/"; //POST URL
+
+    $ch = curl_init();
+    if (!$ch) {
+            die("Couldn't initialize a cURL handle");
+        }
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $xmpStr);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    $response = curl_exec($ch);
+    curl_close($ch);
+    
+    // print_r($xmpStr);
+    echo $response;
+?>

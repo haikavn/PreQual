@@ -1,0 +1,297 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" />
+  <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.1\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.1\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7A8E61CE-45C9-402D-B2BF-EABD71014442}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Adrack.Data</RootNamespace>
+    <AssemblyName>Adrack.Data</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\Adrack.Data.xml</DocumentationFile>
+    <NoWarn>CS1584,CS1658</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>bin\Debug\Adrack.Data.xml</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <NoWarn>CS1658,CS1584</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.1\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Configuration.ConfigurationManager, Version=5.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Configuration.ConfigurationManager.5.0.0\lib\net461\System.Configuration.ConfigurationManager.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Data.OracleClient" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Security.AccessControl, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.AccessControl.5.0.0\lib\net461\System.Security.AccessControl.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Permissions, Version=5.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Permissions.5.0.0\lib\net461\System.Security.Permissions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Principal.Windows, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Principal.Windows.5.0.0\lib\net461\System.Security.Principal.Windows.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AppEntityTypeConfiguration.cs" />
+    <Compile Include="AppObjectClientContext.cs" />
+    <Compile Include="AppObjectContext.cs" />
+    <Compile Include="DataReaderExtensions.cs" />
+    <Compile Include="DbContextExtensions.cs" />
+    <Compile Include="DbContextService.cs" />
+    <Compile Include="Domain\Accounting\AffiliateInvoiceAdjustmentMap.cs" />
+    <Compile Include="Domain\Accounting\CustomInvoiceRowMap.cs" />
+    <Compile Include="Domain\Accounting\CustomInvoiceMap.cs" />
+    <Compile Include="Domain\Accounting\AffiliatePaymentMap.cs" />
+    <Compile Include="Domain\Accounting\BuyerBalanceMap.cs" />
+    <Compile Include="Domain\Accounting\BuyerInvoiceMap.cs" />
+    <Compile Include="Domain\Accounting\BuyerInvoiceMapAdjustment.cs" />
+    <Compile Include="Domain\Accounting\PaymentsMap.cs" />
+    <Compile Include="Domain\Accounting\BuyerPaymentMap.cs" />
+    <Compile Include="Domain\Agent\ScheduleTaskMap.cs" />
+    <Compile Include="Domain\Audit\LogMap.cs" />
+    <Compile Include="Domain\Click\ClickChannelMap.cs" />
+    <Compile Include="Domain\Click\ClickContentMap.cs" />
+    <Compile Include="Domain\Click\ClickMainMap.cs" />
+    <Compile Include="Domain\Click\ClickPostBackUrlLogMap.cs" />
+    <Compile Include="Domain\Click\ClickPostBackUrlMap.cs" />
+    <Compile Include="Domain\Common\AbaNumberMap.cs" />
+    <Compile Include="Domain\Common\GeoZipMap.cs" />
+    <Compile Include="Domain\Content\StaticPageCategoryRelationMap.cs" />
+    <Compile Include="Domain\Content\StaticPageCategoryMap.cs" />
+    <Compile Include="Domain\Content\StaticPagesMap.cs" />
+    <Compile Include="Domain\Content\DocumentMap.cs" />
+    <Compile Include="Domain\Common\NavigationMap.cs" />
+    <Compile Include="Domain\Content\EntityChangeHistoryMap.cs" />
+    <Compile Include="Domain\Content\HistoryMap.cs" />
+    <Compile Include="Domain\Content\SupportTicketsMap.cs" />
+    <Compile Include="Domain\Configuration\SettingMap.cs" />
+    <Compile Include="Domain\Content\AddressMap.cs" />
+    <Compile Include="Domain\Common\GlobalAttributeMap.cs" />
+    <Compile Include="Domain\Content\SupportTicketsMessagesMap.cs" />
+    <Compile Include="Domain\CustomReports\ReportFilterSettingMap.cs" />
+    <Compile Include="Domain\CustomReports\UserReportsMap.cs" />
+    <Compile Include="Domain\Discount\CouponMap.cs" />
+    <Compile Include="Domain\FormBuilder\FormTemplateItemMap.cs" />
+    <Compile Include="Domain\FormBuilder\FormTemplateMap.cs" />
+    <Compile Include="Domain\Lead\AttachedChannelMap.cs" />
+    <Compile Include="Domain\Lead\PingTreeItemMap.cs" />
+    <Compile Include="Domain\Lead\PingTreeMap.cs" />
+    <Compile Include="Domain\Lead\Reports\ReportsViewedMap.cs" />
+    <Compile Include="Domain\CustomReports\ReportVaribleMap.cs" />
+    <Compile Include="Domain\CustomReports\ReportVariableTypeMap.cs" />
+    <Compile Include="Domain\CustomReports\ReportTypeMap.cs" />
+    <Compile Include="Domain\Directory\AddressTypeMap.cs" />
+    <Compile Include="Domain\Directory\CategoryMap.cs" />
+    <Compile Include="Domain\Directory\CountryMap.cs" />
+    <Compile Include="Domain\Directory\CurrencyMap.cs" />
+    <Compile Include="Domain\Directory\StateProvinceMap.cs" />
+    <Compile Include="Domain\Directory\UserTypeMap.cs" />
+    <Compile Include="Domain\Lead\AffiliateChannelFilterConditionMap.cs" />
+    <Compile Include="Domain\Lead\BuyerChannelNoteMap.cs" />
+    <Compile Include="Domain\Lead\BuyerChannelScheduleDayMap.cs" />
+    <Compile Include="Domain\Lead\BuyerChannelScheduleTimePeriodMap.cs" />
+    <Compile Include="Domain\Lead\BuyerInvitationMap.cs" />
+    <Compile Include="Domain\Lead\AffiliateInvitationMap.cs" />
+    <Compile Include="Domain\Lead\AffiliateChannelNoteMap.cs" />
+    <Compile Include="Domain\Lead\BuyerChannelTemplateMatchingMap.cs" />
+    <Compile Include="Domain\Lead\BuyerChannelHolidayMap.cs" />
+    <Compile Include="Domain\Lead\CachedUrlMap.cs" />
+    <Compile Include="Domain\Lead\SubIdWhiteListMap.cs" />
+    <Compile Include="Domain\Lead\DoNotPresentMap.cs" />
+    <Compile Include="Domain\Lead\LeadFieldsContentMap.cs" />
+    <Compile Include="Domain\Lead\LeadSensitiveDataMap.cs" />
+    <Compile Include="Domain\Lead\UserSubscribtionMap.cs" />
+    <Compile Include="Domain\Lead\VerticalFieldMap.cs" />
+    <Compile Include="Domain\Lead\ZipCodeRedirectMap.cs" />
+    <Compile Include="Domain\Lead\LeadNoteMap.cs" />
+    <Compile Include="Domain\Lead\NoteTitleMap.cs" />
+    <Compile Include="Domain\Lead\ProcessingLogMap.cs" />
+    <Compile Include="Domain\Lead\CustomBlackListValueMap.cs" />
+    <Compile Include="Domain\Lead\BuyerResponseMap.cs" />
+    <Compile Include="Domain\Lead\PostedDataMap.cs" />
+    <Compile Include="Domain\Lead\AffiliateResponseMap.cs" />
+    <Compile Include="Domain\Lead\LeadGeoDataMap.cs" />
+    <Compile Include="Domain\Lead\PaymentMethodMap.cs" />
+    <Compile Include="Domain\Lead\BlackListValueMap.cs" />
+    <Compile Include="Domain\Lead\BuyerChannelMap.cs" />
+    <Compile Include="Domain\Lead\AffiliateChannelMap.cs" />
+    <Compile Include="Domain\Lead\BuyerChannelTemplateMap.cs" />
+    <Compile Include="Domain\Lead\AffiliateChannelTemplateMap.cs" />
+    <Compile Include="Domain\Lead\AffiliateMap.cs" />
+    <Compile Include="Domain\Lead\BuyerMap.cs" />
+    <Compile Include="Domain\Lead\CampaignMap.cs" />
+    <Compile Include="Domain\Accounting\AffiliateInvoiceMap.cs" />
+    <Compile Include="Domain\Lead\CampaignTemplateMap.cs" />
+    <Compile Include="Domain\Lead\DepartmentMap.cs" />
+    <Compile Include="Domain\Lead\BuyerChannelFilterConditionMap.cs" />
+    <Compile Include="Domain\Lead\FilterConditionMap.cs" />
+    <Compile Include="Domain\Lead\FilterMap.cs" />
+    <Compile Include="Domain\Lead\LeadContentMap.cs" />
+    <Compile Include="Domain\Lead\LeadMainDublicateMap.cs" />
+    <Compile Include="Domain\Lead\LeadMainResponseMap.cs" />
+    <Compile Include="Domain\Lead\LeadMainMap.cs" />
+    <Compile Include="Domain\Lead\RedirectUrlMap.cs" />
+    <Compile Include="Domain\Lead\RefundedLeadsMap.cs" />
+    <Compile Include="Domain\Lead\BuyerChannelScheduleMap.cs" />
+    <Compile Include="Domain\Lead\BlackListTypeMap.cs" />
+    <Compile Include="Domain\Lead\AffiliateNoteMap.cs" />
+    <Compile Include="Domain\Lead\VerticalMap.cs" />
+    <Compile Include="Domain\Localization\LanguageMap.cs" />
+    <Compile Include="Domain\Localization\LocalizedStringMap.cs" />
+    <Compile Include="Domain\Localization\LocalizedPropertyMap.cs" />
+    <Compile Include="Domain\Membership\FeatureMap.cs" />
+    <Compile Include="Domain\Membership\PermissionAddonMap.cs" />
+    <Compile Include="Domain\Membership\PlanMap.cs" />
+    <Compile Include="Domain\Membership\PlanFeatureMap.cs" />
+    <Compile Include="Domain\Membership\UserPlanMap.cs" />
+    <Compile Include="Domain\Membership\UserAddonsMap.cs" />
+    <Compile Include="Domain\Membership\AuthenticationMap.cs" />
+    <Compile Include="Domain\Membership\RegistrationRequestMap.cs" />
+    <Compile Include="Domain\Membership\ProfileMap.cs" />
+    <Compile Include="Domain\Membership\UserBuyerChannelMap.cs" />
+    <Compile Include="Domain\Membership\EntityOwnershipMap.cs" />
+    <Compile Include="Domain\Membership\AddonMap.cs" />
+    <Compile Include="Domain\Membership\VerifyAccountMap.cs" />
+    <Compile Include="Domain\Membership\VerifySecurityMap.cs" />
+    <Compile Include="Domain\Membership\UserMap.cs" />
+    <Compile Include="Domain\Message\SmtpAccountMap.cs" />
+    <Compile Include="Domain\Message\EmailQueueMap.cs" />
+    <Compile Include="Domain\Message\EmailTemplateMap.cs" />
+    <Compile Include="Domain\Message\EmailSubscriptionMap.cs" />
+    <Compile Include="Domain\Notification\NotificationMap.cs" />
+    <Compile Include="Domain\Notification\UserNotification.cs" />
+    <Compile Include="Domain\Security\AclMap.cs" />
+    <Compile Include="Domain\Security\NavigationMap.cs" />
+    <Compile Include="Domain\Security\PermissionMap.cs" />
+    <Compile Include="Domain\Security\RoleMap.cs" />
+    <Compile Include="Domain\Security\RolePermissionMap.cs" />
+    <Compile Include="Domain\Seo\PageSlugMap.cs" />
+    <Compile Include="EfDataProviderManager.cs" />
+    <Compile Include="EfRepository.cs" />
+    <Compile Include="EfStartupTask.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="IDbClientContext.cs" />
+    <Compile Include="IDbContext.cs" />
+    <Compile Include="IDbContextService.cs" />
+    <Compile Include="IRepository.cs" />
+    <Compile Include="JsonData.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryableExtensions.cs" />
+    <Compile Include="SqlServerDataProvider.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="Packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Adrack.Core\PreQual.Core.csproj">
+      <Project>{5f57182e-10b9-4395-a9f3-f9a8fad05e85}</Project>
+      <Name>PreQual.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Domain\Payment\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.1\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.1\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.targets'))" />
+  </Target>
+  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

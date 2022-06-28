@@ -1,0 +1,44 @@
+﻿@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+@using Adrack.Service.Helpers
+
+@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+    Html.AddPageTitle("Network Users");
+    Html.AddPageMetaDescription("The List of network users");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+
+    var currentUser = this.AppContext.AppUser;
+}
+<br>
+@if (permissionService.Authorize(PermissionProvider.UserRolesNetworkUsersModify))
+{
+<div>
+    <button id="add_user" type="button" class="btn btn-success btn-sm">
+        <i class="icon-add-to-list position-left"></i>Add user
+    </button>
+</div><br />
+}
+
+@if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId)
+{
+    <div class="status-filter">
+        <div data-toggle="buttons" class="btn-group">
+            <label class="btn btn-default active">
+                <input type="radio" checked="checked" id="status0" name="statusradio"> Show All
+            </label>
+            <label class="btn btn-default">
+                <input type="radio" id="status1" name="statusradio"> Show Deleted
+            </label>
+        </div>
+    </div>
+}
+
+<div id="users_grid"></div>
+
+<script src="~/Scripts/pages-js/UserList.js"></script>
+<script>
+    UserListParams.init('@Html.Raw(currentUser.UserTypeId == SharedData.BuiltInUserTypeId ? ",Action" : "")');
+</script>

@@ -1,0 +1,92 @@
+﻿<script type="text/javascript" src="~/Scripts/pages-js/ReportTotals.js"></script>
+<script> ReportTotalstParams.init('@Model', '@ViewBag.BaseUrl/management/report/GetReportTotals?parentid='); </script>
+
+<div style="display: inline-block"><h6>Lead comparing</h6></div>
+
+<div id="DataTables_Totals">
+    <table class="display table datatable-html dataTable no-footer">
+        <thead>
+            <tr role="row">
+                <th>Name</th>
+                <th>Received</th>
+                <th>Posted</th>
+                <th>Redirected</th>
+                <th>Sold</th>
+                <th>Revenue</th>
+                <th>Profit</th>
+                <th>EPL</th>
+                <th>EPA</th>
+            </tr>
+        </thead>
+
+        <tbody></tbody>
+    </table>
+</div>
+
+<br>
+<hr>
+<br>
+<h6 style="display: inline-block">Recent Activities</h6>  &nbsp;&nbsp;&nbsp; <a href="/Management/History" style="display: inline-block"> Show All </a>
+<hr>
+
+<button style="display:none;" type="button" class="btn btn-info2 btn-row-click btn-sm" data-toggle="modal" data-target="#modal_theme_info">Launch <i class="icon-play3 position-right"></i></button>
+<div id="DataTables_History">
+    <table class="display table datatable-html dataTable no-footer">
+        <thead>
+            <tr role="row">
+                <th>ID</th>
+                <th>Date</th>
+                <th> </th>
+                <th width="25%">Action</th>
+                <th width="35%">Note</th>
+                <th>User Name/Company</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+<br><br>
+
+<!-- Info modal -->
+<div id="modal_theme_info" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h6 class="modal-title">History Details</h6>
+            </div>
+            <div class="modal-body">
+                @*<img src="\Content\img\ajax-loader.gif" />*@
+                <table>
+                    <tr><td style="width:150px">Date:</td><td id="tr-data"></td></tr>
+                    <tr><td>Action:</td><td id="tr-action"></td></tr>
+                    <tr><td>Module:</td><td id="tr-module"></td></tr>
+                    <tr><td>Entity # Id:</td><td id="tr-enitity"></td></tr>
+                    <tr><td>Note:</td><td id="tr-note"></td></tr>
+                    <tr><td>User:</td><td id="tr-user"></td></tr>
+                </table>
+                <div id="history-details">
+                    <hr>
+                    <h6 class="text-semibold">Fields details</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="table-details">
+                            <thead>
+                                <tr>
+                                    <th>Field Name</th>
+                                    <th>Old Data</th>
+                                    <th>New Data</th>
+                                    <th>Data Difference</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /info modal -->

@@ -1,0 +1,46 @@
+﻿@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    Layout = null;
+    Html.AddPageTitle(T("PageTitle.Register").Text);
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+}
+
+<script>
+    function zipRemove(e)
+    {
+        $.ajax({
+            type: "POST",
+            url: "@(Url.RouteUrl("removezipcoderedirect"))",
+            data: { id: $(e).data('id') },
+            success: function (data) {
+                GenerateGridTable("zipcodes", "/getzipcoderedirects?bcid=@Model", "ID, Redirect url, Zip code, Action");
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        // $('#add_new_zipcode').click(function () {
+       //     if (@Model > 0)
+       //     {
+      //          window.location = '/Management/ZipCodeRedirect/Item?bcid=@Model';
+      //      }
+      //  });
+    });
+</script>
+
+<button id="add_new_zipcode" type="button" class="btn btn-success btn-sm" data-target="#modal_form_add_zipcode" data-toggle="modal">
+    <i class="icon-add-to-list position-left"></i>Add redirect
+</button>
+<br />
+
+<div id="zipcodes"></div>
+<script>
+    $(document).ready(function () {
+        GenerateGridTable("zipcodes", "/getzipcoderedirects?bcid=@Model", "ID, Redirect url, Zip code, Action");
+    });
+</script>

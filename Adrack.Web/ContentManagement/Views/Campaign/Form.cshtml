@@ -1,0 +1,421 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.CampaignModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    Html.AddPageTitle("Campaign");
+    Html.AddPageMetaDescription("Shows selected Campaign");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/core.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/effects.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/uniform.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switchery.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_all.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_childcounter.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/loaders/blockui.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/json2.js").ToLowerInvariant());
+
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+}
+
+<script>
+    var selectedNode = null;
+    var campaignid = @Model.CampaignId;
+
+    function checkAllFormFields(e)
+    {
+        $('.form-field').prop('checked', $(e).is(':checked'));
+    }
+
+    function onFieldTypeChanged(el)
+    {
+        if ($(el).val() == 1)
+        {
+            $(el).next().next().show();
+        }
+        else{
+            $(el).next().next().hide();
+        }
+    }
+
+    function loadTree(source)
+    {
+        var tree = $('.tree-table').fancytree('getTree');
+        tree.reload(source);
+    }
+
+    function onPageNumberChanged(e, c)
+    {
+        $('.' + c).val($(e).val());
+        $('.' + c).trigger('onchange');
+    }
+
+    function initTree()
+    {
+        $(".tree-table").fancytree({
+            extensions: ["table", "dnd"],
+            checkbox: false,
+            keyboard: false,
+            selectMode: 1,
+            table: {
+                indentation: 20,      // indent 20px per node level
+                nodeColumnIdx: 0,     // render the node title into the 2nd column
+                checkboxColumnIdx: 0  // render the checkboxes into the 1st column
+            },
+            source: [],
+            lazyLoad: function (event, data) {
+                data.result = { url: "ajax-sub2.json" }
+            },
+            renderColumns: function (event, data) {
+                var node = data.node;
+                    console.log(node);
+
+                $tdList = $(node.tr).find(">td");
+
+                $(node.tr).data('folder', node.folder);
+                $(node.tr).data('tplid', node.data.Id);
+
+                $tdList.eq(0).data('name', "field");
+                $tdList.eq(1).data('name', "isformfield");
+                $tdList.eq(2).data('name', "label");
+                $tdList.eq(3).data('name', "columnnumber");
+                $tdList.eq(4).data('name', "pagenumber");
+                $tdList.eq(5).data('name', "fieldtype");
+
+                /* $tdList.eq(1).data('value', node.parent.title);
+                 $tdList.eq(2).data('value', node.data.DatabaseField);
+                 $tdList.eq(3).data('value', node.data.Validator);
+                 $tdList.eq(5).data('value', node.data.Required);*/
+
+                // (index #0 is rendered by fancytree by adding the checkbox)
+
+                if (!node.folder)
+                {
+                    // (index #2 is rendered by fancytree)
+                    $tdList.eq(1).addClass('text-center').html("<input type='checkbox' class='styled form-field' " + (node.data.IsFormField ? "checked='checked'" : "") + " >");
+                    $tdList.eq(2).addClass('text-center').html("<input type='text' class='styled' value='" + (node.data.Label != '' ? node.data.Label : node.title ) + "'>");
+                    $tdList.eq(3).addClass('text-center').html("<input type='number' class='styled' value='" + node.data.ColumnNumber + "'>");
+                    $tdList.eq(4).addClass('text-center').html("<input type='number' class='styled " + node.parent.title + "' value='" + node.data.PageNumber + "'>");
+
+                    var optionValuesStyle = "style='display:none'";
+                    if (node.data.FieldType == '1') optionValuesStyle = '';
+
+                    var fieldTypes = "<select onchange='onFieldTypeChanged(this)'>";
+                    fieldTypes += "<option value='0' " + (node.data.FieldType == '0' ? "selected" : "") + ">Input</option>";
+                    fieldTypes += "<option value='1' " + (node.data.FieldType == '1' ? "selected" : "") + ">Select</option>";
+                    fieldTypes += "</select><br><div " + optionValuesStyle + "><b>Options</b><br>";
+
+                    fieldTypes += "<textarea rows='3'>" + node.data.OptionValues + "</textarea></div>";
+
+                    $tdList.eq(5).addClass('text-center').html(fieldTypes);
+
+                    /*$(".styled").off('change').on('change', function () {
+                        $(this).parent().data('value', $(this).is(':checked'));
+                        return true;
+                    });*/
+
+                    /*$(node.tr).find(".select-search").change(function (e) {
+                        getValidatorType($(this).find(":selected").val(), $(this).parent().next().next(), $(this));
+                    });*/
+
+                    /*$(node.tr).find(".select-search").select2();
+                    $(node.tr).find(".select-search").off("select2:select").on("select2:select", function (e) {
+                        if (e.params.data.id == "1")
+                            $(e.params.data.element).parent().next().next().show();
+                        else
+                            $(e.params.data.element).parent().next().next().hide();
+
+                        getValidatorType(e.params.data.id, $(e.params.data.element).parent().next().next(), $(this));
+                    });*/
+                }
+                else
+                {
+                    $tdList.eq(4).addClass('text-center').html("<input type='number' class='styled " + node.parent.title + "' value='0' onchange='onPageNumberChanged(this, \"" + node.title + "\")'>");
+                }
+
+            },
+            activate: function(event, data) {
+                selectedNode = data.node;
+            },
+            select: function(event, data) {
+            },
+            dnd: {
+                preventVoidMoves: true, // Prevent dropping nodes 'before self', etc.
+                preventRecursiveMoves: true, // Prevent dropping nodes on own descendants
+                autoExpandMS: 400,
+                draggable: {
+                    //zIndex: 1000,
+                    // appendTo: "body",
+                    // helper: "clone",
+                    scroll: false,
+                    revert: "invalid"
+                },
+                dragStart: function (node, data) {
+                    if (data.originalEvent.shiftKey) {
+                    }
+                    // allow dragging `node`:
+                    return true;
+                },
+                dragEnter: function (node, data) {
+                    // Prevent dropping a parent below another parent (only sort
+                    // nodes under the same parent)
+                    /* 					if(node.parent !== data.otherNode.parent){
+                                            return false;
+                                        }
+                                        // Don't allow dropping *over* a node (would create a child)
+                                        return ["before", "after"];
+                    */
+                    return true;
+                },
+                dragDrop: function (node, data) {
+                    if (!data.otherNode) {
+                        // It's a non-tree draggable
+                        var title = $(data.draggable.element).text() + " (" + (count)++ + ")";
+                        node.addNode({ title: title }, data.hitMode);
+                        alert('dd');
+                        return;
+                    }
+                    data.otherNode.moveTo(node, data.hitMode);
+                    $(node.tr).data('folder', true);
+
+                }
+            }
+        });
+    }
+
+    function LoadCampaignTemplate(campaignid, c)
+    {
+        $.ajax({
+            cache: false,
+            async: false,
+            type: "POST",
+            url: "@(Url.RouteUrl("GetCampaignInfo"))",
+            data: { campaignid: campaignid, xml: null },
+            success: function (data) {
+                xmlTpl = data.items;
+                loadTree(data.items);
+                changed = c;
+                //setTimeout(function () { $('#modal_default').hide(); }, 500);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+
+    function getNodes(tree, parent, parentName, ar)
+    {
+        if (parent.children != null)
+        {
+            if (parent.children.length > 0 && parent.title != parentName)
+            {
+                $tdList = $(parent.tr).find(">td");
+
+                ar.push([]);
+
+                ar[ar.length - 1].push($(parent.tr).data('tplid'));
+                ar[ar.length - 1].push("");
+                ar[ar.length - 1].push(false);
+                ar[ar.length - 1].push("");
+                ar[ar.length - 1].push(0);
+                ar[ar.length - 1].push(0);
+                ar[ar.length - 1].push(0);
+                ar[ar.length - 1].push("");
+            }
+
+            for(var i = 0; i < parent.children.length; i++)
+            {
+                if (parent.children[i].children == null || parent.children[i].children.length == 0)
+                {
+                    ar.push([]);
+
+                    ar[ar.length - 1].push($(parent.children[i].tr).data('tplid'));
+
+                    $(parent.children[i].tr).children('td').each(function () {
+                        var value = null;
+                        var value2 = null;
+
+                        if ($(this).data('name') == "field") {
+                            value = $(this).find(".fancytree-title").text();
+                        }
+                        else
+                            if ($(this).data('name') == "label" || $(this).data('name') == "columnnumber" || $(this).data('name') == "pagenumber") {
+                                value = $(this).find("input").val();
+                            }
+                            else
+                                if ($(this).data('name') == "isformfield")
+                                {
+                                    value = $(this).find("input").is(':checked');
+                                }
+                                else
+                                    if ($(this).data('name') == "fieldtype")
+                                    {
+                                        value = $(this).find("select").val();
+                                        value2 = $(this).find("textarea").val();
+                                    }
+
+                        if (value != null)
+                            ar[ar.length - 1].push(value);
+
+                        if (value2 != null)
+                            ar[ar.length - 1].push(value2);
+                    });
+                }
+                else
+                    ar = getNodes(tree, parent.children[i], parent.title, ar);
+            }
+        }
+
+        return ar;
+    }
+
+    var canRedirect = false;
+
+    $(document).ready(function () {
+        $('#item-form').on('submit', function (e) {
+            e.preventDefault();
+
+            var disabledElements = $(this).find(':disabled');
+            disabledElements.removeAttr('disabled');
+
+            var tpl = [];
+
+            var sn = null;
+            var lastsn = "";
+
+            tpl = [];
+
+            var tree = $(".tree-table").fancytree("getTree");
+
+            if (tree != undefined && tree.rootNode != undefined)
+            {
+                tpl = getNodes(tree, tree.rootNode, "root", tpl);
+
+                if (tpl.length == 0)
+                {
+                    alert('Campaign template is not defined');
+                    return;
+                }
+            }
+
+            var tpljson = JSON.stringify(tpl);
+
+            var btn = $(":input[type=submit]:focus");
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: "POST",
+                async: false,
+                data: $(this).serialize() + '&json=' + tpljson,
+                success: function (data) {
+
+                    if (btn.data("preview") == "1")
+                    {
+                        $('#html-code').val(data.iframe);
+                        $('#html-form-modal').modal('show');
+                        $('#preview-link').attr('href', '/home/htmlform/' + data.HtmlFormId);
+                        //window.location.href = "/Management/Campaign/HtmlForm/@Model.CampaignId";
+                    }
+                    else{
+                        window.location.href = "/Management/Campaign/Item/@Model.CampaignId";
+                    }
+
+                    disabledElements.attr('disabled', 'disabled');
+                },
+                error: function (jXHR, textStatus, errorThrown) {
+                    disabledElements.attr('disabled', 'disabled');
+                    alert(errorThrown);
+                }
+            });
+
+            return false;
+        });
+
+        initTree();
+
+        if (@Model.CampaignId > 0)
+        {
+            setTimeout(function () { LoadCampaignTemplate(@Model.CampaignId, false); }, 500);
+        }
+
+    });
+</script>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-validation", id="item-form" }))
+{
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+            <h5 class="panel-title">HTML FORM GENERATOR</h5>
+            <a href="/Management/Campaign/Item/@Model.CampaignId">Back to @Html.Raw(Model.Name) campaign</a>
+        </div>
+
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table class="table table-bordered tree-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 30px;">Field</th>
+                            <th style="width: 46px;">Form field<br /><input type="checkbox" onchange="checkAllFormFields(this)" /></th>
+                            <th style="width: 46px;">Label</th>
+                            <th style="width: 20px;">Column</th>
+                            <th style="width: 20px;">Page</th>
+                            <th style="width: 80px;">Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+            <div style="color:red">
+                @Html.ValidationSummary()
+            </div>
+
+            <div class="text-right">
+                <input type="hidden" name="campaignid" id="campaignid" value="@Model.CampaignId" />
+                <a href="#" class="btn btn-primary" data-close="2" onclick="history.go(-1);">Close <i class="icon-arrow-right14 position-right"></i></a>
+                <button id="btnSubmitPreview" type="submit" class="btn btn-primary" data-preview="1">Save and get embed code <i class="icon-arrow-right14 position-right"></i></button>
+                <button id="btnSubmit" type="submit" class="btn btn-primary" data-preview="0">Save <i class="icon-arrow-right14 position-right"></i></button>
+            </div>
+        </div>
+}
+
+<!-- Lead Note Modal -->
+<div id="html-form-modal" class="modal fade">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">@Html.Raw("'" + @Model.Name + "' campaign form code")</h5>
+            </div>
+
+            <div class="modal-body">
+                <h4>HTML Form code</h4>
+                <textarea id="html-code" rows="7" style="width: 100%"></textarea><br />
+                <a id="preview-link" href="/home/htmlform/@Model.HtmlFormId" target="_blank">Preview</a>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Lead Note Modal -->

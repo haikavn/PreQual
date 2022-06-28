@@ -1,0 +1,37 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.AffiliateModel
+
+@using Adrack.Service.Helpers
+
+@{
+    ViewBag.Title = "Channels";
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    var currentUser = this.AppContext.AppUser;
+    Html.AddPageTitle("Channels");
+}
+
+@if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+{
+    @RenderPage("../Shared/AffiliateSubMenu.cshtml")
+}
+
+<script>
+    $(document).ready(function () {
+        $('#add_new_affiliate').click(function () {
+            window.location = '/Management/AffiliateChannel/Create?affiliateid=@Model.AffiliateId';
+            return false;
+        });
+    });
+</script>
+<br>
+<button id="add_new_affiliate" type="button" class="btn btn-success btn-sm">
+    <i class="icon-add-to-list position-left"></i>Add affiliate channel
+</button><br>
+
+<div id="affiliate_channels"></div>
+<script>
+    $(document).ready(function () {
+        GenerateGridTable("affiliate_channels", "/GetAffiliateChannels?aid=@Model.AffiliateId", "ID, Key, Name, Campaign, Affiliate, Status", null, null, null, null);
+    });
+</script>

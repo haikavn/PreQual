@@ -1,0 +1,13 @@
+﻿@{
+    string id = Adrack.Web.ContentManagement.Helper.GetUniqueKey(7);
+}
+
+
+<label>Zip code format</label>
+<br />
+
+<select name="df_zipcodeformat_value_@id" class="form-control">
+    <option value="">None</option>
+    <option @Html.Raw("us" == ViewData.Model ? "selected='selected'" : "") value="us">USA</option>
+    <option @Html.Raw("ca" == ViewData.Model ? "selected='selected'" : "") value="ca">Canada</option>
+</select>

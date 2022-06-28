@@ -1,0 +1,23 @@
+﻿@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+
+    Html.AddPageTitle("Campaign Template List");
+    Html.AddPageMetaDescription("Add/Edit Campaign Template List");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+}
+
+<br>
+@if (permissionService.Authorize(PermissionProvider.SettingsCampaignTemplatesAdd))
+{
+<button id="add_new" type="button" class="btn btn-success btn-sm">
+    <i class="icon-add-to-list position-left"></i>Add campaign template
+</button>
+}
+<div id="GridView1" style="width: 800px;"></div>
+
+<script src="~/Scripts/pages-js/CampaignTemplateList.js"></script>

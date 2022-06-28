@@ -1,0 +1,125 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.ZipCodeRedirectModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    Layout = null;
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+}
+
+<script>
+    $(document).ready(function () {
+        $('#anyZipCode').change(function () {
+            if ($(this).is(':checked'))
+            {
+                $('#ZipCode').val('any');
+                $('#ZipCode').attr('readonly', true);
+            }
+            else {
+                $('#ZipCode').val('');
+                $('#ZipCode').attr('readonly', false);
+            }
+        });
+
+        $('#zip-form').on('submit', function (e) {
+            e.preventDefault();
+
+            var disabledElements = $(this).find(':disabled');
+            disabledElements.removeAttr('disabled');
+
+            var form = $(this);
+
+            var submitBtn = form.find(':submit');
+            submitBtn.attr('disabled', 'disabled');
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: "POST",
+                async: false,
+                data: $(this).serialize(),
+                success: function (data) {
+                    $('#RedirectUrl').val('');
+                    $('#ZipCode').val('');
+                    $('#Title').val('');
+                    $('#Description').val('');
+                    $('#Address').val('');
+                    $('#ZipCodeRedirectId').val(0);
+                    $('#zip-form-close').trigger('click');
+                    GenerateGridTable("zipcodes", "/getzipcoderedirects?bcid=@Model.BuyerChannelId", "ID, Redirect url, Zip code, Action");
+                    submitBtn.removeAttr('disabled');
+                },
+                error: function (jXHR, textStatus, errorThrown) {
+                    submitBtn.removeAttr('disabled');
+                }
+            });
+
+            return false;
+        });
+
+    });
+</script>
+
+@using (Html.BeginForm("Item", null, FormMethod.Post, new { @class = "form-validation", id="zip-form" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="panel-body">
+        <fieldset>
+            <div id="general">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group has-feedback">
+                            @Html.LabelFor(x => x.RedirectUrl)
+                            @Html.TextBoxFor(x => x.RedirectUrl, new { @class = "form-control", tabindex = 1, placeholder = "Redirect url" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group has-feedback">
+                            @Html.LabelFor(x => x.ZipCode)
+                            @Html.CheckBox("anyZipCode", new { id = "anyZipCode" })
+                            @Html.TextAreaFor(x => x.ZipCode, new { @class = "form-control", tabindex = 1, placeholder = "Zip codes", required = "required" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group has-feedback">
+                            @Html.LabelFor(x => x.Title)
+                            @Html.TextBoxFor(x => x.Title, new { @class = "form-control", tabindex = 1, placeholder = "Title" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group has-feedback">
+                            @Html.LabelFor(x => x.Description)
+                            @Html.TextAreaFor(x => x.Description, new { @class = "form-control", tabindex = 1, placeholder = "Description", required = "required" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group has-feedback">
+                            @Html.LabelFor(x => x.Address)
+                            @Html.TextBoxFor(x => x.Address, new { @class = "form-control", tabindex = 1, placeholder = "Address" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <div style="color:red">
+            @Html.ValidationSummary()
+        </div>
+
+        <div>
+            @Html.HiddenFor(x => x.ZipCodeRedirectId)
+            @Html.HiddenFor(x => x.BuyerChannelId)
+            <input class="btn btn-info" id="validation-next" value="Submit" type="submit">
+        </div>
+    </div>
+}

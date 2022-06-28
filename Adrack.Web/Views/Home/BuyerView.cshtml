@@ -1,0 +1,103 @@
+﻿@model BuyerViewModel
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Map View</title>
+    <link href="/Content/core/library/bootstrap.css" rel="stylesheet" />
+    <style>
+        body { background-image: url('/Uploads/bg3.jpg'); }
+
+        .panelbg {
+            -moz-box-shadow: 10px 11px 29px -15px rgba(0, 0, 0, 0.75);
+            -webkit-box-shadow: 10px 11px 29px -15px rgba(0, 0, 0, 0.75);
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 10px 11px 29px -15px rgba(0, 0, 0, 0.75);
+            height: 470px;
+            padding: 25px;
+        }
+
+        .footer-container {
+            background-color: #3867b2;
+            bottom: 0px;
+            color: #FFFFFF;
+            height: 100px;
+            left: 0px;
+            padding-top: 10px;
+            position: fixed;
+            text-align: center;
+            width: 100%;
+        }
+
+        .title {
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+            text-shadow: rgb(5, 5, 5) 0px 2px 5px;
+        }
+
+        .map {
+            height: 350px;
+            margin-bottom: 5px;
+            width: 100%;
+        }
+
+        .map > div {
+            border: 1px solid #888888;
+            height: 350px;
+        }
+    </style>
+
+    <script src="~/Scripts/core/library/jquery.min.js"></script>
+    <script src="//maps.google.com/maps?file=api&v=2.x&key=AIzaSyBxLcXG2-rEaPyZGFVegH9fkyItYSUL6q0" type="text/javascript"></script>
+    <script>
+        var map;
+        var directions;
+
+        function initialize() {
+            if (GBrowserIsCompatible()) {
+                map = new GMap2(document.getElementById("map_canvas"));
+                directions = new GDirections(map);
+                directions.load("from: @Model.Address to: @Model.Address2");
+            }
+        }
+
+        $(document).ready(function() {
+            initialize();
+        });
+    </script>
+</head>
+<body>
+<br><br>
+<div class="container">
+    <div class="col-md-12 title">@Model.Title</div>
+
+    <div class="col-md-6">
+        <div class="panel panelbg">
+            @Html.Raw(Model.Description);
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="panel panelbg">
+            <div class="map">
+                <div id="map_canvas"></div>
+            </div>
+            <div class="col-md-3">
+                <h4>
+                    <b>Address:</b>
+                </h4>
+            </div>
+            <div class="col-md-9">
+                <h4> @Model.Address2</h4>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="height: 100px"> </div>
+<div class="footer-container">
+    <h2>We look forward to helping you with your financial needs!</h2>
+</div>
+</body>
+</html>

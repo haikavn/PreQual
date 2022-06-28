@@ -1,0 +1,120 @@
+﻿@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    Html.AddPageTitle("SMTP Settings");
+    Html.AddPageMetaDescription("Customize system SMTP settings");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/selects/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switchery.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+
+}
+
+@model Adrack.Web.ContentManagement.Models.Content.SettingModel
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+            <h5 class="panel-title">SMTP Settings</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <fieldset>
+
+                        <div class="form-group">
+                            <label class="col-lg-3 control-label">E-mail address:</label>
+                            <div class="col-lg-9">
+                                @Html.TextBoxFor(x => x.SmtpEmail, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = T("Profile.Field.Email").Text })
+                                @Html.ValidationMessageFor(x => x.SmtpEmail)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-lg-3 control-label">Display Name:</label>
+                            <div class="col-lg-9">
+                                @Html.TextBoxFor(x => x.SmtpDisplayName, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = T("Profile.Field.Email").Text })
+                                @Html.ValidationMessageFor(x => x.SmtpDisplayName)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-lg-3 control-label">SMTP Host:</label>
+                            <div class="col-lg-9">
+                                @Html.TextBoxFor(x => x.SmtpHost, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = T("Profile.Field.Email").Text })
+                                @Html.ValidationMessageFor(x => x.SmtpHost)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-lg-3 control-label">SMTP Port:</label>
+                            <div class="col-lg-9">
+                                @Html.TextBoxFor(x => x.SmtpPort, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = T("Profile.Field.Email").Text })
+                                @Html.ValidationMessageFor(x => x.SmtpPort)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-lg-3 control-label">Username:</label>
+                            <div class="col-lg-9">
+                                @Html.TextBoxFor(x => x.SmtpUsername, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = T("Profile.Field.Email").Text })
+                                @Html.ValidationMessageFor(x => x.SmtpUsername)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-lg-3 control-label">Password:</label>
+                            <div class="col-lg-9">
+                                @Html.TextBoxFor(x => x.SmtpPassword, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = T("Profile.Field.Email").Text })
+                                @Html.ValidationMessageFor(x => x.SmtpPassword)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-lg-3 control-label">Enable Ssl:</label>
+                            <div class="col-lg-9">
+                                <label class="radio-inline">
+                                    <input type="radio" class="styled" name="EnableSsl" @if (@Model.SmtpEnableSsl == true) { @Html.Raw("checked='checked'") }>
+                                    Yes
+                                </label>
+
+                                <label class="radio-inline">
+                                    <input type="radio" class="styled" name="EnableSsl" @if (@Model.SmtpEnableSsl == false) { @Html.Raw("checked='checked'") }>
+                                    No
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-lg-3 control-label">Use Default Credentials:</label>
+                            <div class="col-lg-9">
+                                <label class="radio-inline">
+                                    <input type="radio" class="styled" name="UseDefaultCredentials" @if (@Model.SmtpUseDefaultCredentials == true) { @Html.Raw("checked='checked'") }>
+                                    Yes
+                                </label>
+
+                                <label class="radio-inline">
+                                    <input type="radio" class="styled" name="UseDefaultCredentials" @if (@Model.SmtpUseDefaultCredentials == false) { @Html.Raw("checked='checked'") }>
+                                    No
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            @if (permissionService.Authorize(PermissionProvider.SettingsSMTPModify))
+            {
+                <div class="text-right">
+                    <button type="submit" class="btn btn-success">Save <i class="icon-arrow-right14 position-right"></i></button>
+                </div>
+            }
+        </div>
+    </div>
+}

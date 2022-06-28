@@ -1,0 +1,280 @@
+﻿@model Adrack.Web.ContentManagement.Models.Accounting.BuyerInvoiceModel
+
+@using Adrack.Service.Helpers
+
+@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+    Html.AddPageTitle(T("PageTitle.Accounting").Text);
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/pages/datatables_basic.js").ToLowerInvariant());
+    var currentUser = this.AppContext.AppUser;
+}
+<script type="text/javascript" src="~/Scripts/plugins/ui/moment/moment.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/daterangepicker.js"></script>
+<style>
+    .daterange {
+        border: 1px #CCCCCC solid;
+        height: 31px;
+        margin-top: 4px;
+        text-align: center;
+    }
+</style>
+
+@if (ViewBag.SelectedAffiliateId != null)
+{
+    @RenderPage("../Shared/AffiliateSubMenu.cshtml")
+}
+else if (ViewBag.SelectedBuyerId != null)
+{
+    @RenderPage("../Shared/BuyerSubMenu.cshtml")
+}
+
+
+@if (currentUser.UserTypeId == SharedData.AffiliateUserTypeId)
+{
+    <h2>Payment Notice</h2>
+}
+else
+{
+    <h2>Invoices</h2>
+}
+
+<div style="width: 200px; float: left;">
+    <input type="text" class="daterange form-control" value="@ViewBag.TimeZoneNow" style="height: 35px; margin: 0 0 -14px 0">
+</div>
+
+<div class="display-inline-block" style="width:50px">
+</div>
+
+<div class="display-inline-block" style="width:300px">
+    <div class="col-md-4 text-center">
+        <span class="text-muted text-size-small">Invoiced: </span><br>
+        <span id="InvoicedSum" class="text-semibold no-margin">0</span>
+    </div>
+
+    <div class="col-md-4 text-center">
+        <span class="text-muted text-size-small">Paid: </span><br>
+        <span id="PaidSum" class="text-semibold no-margin">0</span>
+    </div>
+
+    <div class="col-md-4 text-center">
+        <span class="text-muted text-size-small">Outstanding: </span><br>
+        <span id="ApprovedSum" class="text-semibold no-margin">0</span>
+    </div>
+</div>
+
+<script>
+    $(function () {
+
+        var dtNow = new Date('@Adrack.Web.ContentManagement.Helper.GetTimeZoneStr()');
+        $('.daterange').daterangepicker({
+            applyClass: 'bg-slate-600',
+            cancelClass: 'btn-default',
+            startDate: moment(dtNow),
+            endDate: moment(dtNow),
+            maxDate: moment(dtNow).subtract(-1, 'days'),
+            opens: "right",
+            ranges: {
+                'Today': [moment(dtNow), moment(dtNow)],
+                'Yesterday': [moment(dtNow).subtract(1, 'days'), moment(dtNow).subtract(1, 'days')],
+                'Last 7 Days': [moment(dtNow).subtract(6, 'days'), moment(dtNow)],
+                'Last 30 Days': [moment(dtNow).subtract(29, 'days'), moment(dtNow)],
+                'This Month': [moment(dtNow).startOf('month'), moment(dtNow).endOf('month')],
+                'Last Month': [moment(dtNow).subtract(1, 'month').startOf('month'), moment(dtNow).subtract(1, 'month').endOf('month')],
+                'Last 12 Month': [moment(dtNow).subtract(12, 'month'), moment(dtNow)]
+            },
+            locale: {
+                format: 'MM/DD/YYYY'
+            }
+        });
+
+        $('.daterange').focusout(function () {
+            $('.daterange').trigger('apply.daterangepicker');
+        });
+
+        $('.daterange').on('apply.daterangepicker', function (ev, picker) {
+            return;
+            var dates2 = $('.daterange').val().split('-');
+            var d1 = new Date(dates2[0].replace(/ /g, ''));
+            if (dates2[1] != undefined) {
+                var d2 = new Date(dates2[1].replace(/ /g, ''));
+
+                if (d2.toDateString() == d1.toDateString()) {
+                    $('.daterange').val((d1.getMonth() + 1) + "/" + d1.getDate() + "/" + d1.getFullYear());
+                }
+            }
+        });
+
+        $('.daterange').focusout(function () {
+            $('.daterange').trigger('apply.daterangepicker');
+        });
+
+        $('.daterange').trigger('apply.daterangepicker');
+
+        $('.daterange').change(function() {
+
+            var dates2 = $('.daterange').val().split('-');
+            if (dates2[1] == undefined) {
+                dates2[1] = dates2[0];
+            }
+
+            var dataParam1 = "?dates=" + dates2[0].trim() + ":" + dates2[1].trim() + "&buyerid=" + @ViewBag.EntityId;
+            var dataParam2 = "?datefrom=" + dates2[0].trim() + "&dateto=" + dates2[1].trim() + "&buyerid=" + @ViewBag.EntityId;
+
+            @if (currentUser.UserTypeId == SharedData.AffiliateUserTypeId)
+            {
+                @: GenerateGridTableInvoice("GridViewBuyersInvoices2", "/Management/Accounting/GetBuyerInvoices" + dataParam1, "ID, Invoice Number, Date From / To, Date Created, Invoiced, Paid");
+            }
+            else
+            {
+                @: GenerateGridTableInvoice("GridViewBuyersInvoices2", "/Management/Accounting/GetBuyerInvoices" + dataParam1, "ID, Invoice Number, Date From / To, Date Created, Invoiced, Paid");
+                @: GenerateGridTableInvoice("GridViewPayments", "/Management/Accounting/GetBuyerPayments" + dataParam2, "ID, Payment Date, Amount, Payment Method, Note, Created");
+            }
+        });
+
+/*
+        $("#InvoiceDownload").click(function () {
+            if ($("#InvoiceDownload").hasClass("disabled"))
+                return false;
+
+            var Status = $("tbody .selected td:nth-child(16)").text();
+            if (Status == "Deleted" || Status == "NotApproved") {
+                alert("You Cannot Download " + Status + " Invoice");
+                return false;
+            }
+
+            if (!GridSelectedID) {
+                alert("Plaese Select a Row");
+                return false;
+            }
+
+            window.open('/Management/Accounting/Pdf/' + GridSelectedID);
+        });
+*/
+
+        /*
+                $(document).ajaxStop(function() {
+                    balance = $("#PaidSum").html().replace(/,/g, '').replace('$', '') - $("#InvoicedSum").html().replace(/,/g, '').replace('$', '');
+                    $("#ApprovedSum").html(ConvertToMoney(balance));
+                    if(balance < 0) {
+                        $("#ApprovedSum").addClass("text-danger");
+                    }
+                });
+        */
+
+    });
+
+    function GenerateGridTableInvoice(objID, dataPath, Fields, ActionsArr, Page, Pagesize, Params, FilterSort) {
+
+        if (FilterSort == undefined) {
+            FilterSort = true;
+        }
+
+        Pagesize = Pagesize == null ? 25 : Pagesize;
+
+        GridParams = { _objID: objID, _dataPath: dataPath, _Fields: Fields, _ActionsArr: ActionsArr };
+
+        $(document).ready(function () {
+
+            var fields = Fields.split(",");
+            var tableStr = '<table id="tbl_' + objID + '" class="display table datatable-html dataTable"  role="grid" aria-describedby="DataTables_Table_0_info" cellspacing="0" width="100%"><thead><tr>';
+            fields.forEach(function (item, i, arr) {
+                tableStr += '<th>' + item.trim() + '</th>';
+            });
+
+            tableStr += '</tr></thead></table>';
+
+            $("#" + objID).empty();
+            $("#" + objID).append(tableStr);
+
+            // var contentHeight = $(window).height() - $('body > .navbar').outerHeight() - $('body > .navbar-fixed-top:not(.navbar)').outerHeight() - $('body > .navbar-fixed-bottom:not(.navbar)').outerHeight() - $('body > .navbar + .navbar').outerHeight() - $('body > .navbar + .navbar-collapse').outerHeight() - 260;
+
+            var data_table =
+            $('#tbl_' + objID).dataTable({
+                autoWidth: true,
+                /* scrollY: contentHeight, */
+                "order": [[0, "desc"]],
+                "searching": false,
+                "ordering": FilterSort,
+                "processing": true,
+                "serverSide": false,
+                "iDisplayLength": Pagesize,
+                "paging": Page != null ? false : FilterSort,
+                "info": Page != null ? false : FilterSort,
+
+                ajax: {
+                    url: dataPath,
+                    data: { "actions": JSON.stringify(ActionsArr), "page": Page, "pagesize": Pagesize, "params": Params },
+                    processData: true,
+                    dataType: "json",
+                    type: 'POST'
+                },
+
+                "fnDrawCallback": function (oSettings) {
+                    var api = this.api();
+                    var jsonD = api.ajax.json();
+
+                    if (jsonD != undefined && jsonD.totalsSumStr != undefined && jsonD.totalsSumStr[0] != '') {
+                        $("#InvoicedSum").html(jsonD.totalsSumStr[0]);
+                        $("#PaidSum").html(jsonD.totalsSumStr[1]);
+                        $("#ApprovedSum").html(jsonD.totalsSumStr[2]);
+                        if( parseFloat(jsonD.totalsSumStr[2].replace(/,/g, '').replace('$', '')) < 0 ) {
+                            $("#ApprovedSum").addClass("text-danger");
+                        }
+                    }
+                }
+            });
+
+            if (Page != null) {
+                GenerateGridPagination();
+            }
+
+            $('.datatable-html tbody').on('click', 'tr', function () {
+                $('.datatable-html tbody tr').removeClass('selected');
+                $(this).toggleClass('selected');
+
+                GridSelectedID = $(this).find('td:eq(0)').html();
+
+                if (isNaN(parseInt(GridSelectedID))) {
+                    GridSelectedID = $(this).find('td:eq(1)').html();
+                }
+
+            });
+
+        });
+
+    }
+</script>
+
+<div id="GridViewBuyersInvoices2"></div>
+
+@if (currentUser.UserTypeId == SharedData.AffiliateUserTypeId || @ViewBag.SelectedAffiliateId != null)
+{
+    <script>
+        GenerateGridTableInvoice("GridViewBuyersInvoices2", "/Management/Accounting/GetAffiliateInvoices/?affiliateid="+@ViewBag.EntityId, "ID, Invoice Number, Date From / To, Date Created, Invoiced, Paid, Outstanding");
+    </script>
+}
+else if (currentUser.UserTypeId == SharedData.BuyerUserTypeId || @ViewBag.SelectedBuyerId != null)
+{
+    <script>
+        GenerateGridTableInvoice("GridViewBuyersInvoices2", "/Management/Accounting/GetBuyerInvoices?buyerid="+@ViewBag.EntityId, "ID, Invoice Number, Date From / To, Date Created, Invoiced");
+    </script>
+}
+
+@if (currentUser.UserTypeId == SharedData.BuyerUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+{
+    <hr>
+    <h2>Payments</h2>
+    <br />
+    <div id="GridViewPayments"></div>
+    <script>
+        var dates2 = $('.daterange').val().split('-');
+        if (dates2[1] == undefined) {
+            dates2[1] = dates2[0];
+        }
+
+        var dataParam2 = "?datefrom=" + dates2[0].trim() + "&dateto=" + dates2[1].trim() + "&buyerid=" + @ViewBag.EntityId;
+        GenerateGridTableInvoice("GridViewPayments", "/Management/Accounting/GetBuyerPayments" + dataParam2, "ID, Payment Date, Amount, Payment Method, Note, Created");
+    </script>
+}

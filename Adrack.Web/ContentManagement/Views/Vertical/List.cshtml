@@ -1,0 +1,23 @@
+﻿@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+
+    Html.AddPageTitle("Verticals");
+    Html.AddPageMetaDescription("Shows Verticals");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+}
+
+<br>
+@if (permissionService.Authorize(PermissionProvider.SettingsVerticalAdd))
+{
+    <button id="add_new" type="button" class="btn btn-success btn-sm">
+        <i class="icon-add-to-list position-left"></i>Add vertical
+    </button>
+    <br />
+}
+<div id="GridView1"></div>
+<script src="~/Scripts/pages-js/VerticalList.js"></script>

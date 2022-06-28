@@ -1,0 +1,167 @@
+﻿@using Adrack.Core.Domain.Lead
+@{
+    Layout = null;
+
+    Html.AppendPageScript(PageLayoutPosition.Body, "~/Scripts/plugins/tables/datatables/datatables.min.js".ToLowerInvariant());
+
+    var currentUser = AppContext.AppUser;
+    Dictionary<int, List<CampaignTemplate>> pages = ViewBag.Pages;
+}
+
+<!-- Global stylesheets -->
+<link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700,900" rel="stylesheet" type="text/css">
+<link href="~/Content/core/library/icomoon.css" rel="stylesheet" type="text/css">
+<link href="~/Content/core/library/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="~/Content/core/Base.css" rel="stylesheet" type="text/css">
+<link href="~/Content/core/Base.Component.css" rel="stylesheet" type="text/css">
+<link href="assets/css/colors.css" rel="stylesheet" type="text/css">
+<!-- /global stylesheets -->
+<!-- Core JS files -->
+<script type="text/javascript" src="~/Scripts/plugins/pace.min.js"></script>
+<script type="text/javascript" src="~/Scripts/core/library/jquery.min.js"></script>
+<script type="text/javascript" src="/sassets/js/core/libraries/bootstrap.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/blockui.min.js"></script>
+<!-- /core JS files -->
+<!-- Theme JS files -->
+<script type="text/javascript" src="~/ContentManagement/Scripts/plugins/steps.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/select2.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/uniform.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/jasny.bootstrap.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/validate.min.js"></script>
+
+<script type="text/javascript" src="assets/js/core/app.js"></script>
+<script type="text/javascript" src="assets/js/pages/wizard_steps.js"></script>
+
+<script>
+    $(function() {
+
+        $(".steps-basic").steps({
+            headerTag: "h6",
+            bodyTag: "fieldset",
+            transitionEffect: "fade",
+            titleTemplate: '<span class="number">#index#</span> #title#',
+            labels: {
+                finish: 'Submit'
+            },
+            onFinished: function(event, currentIndex) {
+                alert("Form submitted.");
+            }
+        });
+
+    });
+</script>
+
+<!-- Page container -->
+<div class="page-container">
+    <!-- Page content -->
+    <div class="page-content">
+        <!-- Main content -->
+        <div class="content-wrapper">
+            <!-- Content area -->
+            <div class="content">
+                <!-- Basic setup -->
+                <div style="margin: 3% 7%" class="panel panel-white">
+                    <div class="panel-heading">
+                        <h6 class="panel-title">General Form</h6>
+                        <div class="heading-elements">
+                            <ul class="icons-list">
+                                <li>
+                                    <a data-action="collapse"></a>
+                                </li>
+                                <!--<li><a data-action="reload"></a></li>
+                                <!--<li><a data-action="close"></a></li>-->
+                            </ul>
+                        </div>
+                    </div>
+                    <form class="steps-basic" action="#">
+                        @foreach (var page in pages.Keys)
+                        {
+                            var items = pages[page];
+                            var columns = 1;
+                            var maxcols = 1;
+                            var columnItems = new Dictionary<int, List<CampaignTemplate>>();
+                            foreach (var item in items)
+                            {
+                                var colNumber = item.ColumnNumber > 0 ? item.ColumnNumber : 1;
+
+                                if (!columnItems.ContainsKey(colNumber))
+                                {
+                                    columnItems.Add(colNumber, new List<CampaignTemplate>());
+                                }
+
+                                columnItems[colNumber].Add(item);
+
+                                if (colNumber > maxcols)
+                                {
+                                    maxcols = colNumber;
+                                }
+                            }
+                            var maxrows = (int) Math.Floor(items.Count / (double) maxcols + 1);
+                            var bscol = 12 / maxcols;
+
+                            <h6>Page @page</h6>
+                            <fieldset>
+                                @for (var r = 1; r <= maxrows; r++)
+                                {
+                                    <div class="row">
+                                        @for (var c = 1; c <= maxcols; c++)
+                                        {
+                                            if (r <= columnItems[c].Count)
+                                            {
+                                                var item = columnItems[c][r - 1];
+                                                var required = item.Required ? "required='required'" : "";
+
+                                                <div class="col-sm-@bscol">
+                                                    <div class="form-group">
+                                                        <label for='@Html.Raw(item.SectionName + "-" + item.TemplateField)'>@item.Label<!--<span class="text-danger"> *</span>--></label>
+                                                        @if (item.FieldType != 1)
+                                                        {
+                                                            <input class="form-control" id='@Html.Raw(item.SectionName + "-" + item.TemplateField)' name='@Html.Raw(item.SectionName + "-" + item.TemplateField)' type='text' value='' @required />
+                                                        }
+
+                                                        @if (item.FieldType == 1)
+                                                        {
+                                                            string[] options = null;
+                                                            if (!string.IsNullOrEmpty(item.OptionValues))
+                                                            {
+                                                                options = item.OptionValues.Split('\n');
+                                                            }
+                                                            <br />
+                                                            <select id='@Html.Raw(item.SectionName + "-" + item.TemplateField)' name='@Html.Raw(item.SectionName + "-" + item.TemplateField)' class="form-control">
+                                                                @if (options != null)
+                                                                {
+                                                                    foreach (var o in options)
+                                                                    {
+                                                                        var values = o.Split('=');
+
+                                                                        if (values.Length > 0)
+                                                                        {
+                                                                            <option @Html.Raw(values.Length > 1 ? "value='" + values[1] + "'" : "")>@values[0]</option>
+                                                                        }
+                                                                    }
+                                                                }
+                                                            </select>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="col-sm-@bscol"></div>
+                                            }
+                                        }
+                                    </div>
+                                }
+                            </fieldset>
+                        }
+                    </form>
+                </div>
+            </div>
+            <!-- /basic setup -->
+        </div>
+        <!-- /content area -->
+    </div>
+    <!-- /main content -->
+</div>
+<!-- /page content -->
+<!-- /page container -->

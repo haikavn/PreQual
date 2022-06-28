@@ -1,0 +1,2 @@
+﻿DataProvider: SQLServer
+DataConnectionString: Data Source=DESKTOP-53U85AN\SQLEXPRESS; Initial Catalog=Adrack.Database4; Integrated Security=True; Persist Security Info=False; Connect Timeout=10

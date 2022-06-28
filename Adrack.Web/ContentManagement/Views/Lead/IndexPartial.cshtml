@@ -1,0 +1,1231 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.LeadModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+@using Adrack.Service.Helpers
+
+@{
+    var currentUser = this.AppContext.AppUser;
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+    Html.AddPageTitle(T("PageTitle.Lead").Text);
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+
+    string buyerChannelSelect = "";
+
+    int columnIndex = 1;
+}
+
+<script type="text/javascript" src="~/Scripts/plugins/buttons/spin.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/buttons/ladda.min.js"></script>
+
+<script type="text/javascript" src="~/Scripts/plugins/ui/moment/moment.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/pickers/daterangepicker.js"></script>
+
+<script type="text/javascript" src="~/Scripts/plugins/buttons/spin.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/buttons/ladda.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/forms/selects/select2.min.js"></script>
+
+<script src="~/Scripts/plugins/forms/selects/bootstrap_multiselect.js"></script>
+
+<style>
+    #DataTables_Leads th, #DataTables_Leads td {
+        padding: 12px 2px !important;
+        text-align: center;
+    }
+
+    .idhref:hover {
+    }
+
+    .requestdatatable td {
+        padding: 4px 10px !important;
+    }
+
+    .nav-tabs {
+        margin-bottom: 0 !important;
+    }
+
+    #refresh-play {
+        display: none;
+    }
+
+    #GridViewLeads_paginate {
+        height: 52px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        width: 80%;
+        text-align: left;
+        float: left;
+    }
+
+    .paginginner {
+        width: 5000px;
+    }
+
+    #DataTables_Leads input {
+        font-size: 10px;
+        height: 30px;
+        border: 1px solid #cccccc;
+        box-shadow: 0 0 3px #cccccc;
+        padding: 0 5px;
+    }
+
+    #DataTables_Leads select {
+        font-size: 10px;
+        height: 25px;
+        border: 1px solid #cccccc;
+        box-shadow: 0 0 3px #cccccc;
+    }
+
+    #DataTables_Leads input:hover, #DataTables_Leads input:focus {
+        font-size: 10px;
+        height: 30px;
+        border: 1px solid #2aa6db;
+        box-shadow: 1px 1px 7px #cccccc;
+    }
+
+    .text-ellipsis {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100px;
+    }
+
+    #RefundNote {
+        display: none;
+        float: left;
+        margin-right: 15px;
+    }
+
+    #Btn_AddRefund {
+        float: left;
+    }
+
+    .status-label {
+        width: 77px;
+    }
+
+    .label-error {
+        background-color: #F09922;
+        border-color: #F09922;
+    }
+
+    #DataTables_Leads th {
+        text-align: center;
+    }
+
+    .table-options-container {
+        display: inline-block;
+    }
+
+    .table-options-list {
+        display: none;
+        position: absolute;
+        z-index: 1001;
+        right: 20px;
+        background-color: #ddd;
+        padding: 18px;
+        box-shadow: 1px 1px 12px #222;
+    }
+
+    .table-options-button {
+        cursor: pointer;
+    }
+        .select2-selection {
+        height: 30px;
+        font-size: 10px;
+        box-shadow: 0 0 3px #cccccc;
+    }
+    .select2-selection:hover, .select2-selection:active {
+        border: 1px solid #2aa6db;
+        box-shadow: 0 0 3px #cccccc;
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+        $(".multiselect").multiselect({
+            enableCaseInsensitiveFiltering: true,
+            includeSelectAllOption: true,
+            maxHeight: 150,
+            buttonWidth: 150,
+            numberDisplayed: 2,
+            nSelectedText: 'selected',
+            nonSelectedText: 'None selected',
+            inheritClass: true,
+            buttonText: function(options, select) {
+                var numberOfOptions = $(this).children('option').length;
+                if (options.length === 0) {
+                    return this.nonSelectedText + ' <b class="caret"></b>';
+                }
+                else {
+                    return options.length + ' ' + this.nSelectedText;
+                }
+            }
+        });
+
+    });
+</script>
+
+@RenderPage("../Shared/" + (ViewBag.Type == "b" ? "Buyer" : "Affiliate") + "SubMenu.cshtml")
+
+<button style="display:none;" type="button" class="btn btn-addnote btn-sm" data-toggle="modal" data-target="#lead_note_modal">Add Note <i class="icon-play3 position-right"></i></button>
+<br>
+
+<div class="">
+    <button type="button" id="LeadRefresh2" class="btn btn-info btn-ladda btn-ladda-spinner" data-spinner-color="#fff" data-style="zoom-in"><span class="ladda-label">Refresh</span></button>
+    <!--
+        <span class="btn btn-flat btn-rounded btn-icon btn-xs" id="LeadRefresh0" href="#">
+            <img id="refresh-stop" src="/Content/img/loading7-stop.gif" style="width:36px" />
+            <img id="refresh-play" src="/Content/img/loading7.gif" style="width:36px" />
+        </span>
+    -->
+    &nbsp&nbsp&nbsp
+
+    <button type="button" id="ClearFilters-l" class="btn btn-danger btn-ladda btn-ladda-spinner" data-spinner-color="#fff" data-style="zoom-in"><span class="ladda-label">Clear Filter</span></button>
+
+    <div style="float: right">
+        <label>
+            Show
+            <select id="PageSizeSelect">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option selected value="50">50</option>
+                <option value="100">100</option>
+            </select>
+            Rows per page
+            &nbsp;&nbsp;&nbsp;
+        </label>
+
+        <div style="display: inline-block" id="DataTables_Table_3_info" role="status" aria-live="polite">
+            &nbsp;&nbsp;&nbsp;
+            Total <b><span id="totalRecords"></span></b> entries
+            &nbsp;&nbsp;&nbsp;
+
+            <a id="export-to-excel" class="btn btn-primary btn-ladda" data-dismiss="modal" title="Export to Excel" nohref="nohref" data-toggle="modal" data-target="#modal_form_excel_pass"> Export to CSV </a>
+            <img id="download-excel-loader" src="/Content/img/loading7.gif" width="16px" style="display: none" />
+            <a href="" id="export-to-excel-download" download style="display:none">Download</a>
+        </div>
+        &nbsp;&nbsp;&nbsp;
+
+        <div class="table-options-container">
+            <i class="icon-gear table-options-button"></i>
+            <div class="table-options-list">
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> ID<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> Email<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> First name<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> Last name<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> Date<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> IP<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> ZipCode<br>
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> State<br>
+@if ((currentUser.UserTypeId == SharedData.NetowrkUserTypeId || currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.BuyerUserTypeId))
+{
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> @Html.Raw("Buyer.Ch.Id.<br>")
+}
+
+@if (currentUser.UserTypeId == SharedData.NetowrkUserTypeId || currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.BuyerUserTypeId || currentUser.UserTypeId == SharedData.AffiliateUserTypeId)
+{
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> @Html.Raw("Campaign Id.<br>")
+}
+
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> @Html.Raw("Status <br>")
+
+                @if (Model.ShowNotes && currentUser.UserTypeId == SharedData.BuyerUserTypeId)
+                {
+                <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> <span>Note</span><br>
+                }
+
+                @if (currentUser.UserTypeId == SharedData.NetowrkUserTypeId || currentUser.UserTypeId == SharedData.BuiltInUserTypeId)
+                {
+                    <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> <span>Monitor</span><br>
+                    <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> <span>Resp. Time</span><br>
+                }
+
+                @if (currentUser.UserTypeId == SharedData.NetowrkUserTypeId || currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.BuyerUserTypeId)
+                {
+                    <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> <span>Sold Amount</span><br>
+                }
+
+                @if (currentUser.UserTypeId == SharedData.NetowrkUserTypeId || currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.AffiliateUserTypeId)
+                {
+                    <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> <span>Affiliate Profit</span><br>
+                }
+
+                @if (currentUser.UserTypeId == SharedData.NetowrkUserTypeId || currentUser.UserTypeId == SharedData.BuiltInUserTypeId)
+                {
+                    <input type="checkbox" checked="checked" value="@Html.Raw(columnIndex++)" class="lead-column" /> <span>Profit</span><br>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" value="1" id="GridPageNumber">
+<div id="DataTables_Table_3_wrapper" class="dataTables_wrapper no-footer">
+    <div class="datatable-scroll">
+
+        <table width="100%" class="table datatable-scroll-y dataTable no-footer" id="DataTables_Leads" role="grid" aria-describedby="DataTables_Table_3_info" style="width: 100%;">
+            <thead>
+                <tr role="row" style="height: 0px;">
+                    <th width="5%">
+                        <input style="width:95%" type="text" id="filter-id" value="" placeholder="ID">
+                    </th>
+                    <th width="5%">
+                        <input style="width:95%" type="text" id="filter-email" value="" placeholder="Email">
+                    </th>
+                    <th width="5%">
+                        <input style="width:95%" type="text" id="filter-firstname" value="" placeholder="FirstName">
+                    </th>
+                    <th width="5%">
+                        <input style="width:95%" type="text" id="filter-lastname" value="" placeholder="LastName">
+                    </th>
+                    <th width="5%">
+                        <input type="text" id="filter-created" class="daterange-l" value="@ViewBag.TimeZoneNow">
+                    </th>
+                    <th width="5%">
+                        <input style="width:95%" type="text" id="filter-ip" value="" placeholder="IP">
+                    </th>
+                    <th width="5%">
+                        <input style="width:95%" type="text" id="filter-zip" value="" placeholder="Zip Code">
+                    </th>
+                    <th width="3%">
+                        <input style="width:95%" type="text" id="filter-state" value="" placeholder="State">
+                    </th>
+                    @if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+                    {
+                        <th width="10%">
+                            <select id="filter-affiliate" style="width:95%" data-placeholder="Select an Affiliate..."  class="multiselect" multiple="multiple">
+                                @foreach (Adrack.Core.Domain.Lead.Affiliate af in ViewBag.AllAffiliatesList)
+                                {
+                                    <option value="@af.Id">@af.Name</option>
+                                }
+                            </select>
+                        </th>
+                        <th width="8%">
+                            <select id="filter-affiliate-channel-id" style="width:95%" data-placeholder="Select an Affiliate Channel..."  class="multiselect" multiple="multiple">
+                                @foreach (Adrack.Core.Domain.Lead.AffiliateChannel afch in ViewBag.AllAffiliateChannelsList)
+                                {
+                                    <option value="@afch.Id">@afch.Name</option>
+                                }
+                            </select>
+                        </th>
+
+                        <th width="8%">
+                            <select id="filter-buyer-id" style="width:95%" data-placeholder="Select a Buyer..."  class="multiselect" multiple="multiple">
+                                @if (ViewBag.SelectedBuyerId != null)
+                                {
+                                    <option value="@ViewBag.SelectedBuyerId">@ViewBag.BuyerName</option>
+                                }
+                                else
+                                {
+                                    foreach (Adrack.Core.Domain.Lead.Buyer bu in ViewBag.AllBuyersList)
+                                    {
+                                        <option value="@bu.Id">@bu.Name</option>
+                                    }
+                                }
+                            </select>
+                        </th>
+                        <th width="8%">
+                            <select id="filter-buyer-channel-id" style="width:95%" data-placeholder="Select an Affiliate Channel..."  class="multiselect" multiple="multiple">
+                                @foreach (Adrack.Core.Domain.Lead.BuyerChannel buch in ViewBag.AllBuyerChannelsList)
+                                {
+                                    <option value="@buch.Id" @buyerChannelSelect>@buch.Name</option>
+                                }
+                            </select>
+                        </th>
+                    }
+@if ((currentUser.UserTypeId == SharedData.NetowrkUserTypeId || currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.BuyerUserTypeId || currentUser.UserTypeId == SharedData.AffiliateUserTypeId))
+{
+                    <th width="8%">
+                        <select id="filter-campaign-id" style="width:95%" data-placeholder="Select a campaign..."  class="multiselect" multiple="multiple">
+                            @foreach (Adrack.Core.Domain.Lead.Campaign ca in ViewBag.AllCampaignsList)
+                            {
+                                <option value="@ca.Id">@ca.Name</option>
+                            }
+                        </select>
+                    </th>
+}
+                    @if (currentUser.UserTypeId != SharedData.BuyerUserTypeId)
+                    {
+                        <th width="8%">
+                            <select id="filter-status" style="width: 100%; height: 30px">
+                                <option value="-1" selected="selected">Status</option>
+                                <option value="1">Sold</option>
+                                <option value="2">Error</option>
+                                <option value="3">Reject</option>
+                                <option value="4">Processing</option>
+                            </select>
+                        </th>
+                    }
+                    else
+                    {
+                        <th width="8%">
+                            <select id="filter-status" style="width: 100%; height: 30px">
+                                <option value="1" selected="selected">Sold</option>
+                            </select>
+                        </th>
+                    }
+
+                    @if (Model.ShowNotes && currentUser.UserTypeId == SharedData.BuyerUserTypeId)
+                    {
+                        <th width="4%"><input style="width:95%" type="text" id="filter-notes" value="" placeholder="Status"></th>
+                    }
+
+@if (currentUser.UserTypeId == SharedData.NetowrkUserTypeId || currentUser.UserTypeId == SharedData.BuiltInUserTypeId)
+{
+    <th width="4%">Monitor</th>
+    <th width="4%">Resp. Time</th>
+}
+
+                    @if (currentUser.UserTypeId == SharedData.NetowrkUserTypeId || currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.BuyerUserTypeId)
+                    {
+                        <th width="4%">Sold Amount</th>
+                    }
+
+                    @if (currentUser.UserTypeId == SharedData.NetowrkUserTypeId || currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.AffiliateUserTypeId)
+                    {
+                        <th width="4%">Affiliate Profit</th>
+                    }
+
+                    @if (currentUser.UserTypeId == SharedData.NetowrkUserTypeId || currentUser.UserTypeId == SharedData.BuiltInUserTypeId)
+                    {
+                        <th width="4%">Profit</th>
+                    }
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        @*<div class="dataTables_scroll">
+            <div class="dataTables_scrollBody0" style="width: 100%;">
+                <table width="100%" class="table dataTable no-footer" id="DataTables_Leads" role="grid" aria-describedby="DataTables_Table_3_info" style="width: 100%;">
+                </table>
+            </div>
+        </div>*@
+    </div>
+    <div class="datatable-footer">
+        <!-- <a class="paginate_button previous disabled" id="PreviousPage">←</a> -->
+        <div class="dataTables_paginate paging_simple_numbers" id="GridViewLeads_paginate"></div>
+        <!-- <a class="paginate_button next" id="NextPage">→</a> -->
+    </div>
+</div>
+
+<br><br><br><br>
+
+<script>
+    var spinnerObj = null;
+    var _TimeZoneNow = "";
+    function GeneratePagination(totalRecords) {
+        $("#GridViewLeads_paginate").html('');
+        var pSize = $("#PageSizeSelect").val();
+        var str = '<div class="paginginner">';
+        for (i = 1; i <= totalRecords / pSize + 1; i++) {
+            str += '<a class="paginate_button ' + (i == $("#GridPageNumber").val() ? "first-page current" : "") + '" aria-controls="tbl_GridViewLeads" data-dt-idx="' + i + '" tabindex="0">' + i + '</a>';
+        }
+        str += '</div>';
+        $("#GridViewLeads_paginate").html(str);
+
+        $(".paginginner").css("width", (36 + 2) * (totalRecords / pSize + 1) + "px");
+
+        $(function () {
+            $(".paginate_button").click(function () {
+                $(".paginate_button").removeClass("current");
+                $(this).addClass("current");
+                // $("#PageNumberSpan").html($(this).attr("data-dt-idx"));
+                $("#GridPageNumber").val($(this).attr("data-dt-idx"));
+                GenerateGridLeads($(this).attr("data-dt-idx"), $("#PageSizeSelect").val());
+            });
+
+            $("#NextPage").click(function () {
+                $("#GridPageNumber").val( $("#GridPageNumber").val()+1 );
+
+            });
+
+        });
+
+    }
+
+    function isNumber(n) {
+        return !isNaN(parseFloat(n)) && isFinite(n);
+    }
+
+    function GenerateGridLeads(PageNumber, PageSize) {
+        $(window).scrollTop(0);
+
+        if (PageSize == undefined)
+            PageSize = 50;
+
+        if (PageNumber == undefined)
+            PageNumber = 1;
+        
+        var dates2 = $('#filter-created').val().split('-');
+        if (dates2[1] == undefined) {
+            dates2[1] = dates2[0];
+        }
+
+        var a = $("#filter-affiliate").val();
+        var affiliateIds = '';
+        if (a != undefined) {
+            for (var i = 0; i < a.length; i++) {
+                affiliateIds += a[i];
+                if (i < a.length - 1)
+                    affiliateIds += ",";
+            }
+        }
+
+        a = $("#filter-affiliate-channel-id").val();
+        var affiliateChannelIds = '';
+        if (a != undefined) {
+            for (var i = 0; i < a.length; i++) {
+                affiliateChannelIds += a[i];
+                if (i < a.length - 1)
+                    affiliateChannelIds += ",";
+            }
+        }
+
+        a = $("#filter-buyer-id").val();
+        var buyerIds = '';
+        if (a != undefined) {
+            for (var i = 0; i < a.length; i++) {
+                buyerIds += a[i];
+                if (i < a.length - 1)
+                    buyerIds += ",";
+            }
+        }
+
+        a = $("#filter-buyer-channel-id").val();
+        var buyerChannelIds = '';
+        if (a != undefined) {
+            for (var i = 0; i < a.length; i++) {
+                buyerChannelIds += a[i];
+                if (i < a.length - 1)
+                    buyerChannelIds += ",";
+            }
+        }
+
+        a = $("#filter-campaign-id").val();
+        var campaignIds = '';
+        if (a != undefined) {
+            for (var i = 0; i < a.length; i++) {
+                campaignIds += a[i];
+                if (i < a.length - 1)
+                    campaignIds += ",";
+            }
+        }
+        var tbl_tr = '';
+        var data = 'dates=' + dates2[0].trim() + ":" + dates2[1].trim() +
+            "&leadid=" + $("#filter-id").val() +
+            "&email=" + $("#filter-email").val() +
+            "&firstname=" + $("#filter-firstname").val() +
+            "&lastname=" + $("#filter-lastname").val() +
+            "&zipcode=" + $("#filter-zip").val() +
+            "&bprice=" + $("#filter-bprice").val() +
+            "&affiliate=" + affiliateIds +
+            "&affiliatechannel=" + affiliateChannelIds +
+            "&buyer=" + buyerIds +
+            "&buyerchannel=" + buyerChannelIds +
+            "&campaign=" + campaignIds +
+            "&status=" + $("#filter-status").val() +
+            "&state=" + $("#filter-state").val() +
+            "&ip=" + $("#filter-ip").val() +
+            "&notes=" + ($("#filter-notes").val() != undefined ? $("#filter-notes").val() : '')  +
+            "&pagesize=" + PageSize +
+            "&page=" + PageNumber;
+
+        $.post("/Management/Lead/GetLeadsAjax", data).done(function (retData) {
+
+            $("#totalRecords").html(retData.recordsTotal);
+
+            $("#DataTables_Leads tbody").empty();
+
+            if (retData.data.length == 0) {
+                $("#DataTables_Leads tbody").append('<div class="h3" style="text-align:center">Nothing Found</div   >');
+            }
+
+            _TimeZoneNow = retData.TimeZoneNowStr;
+
+            retData.data.forEach(function (item, i, arr) {
+
+                if (item) {
+                    var style = '';
+
+                    if (i % 2 == 0)
+                        style = 'style="background-color: #e2e2e2"';
+
+                    tbl_tr = '<tr ' + style + '>';
+
+                    var tdNumber = 1;
+                    item.forEach(function (item, i, arr) {
+                        if (!columnsVisibility[i]) return;
+
+                        var thWidth = $("#DataTables_Leads thead tr th:nth-child(" + tdNumber + ")").attr("width");
+
+                        itemData = item == null ? '' : item;
+                        tbl_tr += '<td style="text-align:center" width="' + thWidth + '">' + itemData + '</td>';
+
+                        tdNumber++;
+                    });
+                    tbl_tr += '</tr>';
+                    $("#DataTables_Leads tbody").append(tbl_tr);
+                }
+
+            });
+
+            GeneratePagination(retData.recordsTotal);
+
+            $('.addnotebtn').click(function () {
+                var thisObj = $(this);
+                var currId = $(this).attr('id').replace("l", "");
+                $("#addnoteleadid").html(currId);
+
+                $('#LeadNoteTitle').val(thisObj.data("titleid"));
+
+                $("#LeadNoteText").val(thisObj.data("note"));
+                $("#LeadNoteAuthor").val('');
+
+                $("#LeadAllNotes tbody").html("");
+
+                var data = 'leadid=' + currId;
+                $.post("/Management/Lead/GetLeadNotesAjax/", data).done(function (retData) {
+
+                    retData.data.forEach(function (item, i, arr) {
+                        if (item) {
+                            tbl_tr = '<tr>';
+                            item.forEach(function (item, i, arr) {
+                                itemData = item == null ? '' : item;
+                                tbl_tr += '<td style="text-align:left">' + itemData + '</td>';
+                            });
+                            tbl_tr += '/<tr>';
+                            $("#LeadAllNotes tbody").append(tbl_tr);
+                        }
+                    });
+                });
+
+                $(".btn-addnote").trigger("click");
+            });
+
+            $('.idhref').click(function () {
+                var thisObj = $(this);
+                GridSelectedID = $(this).attr('id');
+                // GridSelectedID = $(this).find('td:eq(0)').html();
+
+                $('#DataTables_Leads tbody tr').removeClass('selected');
+                $(this).toggleClass('selected');
+                $(".tab2tab").removeClass("active");
+                $(".tab3tab").removeClass("active");
+                $(".tab4tab").removeClass("active");
+                $(".tab5tab").removeClass("active");
+                $(".tab1tab").addClass("active");
+                $(".tab-pane2").removeClass("active");
+                $(".tab-pane3").removeClass("active");
+                $(".tab-pane4").removeClass("active");
+                $(".tab-pane5").removeClass("active");
+                $(".tab-pane1").addClass("active");
+
+                $(".btn-info2").trigger("click");
+
+                $("#LeadGeneralInfoContainer").html("");
+
+                var data = 'leadid=' + GridSelectedID;
+
+                $("#left-icon-tab1").html('<img src="/Content/img/ajax-loader.gif" />');
+
+                $.post("/Management/Lead/Item/" + GridSelectedID, data).done(function (retData) {
+                    $("#left-icon-tab1").html(retData);
+                    $("#left-icon-tab2").html($("#tab2content").html());
+                    $("#left-icon-tab3").html($("#tab3content").html());
+                    $("#left-icon-tab4").html($("#tab4content").html());
+                    $("#left-icon-tab5").html($("#tab5content").html());
+
+                    $("#LeadGeneralInfo").hide();
+                    $("#LeadGeneralInfoContainer").html($("#LeadGeneralInfo").html());
+
+                    $("#tab2content").hide();
+                    $("#tab3content").hide();
+                    $("#tab4content").hide();
+                    $("#tab5content").hide();
+
+                    $("#dublicate_count").html('(' + $("#dublicate_count_view").html() + ')');
+
+                    if (thisObj.hasClass("monitor-ico")) {
+                        $(".tab3tab a").trigger("click");
+                    }
+                    if (thisObj.hasClass("redirect-ico")) {
+                        $(".tab5tab a").trigger("click");
+                    }
+                });
+            });
+
+            $('.idhrefbuyer').click(function () {
+
+                var thisObj = $(this);
+                GridSelectedID = $(this).attr('id');
+                // GridSelectedID = $(this).find('td:eq(0)').html();
+
+                $('#DataTables_Leads tbody tr').removeClass('selected');
+                $(this).toggleClass('selected');
+                $(".tab5tab").removeClass("active");
+                $(".tab1tab").addClass("active");
+                $(".tab-pane5").removeClass("active");
+                $(".tab-pane1").addClass("active");
+
+                $(".btn-info-buyer").trigger("click");
+
+                $("#LeadGeneralInfoContainer-buyer").html("");
+
+                var data = 'leadid=' + GridSelectedID;
+
+                $("#left-icon-tab1-buyer").html('<img src="/Content/img/ajax-loader.gif" />');
+
+                $.post("/Management/Lead/Item/" + GridSelectedID, data).done(function (retData) {
+                    $("#left-icon-tab1-buyer").html(retData);
+                    $("#left-icon-tab5-buyer").html($("#tab5content").html());
+
+                    $("#LeadGeneralInfo").hide();
+                    $("#LeadGeneralInfoContainer-buyer").html($("#LeadGeneralInfo").html());
+
+                    $("#tab2content").hide();
+                    $("#tab3content").hide();
+                    $("#tab4content").hide();
+                    $("#tab5content").hide();
+
+                    $("#ResponseBuyerList > option").each(function () {
+                        $("#RefundLeadBuyer").html("");
+                        $("#RefundLeadBuyer").append("<option value='" + $(this).val() + "'>" + $(this).text() + "</option>");
+                    });
+                });
+            });
+
+            /*
+            $("#refresh-play").hide();
+            $("#refresh-stop").show();
+            */
+
+            if (spinnerObj) {
+                spinnerObj.stop();
+            }
+        });
+    }
+
+    var columnsVisibility = @Html.Raw(ViewBag.VisibleColumns == null ? "[true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false]" : "[" + ViewBag.VisibleColumns + "]");
+
+    $(function () {
+
+        $('.lead-column').each(function (){
+            for(var i = 1; i <= columnsVisibility.length; i++)
+            {
+                if (parseInt($(this).val()) == i)
+                {
+                    $(this).prop('checked', columnsVisibility[i - 1]);
+
+                    if (columnsVisibility[i - 1])
+                    {
+                        $("#DataTables_Leads tbody tr td:nth-child(" + $(this).val() + ")").show();
+                        $("#DataTables_Leads thead tr th:nth-child(" + $(this).val() + ")").show();
+                    }
+                    else
+                    {
+                        $("#DataTables_Leads tbody tr td:nth-child(" + $(this).val() + ")").hide();
+                        $("#DataTables_Leads thead tr th:nth-child(" + $(this).val() + ")").hide();
+                    }
+
+                    break;
+                }
+            }
+        });
+
+        $('.lead-column').on('change', function () {
+            columnsVisibility[parseInt($(this).val()) - 1] = $(this).is(':checked');
+
+            var columns = '';
+
+            for(var i = 0; i < columnsVisibility.length; i++)
+            {
+                columns += columnsVisibility[i];
+                if (i < columnsVisibility.length - 1)
+                    columns += ',';
+            }
+
+            $.post("/Management/Lead/SaveColumnsVisibility/", "columns=" + columns).done(function (retData) {
+
+            });
+        });
+
+        //$('.select-search-affiliate').select2();
+
+        $('.btn-ladda-spinner').click(function (e) {
+            e.preventDefault();
+            spinnerObj = Ladda.create(this);
+            spinnerObj.start();
+            return false;
+        });
+
+        var dtNow = new Date('@Adrack.Web.ContentManagement.Helper.GetTimeZoneStr()');;
+        $('.daterange-l').daterangepicker({
+            applyClass: 'bg-slate-600',
+            cancelClass: 'btn-default',
+            startDate: moment(dtNow),
+            endDate: moment(dtNow),
+            maxDate: moment(dtNow).subtract(-1, 'days'),
+            opens: "right",
+            ranges: {
+                'Today': [moment(dtNow), moment(dtNow)],
+                'Yesterday': [moment(dtNow).subtract(1, 'days'), moment(dtNow).subtract(1, 'days')],
+                'Last 7 Days': [moment(dtNow).subtract(6, 'days'), moment(dtNow)],
+                'Last 30 Days': [moment(dtNow).subtract(29, 'days'), moment(dtNow)],
+                'This Month': [moment(dtNow).startOf('month'), moment(dtNow).endOf('month')],
+                'Last Month': [moment(dtNow).subtract(1, 'month').startOf('month'), moment(dtNow).subtract(1, 'month').endOf('month')],
+                'Last 12 Month': [moment(dtNow).subtract(12, 'month'), moment(dtNow)]
+            },
+            locale: {
+                format: 'MM/DD/YYYY'
+            }
+        });
+
+        $('.daterange-l').focusout(function () {
+            $(this).trigger('apply.daterangepicker');
+        });
+
+        $('.daterange-l').on('apply.daterangepicker', function (ev, picker) {
+            return;
+            var dates2 = $(this).val().split('-');
+            var d1 = new Date(dates2[0].replace(/ /g, ''));
+            if (dates2[1] != undefined) {
+                var d2 = new Date(dates2[1].replace(/ /g, ''));
+
+                if (d2.toDateString() == d1.toDateString()) {
+                    $(this).val((d1.getMonth() + 1) + "/" + d1.getDate() + "/" + d1.getFullYear());
+                }
+            }
+        });
+        $('.daterange-l').focusout(function () {
+            $(this).trigger('apply.daterangepicker');
+        });
+
+        $('.daterange-l').trigger('apply.daterangepicker');
+
+        GenerateGridLeads();
+
+        $("#LeadRefresh2").click(function () {
+            $(".paginate_button").removeClass("current");
+            $(".first-page").addClass("current");
+            GenerateGridLeads();
+        });
+
+        $("#ClearFilters-l").click(function () {
+
+            $(".paginate_button").removeClass("current");
+            $(".first-page").addClass("current");
+
+            $(".daterange-l").val(_TimeZoneNow);
+
+            $("#filter-id").val('');
+            $("#filter-email").val('');
+            $("#filter-firstname").val('');
+            $("#filter-lastname").val('');
+            $("#filter-zip").val('');
+            $("#filter-bprice").val('');
+            $("#filter-affiliate").val('');
+            $("#filter-affiliate-channel-id").val('');
+            $("#filter-buyer-id").val('');
+            $("#filter-buyer-channel-id").val('');
+            $("#filter-campaign-id").val("0").trigger("change");
+            $("#filter-ip").val('');
+            $("#filter-state").val('');
+            $("#filter-affiliate").val('');
+            $("#filter-Affiliate-channel-id").val('');
+            $("#filter-buyer-id").val('');
+            $("#filter-buyer-channel-id").val('');
+            $("#filter-status").val("-1").change();
+
+            GenerateGridLeads();
+        });
+
+        $(".table-options-button").click(function () {
+            if ($(".table-options-list").is(':visible')) {
+                $(".table-options-list").hide();
+            }
+            else {
+                $(".table-options-list").show();
+            }
+            // return false;
+        });
+
+        $(".table-options-list").click(function () {
+            // return false;
+        });
+
+        $(".table-options-list input").click(function () {
+
+            if ($(this).is(":checked"))
+            {
+                $("#DataTables_Leads tbody tr td:nth-child(" + $(this).val() + ")").show();
+                $("#DataTables_Leads thead tr th:nth-child(" + $(this).val() + ")").show();
+            }
+            else
+            {
+                $("#DataTables_Leads tbody tr td:nth-child(" + $(this).val() + ")").hide();
+                $("#DataTables_Leads thead tr th:nth-child(" + $(this).val() + ")").hide();
+            }
+            // return false;
+        });
+
+        $("body").click(function () {
+            // $(".table-options-list").hide();
+        });
+
+        $("#Btn_AddRefund").click(function () {
+
+            if (!$("#RefundNote").is(':visible')) {
+                $("#RefundNote").show(800);
+            }
+            else {
+                if ($("#RefundNote").val().trim().length <= 3) {
+                    alert("Please Leave Reason");
+                    return false;
+                }
+                var data =
+                    'leadid=' + $("#CurrentLeadId").text() +
+                    '&note=' + encodeURI($("#RefundNote").val());
+
+                $("#RefundNote").val("");
+                $("#RefundNote").hide(800);
+
+                $.post("/Management/Accounting/AddRefundLeads", data).done(function (retData) {
+                    alert("Refund Request Recived");
+                });
+            }
+        });
+
+        $("#PageSizeSelect").change(function () {
+            GenerateGridLeads(1, $(this).val());
+        });
+
+        $('#DataTables_Leads tbody').on('mousedown', 'tr', function (event) {
+
+            GridSelectedID = $(this).find('td:eq(0)').html();
+
+            $('#DataTables_Leads tbody tr').removeClass('selected');
+            $(this).toggleClass('selected');
+        });
+
+        $("#Btn_AddLeadNote").click(function () {
+
+            var data =
+                'leadid=' + $("#addnoteleadid").html() +
+                '&titleid=' + $("#LeadNoteTitle").val() +
+                '&note=' + encodeURI($("#LeadNoteText").val()) +
+                '&author=' + $("#LeadNoteAuthor").val();
+
+            $.post("/Management/Lead/AddLeadNote", data).done(function (retData) {
+                GenerateGridLeads();
+            });
+
+        });
+
+        $("#Btn_SaveNoteTitle").click(function () {
+            var data = 'notes=' ;
+
+            $(".notes-container").find("input").each(function () {
+                data += $(this).data("id") + ":" + $(this).val() + ";";
+            });
+
+            $.post("/Management/Lead/SaveNotes", data).done(function (retData) {
+
+            });
+
+        });
+
+        $("#Btn_export-excel").click(function () {
+
+            if ($("#excel-password").val().length < 1)
+            {
+                alert("Plase enter your password!");
+                return false;
+            }
+
+            var affiliate = $('#filter-affiliate').val();
+
+            if (affiliate == undefined)
+            {
+                affiliate = @ViewBag.AffiliateId;
+                if (affiliate == -1) affiliate = null;
+            }
+
+            var buyer = $("#filter-buyer-id").val();
+
+            if (buyer == undefined || !isNumber(buyer))
+            {
+                buyer = @ViewBag.BuyerId;
+                if (buyer == -1) buyer = null;
+            }
+
+            $("#export-to-excel").hide();
+            $("#download-excel-loader").show();
+
+            var dates2 = $('.daterange-l').val().split('-');
+            if (dates2[1] == undefined) {
+                dates2[1] = dates2[0];
+            }
+
+            var a = $("#filter-affiliate-channel-id").val();
+
+            var affiliateChannelIds = '';
+
+            if (a != undefined) {
+                if (a.length > 0)
+                    affiliateChannelIds += ",";
+                for (var i = 0; i < a.length; i++) {
+                    affiliateChannelIds += a[i];
+                    if (i < a.length - 1)
+                        affiliateChannelIds += ",";
+                }
+            }
+
+            var data = 'dates=' + dates2[0].trim() + ":" + dates2[1].trim() +
+               "&leadid=" + $("#filter-id").val() +
+               "&email=" + $("#filter-email").val() +
+               "&firstname=" + $("#filter-firstname").val() +
+               "&lastname=" + $("#filter-lastname").val() +
+               "&affiliate=" + affiliate +
+               "&affiliatechannel=" + affiliateChannelIds +
+               "&buyer=" + buyer +
+               "&buyerchannel=" + $("#filter-buyer-channel-id").val() +
+               "&campaign=" + $("#filter-campaign-id").val() +
+               "&status=" + $("#filter-status").val() +
+               "&state=" + $("#filter-state").val() +
+               "&ip=" + $("#filter-ip").val() +
+               "&pagesize=" + 10000 +
+               "&page=" + 1 +
+               "&pass=" + $("#excel-password").val();
+
+            $.post("/Management/Lead/GenerateCSVFileAjax", data).done(function (retData) {
+                if (retData == "0")
+                {
+                    alert("Incorrect Password");
+                    $("#export-to-excel").show();
+                    $("#download-excel-loader").hide();
+                    $("#excel-password").val("");
+                    return false;
+                }
+                $('#export-to-excel-download').attr("href", "/Downloads/" + retData);
+                $('#export-to-excel-download').get(0).click();
+                $("#export-to-excel").show();
+                $("#download-excel-loader").hide();
+                $("#excel-password").val("");
+            });
+
+        });
+    });
+</script>
+
+<button style="display:none;" type="button" class="btn btn-info2 btn-sm" data-toggle="modal" data-target="#modal_theme_info">Launch <i class="icon-play3 position-right"></i></button>
+<button style="display:none;" type="button" class="btn btn-info-buyer btn-sm" data-toggle="modal" data-target="#modal_theme_info_buyer">Launch <i class="icon-play3 position-right"></i></button>
+
+<!-- Info modal -->
+<div id="modal_theme_info" class="modal fade">
+    <div class="modal-dialog modal-full">
+        <div class="modal-content">
+            <br>
+            <div id="LeadGeneralInfoContainer" class="col-md-12"></div>
+            <div class="tabbable">
+                <ul class="nav nav-tabs nav-tabs-highlight">
+                    <li class="tab1tab active"><a href="#left-icon-tab1" data-toggle="tab"><i class="icon-mention position-left"></i> Lead Common Information</a></li>
+                    <li class="tab2tab"><a href="#left-icon-tab2" data-toggle="tab"><i class="icon-menu7 position-left"></i> Logs</a></li>
+                    <li class="tab3tab"><a href="#left-icon-tab3" data-toggle="tab"><i class="glyphicon glyphicon-eye-open position-left"></i> Dublicate Monitor  <span class="text-danger" id="dublicate_count"></span></a></li>
+                    <li class="tab4tab"><a href="#left-icon-tab4" data-toggle="tab"><i class="glyphicon glyphicon-log-in position-left"></i> Affiliate responses  <span class="text-danger" id="affiliate_responses"></span></a></li>
+                    <li class="tab5tab"><a href="#left-icon-tab5" data-toggle="tab"><i class="glyphicon glyphicon-share-alt position-left"></i> Redirect </a></li>
+                </ul>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="tab-content">
+
+                    <div class="tab-pane tab-pane1 active" style="height:400px; overflow-x:auto;" id="left-icon-tab1">
+                        <img src="\Content\img\ajax-loader.gif" />
+                    </div>
+                    <div class="tab-pane tab-pane2" style="height:400px; overflow-x:auto;" id="left-icon-tab2">
+                        <img src="\Content\img\ajax-loader.gif" />
+                    </div>
+                    <div class="tab-pane tab-pane3" style="height:400px; overflow-x:auto;" id="left-icon-tab3">
+                        <img src="\Content\img\ajax-loader.gif" />
+                    </div>
+
+                    <div class="tab-pane tab-pane4" style="height:400px; overflow-x:auto;" id="left-icon-tab4">
+                        <img src="\Content\img\ajax-loader.gif" />
+                    </div>
+
+                    <div class="tab-pane tab-pane5" style="height:400px; overflow-x:auto;" id="left-icon-tab5">
+                        <img src="\Content\img\ajax-loader.gif" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                @if (permissionService.Authorize(PermissionProvider.LeadsRefundRequest))
+                {
+                    <textarea placeholder="Leave a Reason" id="RefundNote" cols="50"></textarea>
+                        <button type="button" id="Btn_AddRefund" class="btn btn-info btn-ladda "><span class="ladda-label">Request Lead Refund</span></button>
+                }
+                <button type="button" class="btn btn-link" data-dismiss="modal" data-target="#modal_theme_info">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /info modal -->
+
+<!-- Info modal for Buyer -->
+<div id="modal_theme_info_buyer" class="modal fade">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <br>
+            <div id="LeadGeneralInfoContainer-buyer" class="col-md-12"></div>
+            <div class="tabbable">
+
+                <ul class="nav nav-tabs nav-tabs-highlight">
+                    <li class="tab1tab active"><a href="#left-icon-tab1-buyer" data-toggle="tab"><i class="icon-mention position-left"></i> Lead Common Information</a></li>
+                    <li class="tab5tab"><a href="#left-icon-tab5-buyer" data-toggle="tab"><i class="glyphicon glyphicon-share-alt position-left"></i> Redirect </a></li>
+                </ul>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="tab-content">
+
+                    <div class="tab-pane tab-pane1 active" style="height:400px; overflow-x:auto;" id="left-icon-tab1-buyer">
+                        <img src="\Content\img\ajax-loader.gif" />
+                    </div>
+
+                    <div class="tab-pane tab-pane5" style="height:400px; overflow-x:auto;" id="left-icon-tab5-buyer">
+                        <img src="\Content\img\ajax-loader.gif" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal" data-target="#modal_theme_info">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /info modal -->
+
+<!-- Lead Note Modal -->
+<div id="lead_note_modal" class="modal fade">
+    <div class="modal-dialog modal-title">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Add Note for Lead ID: <span id="addnoteleadid"></span></h5>
+            </div>
+
+            <div class="modal-body">
+                Title:<br>
+                    <select name="" id="LeadNoteTitle" placeholder="Choose a Title..." class="form-control">
+                        <option value="0">Pending Contact</option>
+                        @{
+                            foreach (Adrack.Core.Domain.Lead.NoteTitle nt in ViewBag.AllLeadNotes)
+                            {
+                                if(nt.Title.Trim() != "")
+                                {
+                                    <option value="@nt.Id.ToString()">@nt.Title</option>
+                                }
+                            }
+                        }
+                    </select>
+
+                 <a data-dismiss="modal" nohref="nohref" data-toggle="modal" data-target="#note_title_modal"><i class="glyphicon glyphicon-pencil"></i> Edit Titles</a>
+                <br />
+                Author:<br />
+                <input type="text" id="LeadNoteAuthor" class="form-control" />
+                <br>
+                Note:<br>
+                <textarea id="LeadNoteText" class="form-control" style="width:100%" rows="4"></textarea>
+                <br>
+                Status history:
+                <div style="width: 100%; height:140px; overflow: auto">
+                    <table id="LeadAllNotes" class="table">
+                        <thead>
+                            <tr>
+                                <th style="text-align: left">Created</th>
+                                <th style="text-align: left">Title</th>
+                                <th style="text-align: left">Note</th>
+                                <th style="text-align: left">Author</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <button id="Btn_AddLeadNote" type="button" data-target="#lead_note_modal" data-toggle="modal" class="btn btn-success btn-sm">
+                    <i class="icon-add-to-list position-left"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Lead Note Modal -->
+<!-- Note Title Modal -->
+<div id="note_title_modal" class="modal fade">
+    <div class="modal-dialog modal-title">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Edit Note Titles:</h5>
+            </div>
+
+            <div class="modal-body">
+                Title:<br>
+                <div class="col-md-12 notes-container">
+                    @{
+                        foreach (Adrack.Core.Domain.Lead.NoteTitle nt in ViewBag.AllLeadNotes)
+                        {
+                            <div style="width:25px; display:inline-block; text-align: center;">@nt.Id.ToString()</div> <input type="text" data-id="@nt.Id.ToString()" class="form-control" value="@nt.Title" style="display:inline-block; width:90%; margin-bottom:3px;" /><br>
+                        }
+                    }
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <button id="Btn_SaveNoteTitle" type="button" data-target="#note_title_modal" data-toggle="modal" class="btn btn-success btn-sm">
+                    <i class="icon-add-to-list position-left"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Note Title Modal -->
+
+<!--Edit Payment Modal Window-->
+<div id="modal_form_excel_pass" class="modal fade">
+    <div class="modal-dialog modal-xs">
+        <div class="modal-content">
+
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Please Enter Your Password</h5>
+            </div>
+
+            <form action="#">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <input class="form-control" type="password" id="excel-password" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                    <button id="Btn_export-excel" type="button" data-target="#modal_form_excel_pass" data-toggle="modal" class="btn btn-success btn-sm">
+                        <i class="icon-add-to-list position-left"></i> Export to CSV
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

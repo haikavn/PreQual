@@ -1,0 +1,486 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.AffiliateModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+@using Adrack.Service.Helpers
+
+@{
+    Html.AddPageTitle("Affiliate");
+    Html.AddPageMetaDescription("");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switchery.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/json2.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/ContentManagement/Scripts/plugins/notifications/pnotify.min.js").ToLowerInvariant());
+
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+
+    var appUser = this.AppContext.AppUser;
+}
+
+<link rel="stylesheet" type="text/css" href="~/Scripts/plugins/tel/css/intlTelInput.css" />
+<script src="~/Scripts/plugins/tel/js/intlTelInput.js"></script>
+
+@if (appUser.UserTypeId == SharedData.BuiltInUserTypeId || appUser.UserTypeId == SharedData.NetowrkUserTypeId)
+{
+    @RenderPage("../Shared/AffiliateSubMenu.cshtml")
+}
+
+<script>
+    var removed_notes = [];
+
+    function node_remove(e)
+    {
+        removed_notes.push($(e).parent().parent().data('id'));
+        $(e).parent().parent().remove();
+    }
+
+    $(function () {
+
+        $("#@Html.FieldIdFor(x => x.CountryId)").change(function () {
+            var selectedItem = $(this).val();
+
+            var ddlStates = $("#@Html.FieldIdFor(x => x.StateProvinceId)");
+
+            var statesProgress = $("#states-loading-progress");
+            statesProgress.show();
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.RouteUrl("GetStateProvinceByCountryId"))",
+                data: { "countryId": selectedItem, "addSelectStateProvinceItem": "true" },
+                success: function (data) {
+                    ddlStates.html('');
+                    $.each(data, function (id, option) {
+                        if (option.id == 0) option.id = "";
+                        ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                    });
+                    statesProgress.hide();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    statesProgress.hide();
+                }
+            });
+        });
+
+        $('.select').select2();
+
+        var elems = document.querySelectorAll('.switchery');
+        for (var i = 0; i < elems.length; i++) {
+            var switchery = new Switchery(elems[i]);
+        }
+
+        $('#add_new_affiliate').click(function () {
+            window.location = '/Management/AffiliateChannel/Item';
+            return false;
+        });
+
+        $('#add_note_btn').click(function () {
+
+            var today = new Date();
+            var dd = today.getDate();
+            var mm = today.getMonth()+1; //January is 0!
+
+            var yyyy = today.getFullYear();
+            if(dd<10){
+                dd='0'+dd
+            }
+            if(mm<10){
+                mm='0'+mm
+            }
+            var today = yyyy+'-'+mm+'-'+dd;
+
+            $('#affiliate_notes tbody').append('<tr data-id="0"><td>' + today + '</td><td>' + $('#note').val() + '</td><td><div onclick="node_remove(this)"><i class="glyphicon glyphicon-remove red"></i></div></td></tr>');
+
+            $('#note').val('');
+            $('#modal_form_add_note').modal('hide');
+
+            return false;
+        });
+
+        $('#approve').click(function () {
+
+            $.ajax({
+                url: "@(Url.RouteUrl("SetAffiliateStatus"))",
+                type: "POST",
+                data: { id: @Model.AffiliateId, status: 1 },
+                success: function (data) {
+                    alert('Affiliate approved');
+                    window.location = '/management/affiliate/list';
+                },
+                error: function (jXHR, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+
+            return false;
+        });
+
+        $('#reject').click(function () {
+            $.ajax({
+                url: "@(Url.RouteUrl("SetAffiliateStatus"))",
+                type: "POST",
+                data: { id: @Model.AffiliateId, status: 3 },
+                success: function (data) {
+                    alert('Affiliate rejected');
+                    window.location = '/management/affiliate/list';
+                },
+                error: function (jXHR, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+
+            return false;
+        });
+
+        $('#item-form').on('submit', function (e) {
+            e.preventDefault();
+
+            ShowLoader();
+
+            var disabledElements = $(this).find(':disabled');
+            disabledElements.removeAttr('disabled');
+
+            var btn = $(":input[type=submit]:focus");
+
+            var notes = [];
+
+            $('#affiliate_notes tbody tr').each(function () {
+                var date = $(this).children('td').eq(0).text();
+                var note = $(this).children('td').eq(1).text();
+
+                notes.push([ date, note, $(this).data('id') ]);
+            });
+
+            for(var i = 0; i < removed_notes.length; i++)
+            {
+                notes.push([ '', '', -removed_notes[i] ]);
+            }
+
+            var notesjson = JSON.stringify(notes);
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: "POST",
+                async: false,
+                data: $(this).serialize() + '&notes=' + notesjson + '&action=' + btn.val(),
+                success: function (data) {
+                    HideLoader();
+                    NotificationPopup('Success', 'Affiliate successfully saved');
+
+                    if (data.error != undefined)
+                    {
+                        alert(data.error);
+                    }
+                    else{
+                        window.location = '/management/affiliate/list';
+                    }
+
+                    disabledElements.attr('disabled', 'disabled');
+                },
+                error: function (jXHR, textStatus, errorThrown) {
+                    disabledElements.attr('disabled', 'disabled');
+                    HideLoader();
+                }
+            });
+
+            return false;
+        });
+
+        $('#BillFrequency').change(function () {
+            if ($(this).val() == 'w' || $(this).val() == 'bw') {
+                $("#FrequencyValue").html(
+                    '<option value="1">Monday</option>' +
+                    '<option value="2">Tuesday</option>' +
+                    '<option value="3">Wednesday</option>' +
+                    '<option value="4">Thursday</option>' +
+                    '<option value="5">Friday</option>' +
+                    '<option value="6">Saturday</option>' +
+                    '<option value="7">Sunday</option>');
+                $("#BillWithin").val(1);
+            }
+            else {
+                var ss = '';
+                for (i = 1; i <= 31; i++) {
+                    ss += '<option value="' + i + '">' + i + '</option>';
+                }
+                $("#FrequencyValue").html(ss);
+            }
+
+        });
+
+        $(".nav-tabs li").click(function(){
+            location.hash = $(this).find("a").attr("href");
+            if (location.hash == "#dashboard-tab")
+            {
+                $('#refresh_dashboard').trigger('click');
+            }
+        });
+
+    });
+</script>
+
+<br>
+<b>@Model.Name</b>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-validation", id="item-form" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group has-feedback">
+                    @Html.Label("Company Name")
+                    @Html.TextBoxFor(x => x.Name, new { @class = "form-control", tabindex = 1, placeholder = "Affiliate name", required = "required", maxlength = "50" })
+                    <div class="form-control-feedback">
+                        <i class="icon-user-plus text-muted"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group has-feedback">
+                    @Html.LabelFor(x => x.Website)
+                    @Html.TextBoxFor(x => x.Website, new { @class = "form-control", tabindex = 1, placeholder = "Website", required = "required", type = "url", maxlength = "255" })
+                    <div class="form-control-feedback">
+                        <i class="icon-file-check text-muted"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group has-feedback">
+                    @Html.LabelFor(x => x.AddressLine1)
+                    @Html.TextBoxFor(x => x.AddressLine1, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Address line1", required = "required", maxlength = "150" })
+                    <div class="form-control-feedback">
+                        <i class="icon-address-book text-muted"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group has-feedback">
+                    @Html.LabelFor(x => x.AddressLine2)
+                    @Html.TextBoxFor(x => x.AddressLine2, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Address line2", maxlength = "150" })
+                    <div class="form-control-feedback">
+                        <i class="icon-user-plus text-muted"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group has-feedback">
+                    @Html.LabelFor(x => x.City)
+                    @Html.TextBoxFor(x => x.City, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "City", required = "required", maxlength = "100" })
+                    <div class="form-control-feedback">
+                        <i class="icon-user-plus text-muted"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group has-feedback">
+                    @Html.Label("Company email")
+                    @Html.TextBoxFor(x => x.CompanyEmail, new { @class = "form-control", autofocus = "autofocus", tabindex = 1, placeholder = "Company email", required = "required", type = "email", maxlength = "150" })
+                    <div class="form-control-feedback">
+                        <i class="icon-user-plus text-muted"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group has-feedback">
+                    @Html.LabelFor(x => x.ZipPostalCode)
+                    @Html.TextBoxFor(x => x.ZipPostalCode, new { @class = "form-control", tabindex = 1, placeholder = "Zip postal code", type = "text", required = "required", pattern="[0-9]{5}", maxlength="5" })
+                    <div class="form-control-feedback">
+                        <i class="icon-user-plus text-muted"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group has-feedback">
+                    @Html.Label("Company phone")
+                    @Html.TextBoxFor(x => x.CompanyPhone, new { @class = "form-control", tabindex = 1, type="tel", placeholder = "Telephone", required = "required", pattern="[0-9]{7,15}"})
+                    <div class="form-control-feedback">
+                        <i class="icon-user-plus text-muted"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group has-feedback">
+                    @Html.Label("Country")<br />
+                    @Html.DropDownList("CountryId", Model.ListCountry, new { @class = "select", required = "required" })
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group has-feedback">
+                    @Html.Label("State/Province")<br />
+                    @Html.DropDownList("StateProvinceId", Model.ListStateProvince, new { @class = "select", required = "required" })
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group has-feedback">
+                    @Html.Label("Manager")<br />
+                    @if (appUser.UserTypeId != SharedData.AffiliateUserTypeId)
+                    {
+                        @Html.DropDownList("ManagerId", Model.ListUser, new { @class = "select", required = "required", width = "150px" })
+                    }
+                    else
+                    {
+                        @Html.DropDownList("ManagerId", Model.ListUser, new { @class = "select", disabled="disabled", required = "required", width = "150px" })
+                    }
+                </div>
+            </div>
+
+            @if (appUser.UserTypeId != SharedData.AffiliateUserTypeId)
+            {
+            <div class="col-md-3">
+                <div class="form-group has-feedback">
+                    @Html.Label("Status")<br />
+                    @if (appUser.UserTypeId == SharedData.BuiltInUserTypeId || appUser.UserTypeId == SharedData.NetowrkUserTypeId)
+                    {
+                        @Html.DropDownList("Status", Model.ListStatus, new { @class = "select", required = "required", width = "150px" })
+                    }
+                    else
+                    {
+                        @Html.DropDownList("Status", Model.ListStatus, new { @class = "select", disabled = "disabled", width = "150px" })
+                    }
+                </div>
+            </div>
+            }
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                <div class="form-group has-feedback">
+                    @Html.Label("Default affiliate price method")<br />
+                    @Html.DropDownList("DefaultAffiliatePriceMethod", Model.ListDefaultAffiliatePriceMethod, new { @class = "select", required = "required" })
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="form-group has-feedback">
+                    @Html.Label("Default affiliate price")
+                    @Html.TextBoxFor(x => x.DefaultAffiliatePrice, new { @class = "form-control", tabindex = 1, @type = "number", required = "required" })
+                </div>
+            </div>
+        </div>
+        <hr>
+
+        @*<div class="row">
+                <h6>Billing Details</h6>
+                <div class="row">
+                    <div class="col-md-2">
+                        <label>Bill frequency: </label><br>
+                        <select class="form-control" name="BillFrequency" id="BillFrequency">
+                            <option value="m" @{ if (Model.BillFrequency == "m") { @Html.Raw("selected='selected'"); } } >Monthly</option>
+                            <option value="w" @{ if (Model.BillFrequency == "w") { @Html.Raw("selected='selected'"); } }>Weekly</option>
+                            <option value="bw" @{ if (Model.BillFrequency == "bw") { @Html.Raw("selected='selected'"); } }>Bi-Weekly</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-1">
+                        <label>Value: </label>
+                        <select class="form-control" name="FrequencyValue" id="FrequencyValue" data-value="@Model.FrequencyValue">
+                            @if (Model.BillFrequency == "m")
+                            {
+                                for (int i = 1; i <= 31; i++)
+                                {
+                                    <option @{ if (Model.FrequencyValue == i) { @Html.Raw("selected='selected'")      ; } } value="@i">@i</option>
+                                }
+                            }
+                            else
+                            {
+                                <option @{ if (Model.FrequencyValue == 1) { @Html.Raw("selected='selected'")     ; } } value="1">Monday</option>
+                                <option @{ if (Model.FrequencyValue == 2) { @Html.Raw("selected='selected'")      ; } } value="2">Tuesday</option>
+                                <option @{ if (Model.FrequencyValue == 3) { @Html.Raw("selected='selected'")     ; } } value="3">Wednesday</option>
+                                <option @{ if (Model.FrequencyValue == 4) { @Html.Raw("selected='selected'")     ; } } value="4">Thursday</option>
+                                <option @{ if (Model.FrequencyValue == 5) { @Html.Raw("selected='selected'")     ; } } value="5">Friday</option>
+                                <option @{ if (Model.FrequencyValue == 6) { @Html.Raw("selected='selected'")     ; } } value="6">Saturday</option>
+                                <option @{ if (Model.FrequencyValue == 7) { @Html.Raw("selected='selected'")     ; } } value="7">Sunday</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+        </div>*@
+        <br>
+        <hr>
+
+        @if (Model.AffiliateId != 0 && Model.Status == 2 && (appUser != null && appUser.UserTypeId == SharedData.BuiltInUserTypeId))
+        {
+            <!--<div class="row">
+                <button id="approve">Approve</button>
+                <button id="reject">Reject</button>
+            </div>
+            <br />-->
+        }
+
+        <div class="row">
+            <button id="0" type="button" data-target="#modal_form_add_note" data-toggle="modal" class="AddPaymentMethodBtn btn btn-success btn-sm">
+                <i class="icon-add-to-list position-left"></i> Add note
+            </button>
+
+            <div class="table-responsive">
+                <table id="affiliate_notes" class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Note</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Notes)
+                        {
+                            <tr data-id="@item.AffiliateId">
+                                <td>@item.Created.ToShortDateString()</td>
+                                <td>@item.Note</td>
+                                <td><div onclick="node_remove(this)"><i class="glyphicon glyphicon-remove red"></i></div></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div style="color:red">
+        @Html.ValidationSummary()
+    </div>
+
+    <div class="row panel-body">
+        <div class="col-md-12 text-right">
+            @Html.HiddenFor(x => x.AffiliateId)
+            <input class="btn btn-success" id="validation-next" value="Save" type="submit">
+        </div>
+    </div>
+}
+
+<div id="modal_form_add_note" class="modal fade">
+    <div class="modal-dialog modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Add note</h5>
+            </div>
+            <div id="ModalBodyNote" class="panel-body">
+                <textarea id="note" style="width:100%;" rows="15"></textarea>
+                <button id="add_note_btn" type="button" data-dismiss="modal" class="btn btn-info">Add</button>
+            </div>
+        </div>
+    </div>
+</div>

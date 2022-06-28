@@ -1,0 +1,220 @@
+<html>
+<head>
+
+    <style>
+
+        .supstile {
+            font-size: 1.2em;
+        }
+
+        .tablerows {
+            color: #555555;
+        }
+
+        .tablerows2 {
+            background-color: #EEEEEE;
+        }
+
+
+        .tablecell {
+            height: 30px;
+            padding-left: 30px;
+            padding-top: 7px;
+            padding-bottom: 7px;
+            font-size: 1.3em;
+            text-align: left;
+        }
+
+.bold {
+            font-weight:bold
+        }
+
+
+        .tablecell2 {
+            height: 30px;
+            padding-left: 30px;
+            padding-top: 3px;
+            padding-bottom: 14px;
+            text-align: left;
+        }
+
+        .tablecell3 {
+            font-size: 1.8em;
+            height: 50px;
+            padding-left: 20px;
+            padding-top: 10px;
+            padding-bottom: 14px;
+            text-align: left;
+        }
+    </style>
+
+</head>
+<body style="margin:0px;">
+    <!-- pagemarker -->
+
+    <div style="background-color:#EEEEEE; margin-top:40px;">
+        <div style="position:fixed; top:45px; padding-top:15px; padding-bottom:15px; font-weight:bold; font-size:1.5em; text-align:center; width:100%;">
+            Buyer Invoice
+        </div>
+
+        <div style="position:absolute; top:25px; padding-top:15px; padding-bottom:15px; padding-right:20px; font-weight:bold; font-size:1.5em; text-align:right; width:100%; ">
+            <img src="@path/header.png">
+        </div>
+
+
+        <br>
+        <br>
+
+        <br>
+
+        <br>
+        <br>
+
+        <br>
+
+        <table width=100%>
+            <tr class="tablerows">
+                <td class="tablecell bold">Company</td>
+                <td class="tablecell">@buyercompanyname</td>
+                <td class="tablecell" width=50% style="vertical-align:top;" rowspan=4>
+                    <span class="bold">@networkcompanyname</span><br>
+                    <br>@networkcompanyaddress1<br>@networkcompanyaddress2<br>@networkcompanycountry
+                </td>
+            </tr>
+
+            <tr class="tablerows">
+                <td class="tablecell bold">E-mail:</td>
+                <td class="tablecell">@buyeremail</td>
+            </tr>
+
+            <tr class="tablerows">
+                <td class="tablecell bold">Country</td>
+                <td class="tablecell">@buyercountry</td>
+            </tr>
+            <tr class="tablerows">
+                <td class="tablecell bold">State</td>
+                <td class="tablecell">@buyerstate</td>
+            </tr>
+
+            <tr class="tablerows">
+                <td class="tablecell bold">Address</td>
+                <td class="tablecell">@buyeraddress</td>
+            </tr>
+
+
+            <tr class="tablerows">
+                <td class="tablecell bold">IBAN</td>
+                <td class="tablecell">@buyeriban</td>
+                <td class="tablecell"><span class="bold">Invoice Number: </span>@invoicenumber</td>
+
+            </tr>
+
+            <tr class="tablerows">
+                <td class="tablecell bold">Swift Code</td>
+                <td class="tablecell">@buyerswift</td>
+                <td class="tablecell"><span class="bold">Invoice Date: </span>@invoicedate</td>
+
+            </tr>
+
+            <tr class="tablerows">
+                <td class="tablecell bold">Phone</td>
+                <td class="tablecell">@buyerphone</td>
+                <td class="tablecell"><span class="bold">Invoice Period: </span>@invoiceperiodstart - @invoiceperiodend</td>
+
+            </tr>
+
+        </table>
+
+
+        <br>
+        <br>
+    </div>
+    <br>
+
+
+    <!--channeltable-->
+    <!--channeltableheader-->
+    <table width="100%" style="margin-top:50px">
+        <tr class="tablerows" style="vertical-align:top">
+            <td class="tablecell">Description</td>
+            <td class="tablecell">Lead Count</td>
+            <td class="tablecell">Lead Price</td>
+            <td class="tablecell">Amount</td>
+        </tr>
+        <!--channeltableheader-->
+        <!--channelmarker-->
+        <tr class="tablerows" style="font-weight:bold; font-size:1.3em;">
+            <td class="tablecell2">@buyerchannelname</td>
+            <td class="tablecell2">@buyerchannelleadcount</td>
+            <td class="tablecell2">@buyerchannelleadprice</td>
+            <td class="tablecell2">@buyerchannelamount</td>
+        </tr>
+        <!--channelmarker-->
+
+    </table>
+
+    <!--channeltable-->
+    
+
+
+    <div style="background-color:#EEEEEE; margin-top:40px;">
+        <div style="padding-top:15px; padding-bottom:15px; font-weight:bold; font-size:1.5em; text-align:center; width:100%;">
+            Custom Adjustments
+        </div>
+    </div>
+
+    <!--channeltableca-->
+    <!--channeltableheaderca-->
+
+    <table width="100%" style="margin-top:50px">
+        <tr class="tablerows" style="vertical-align:top">
+            <td class="tablecell">Description</td>
+            <td class="tablecell">Lead Count</td>
+            <td class="tablecell">Lead Price</td>
+            <td class="tablecell">Amount</td>
+        </tr>
+        <!--channeltableheaderca-->
+        <!--channelmarkerca-->
+        <tr class="tablerows" style="font-weight:bold; font-size:1.3em;">
+            <td class="tablecell2">@buyerchannelname</td>
+            <td class="tablecell2">@buyerchannelleadcount</td>
+            <td class="tablecell2">@buyerchannelleadprice</td>
+            <td class="tablecell2">@buyerchannelamount</td>
+        </tr>
+        <!--channelmarkerca-->
+
+    </table>
+    <!--channeltableca-->
+    <br>
+    <br>
+    <br>
+
+    <hr>
+    <br>
+    <br>
+
+
+    <table width=100%>
+        <tr class="tablerows">
+            <td class="tablecell" style="width:50%"></td>
+            <td class="tablecell"><b>TOTAL</b></td>
+            <td class="tablecell"><b>$@TotalDue</b></td>
+        </tr>
+
+    </table>
+    <hr>
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+
+
+
+    <!-- pagemarker -->
+</body>
+
+</html>

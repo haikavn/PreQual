@@ -1,0 +1,30 @@
+﻿@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    //    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+    Html.AddPageTitle(T("PageTitle.BlackLists").Text);
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+}
+
+<script>
+    $(document).ready(function () {
+        $('#add_new').click(function () {
+            window.location = '/Management/BlackList/Item';
+        });
+    });
+</script>
+
+<h2>Black lists</h2>
+@if (permissionService.Authorize(PermissionProvider.SettingsBlackListsAdd))
+{
+<button id="add_new" type="button" data-target="#modal_form_add_blacklist" data-toggle="modal" class="btn btn-success btn-sm">
+    <i class="icon-add-to-list position-left"></i>Add new blacklist
+</button>
+<br />
+}
+<div id="black_lists" style="width: 460px;"></div>
+<script>
+    GenerateGridTable("black_lists", "/GetBlackListTypes?t=@ViewBag.BlackListType&p=@ViewBag.ParentId", "ID, Name");
+</script>

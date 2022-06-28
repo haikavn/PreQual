@@ -1,0 +1,94 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.AffiliateModel
+
+@using Adrack.Service.Helpers
+
+@{
+    Layout = "~/ContentManagement/Views/Shared/_Master.Page.Layout.cshtml";
+
+    ViewBag.Title = "Dashboard";
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    var currentUser = this.AppContext.AppUser;
+
+    Html.AddPageTitle("Dashboard");
+}
+
+@if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+{
+    @RenderPage("../Shared/AffiliateSubMenu.cshtml")
+}
+
+<div>
+    <br /><br />
+    
+    
+    <div>
+        @{ Html.RenderAction("ReportByDays", "Report", new { id = -Model.AffiliateId }); }
+    </div>
+
+    <div>
+        <h5>Total Balances</h5>@ViewBag.BuyerCompanyName
+        <div id="GridView_AffiliatesBalances"></div>
+    </div>
+    <br>
+
+@if (currentUser.UserTypeId != SharedData.AffiliateUserTypeId)
+{
+    <div>
+        <h5>Statistics</h5>
+        @{ Html.RenderAction("ReportTotals", "Report", new { id = Model.AffiliateId }); }
+    </div>
+}
+</div>
+<script>
+
+    GenerateGridBalance("GridView_AffiliatesBalances", "/Management/Accounting/GetAffiliatesBalanceAjax/", "Name, Initial Balance, Sold Sum, Payment Notices, Payments, Balance, Final Balance");
+
+    function GenerateGridBalance(objID, dataPath, Fields, Page, Pagesize, Params, FilterSort) {
+
+        if (FilterSort == undefined) {
+            FilterSort = true;
+        }
+
+        Pagesize = Pagesize == null ? 1000 : Pagesize;
+
+        $(document).ready(function () {
+
+            var fields = Fields.split(",");
+            var tableStr = '<table id="tbl_' + objID + '" class="display table datatble-html dataTable"  role="grid" aria-describedby="DataTables_Table_0_info" cellspacing="0" width="100%"><thead><tr>';
+            fields.forEach(function (item, i, arr) {
+                tableStr += '<th>' + item.trim() + '</th>';
+            });
+
+            tableStr += '</tr></thead></table>';
+
+            $("#" + objID).empty();
+            $("#" + objID).append(tableStr);
+
+            var data_table =
+            $('#tbl_' + objID).dataTable({
+                autoWidth: true,
+                /* scrollY: contentHeight, */
+                "order": [],
+                "searching": false,
+                "ordering": false,
+                "processing": true,
+                "serverSide": false,
+                "iDisplayLength": Pagesize,
+                "paging": false,
+                "info": false,
+                "bAutoWidth": false,
+
+                ajax: {
+                    url: dataPath,
+                    data: { "page": Page, "pagesize": Pagesize, "params": Params },
+                    processData: true,
+                    dataType: "json",
+                    type: 'POST'
+                }
+            });
+
+        });
+    }
+</script>

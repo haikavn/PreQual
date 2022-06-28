@@ -1,0 +1,230 @@
+body {
+    font-family: Arial;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.header {
+    box-shadow: 0px 2px 15px 0px rgba(0, 0, 0, 0.2);
+    height: 154px;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
+.header .col {
+    box-sizing: border-box;
+    float: left;
+    height: 100%;
+    width: 50%;
+}
+
+.header .col.blue {
+    background-image: linear-gradient(#2d90cc, #1a82c1);
+    color: #ffffff;
+    padding: 30px 15px;
+}
+
+.header .col.grey {
+    background-image: linear-gradient(#f2f2f2, #e2e2e2);
+    padding: 55px 15px;
+    text-align: right;
+}
+
+.header .col.blue .title {
+    font-size: 48px;
+    font-weight: bold;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.header .col.blue .subtitle {
+    font-size: 21px;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+    text-transform: uppercase;
+}
+
+.header .col.grey .title, .header .col.grey a {
+    color: #969696;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.header .col.grey .subtitle {
+    color: #5e5e5e;
+    font-size: 14px;
+    font-weight: bold;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+    text-transform: uppercase;
+}
+
+.banner {
+    background: url('../images/banner.png') no-repeat top right;
+    background-size: cover;
+    height: 490px;
+    position: relative;
+    width: 100%;
+}
+
+.banner .content {
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.banner .content .logo {
+    height: auto;
+    width: 542px;
+}
+
+.banner .contacts, .banner .contacts a {
+    color: #3d3d3d;
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 20px;
+    overflow: hidden;
+    text-align: right;
+}
+
+.banner .contacts span:last-child { margin-left: 20px; }
+
+.banner .contacts img {
+    height: 25px;
+    margin-right: 10px;
+    position: relative;
+    top: 5px;
+    width: 25px;
+}
+
+.blue-line {
+    background-image: linear-gradient(90deg, #1a82c1, #2d90cc);
+    height: 54px;
+    width: 100%;
+}
+
+.button-row {
+    display: none;
+    margin-top: 30px;
+    text-align: center;
+}
+
+.button-row .button {
+    -webkit-box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.5);
+    background-image: linear-gradient(0deg, #2e8cc4, #58b2e8);
+    border-radius: 20px;
+    box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.5);
+    color: #ffffff;
+    display: inline-block;
+    font-size: 12px;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 24px;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+@media only screen and (max-width: 1620px) {
+    .header .col.blue { padding: 40px 15px; }
+
+    .header .col.blue .title { font-size: 42px; }
+
+    .header .col.blue .subtitle { font-size: 16px; }
+
+    .header .col.grey .title { font-size: 28px; }
+
+    .header .col.grey .subtitle { font-size: 13px; }
+
+    .banner .content { transform: translate(-80%, -50%); }
+}
+
+@media only screen and (max-width: 1320px) {
+    .header .col.blue { padding: 42px 15px; }
+
+    .header .col.blue .title { font-size: 40px; }
+
+    .header .col.blue .subtitle { font-size: 14px; }
+
+    .header .col.grey .title { font-size: 28px; }
+
+    .header .col.grey .subtitle { font-size: 13px; }
+
+    .banner .content { transform: translate(-80%, -50%); }
+
+    .banner .content .logo { width: 470px; }
+
+    .banner .contacts { font-size: 18px; }
+
+    .banner .contacts img {
+        height: 20px;
+        width: 20px;
+    }
+
+    .banner .content { transform: translate(-100%, -50%); }
+}
+
+@media only screen and (max-width: 1024px) {
+    .header { height: 308px; }
+
+    .header .col {
+        height: 50%;
+        text-align: center !;
+        width: 100%;
+    }
+
+    .banner .content { transform: translate(-50%, -50%); }
+
+    /*.banner { background-position:center bottom; }*/
+}
+
+@media only screen and (max-width: 768px) {
+    .banner .content .logo { width: 460px; }
+}
+
+@media only screen and (max-width: 480px) {
+    .banner .content { width: 90%; }
+
+    .banner .content .logo { width: 100%; }
+
+    .banner .contacts span { display: block; }
+
+    .header .col.blue .title { font-size: 32px; }
+
+    .header { height: auto; }
+
+    .header .col.blue {
+        height: auto;
+        padding: 24px 15px;
+        text-align: left !important;
+    }
+
+    .header .col.grey {
+        display: none;
+        padding: 38px 15px;
+    }
+
+    .banner {
+        background: none;
+        height: 340px;
+    }
+
+    .banner::before {
+        background: url('../images/banner.png') no-repeat top right;
+        background-size: cover;
+        content: '';
+        height: 100%;
+        opacity: 0.5;
+        position: absolute;
+        width: 100%;
+    }
+
+    .banner .contacts { text-align: left; }
+
+    .banner .contacts span:last-child {
+        margin-left: 0;
+        margin-top: 10px;
+    }
+
+    .button-row { display: block; }
+}

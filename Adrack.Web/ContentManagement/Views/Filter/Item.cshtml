@@ -1,0 +1,275 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.FilterModel
+
+@{
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switchery.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+}
+
+<style>
+    .subitem-ico { float: left; margin: 10px 10px 0 0; }
+    .forsubselect { float: right; width: 365px !important; }
+</style>
+
+
+<script>
+    var filterRowNum = 0;
+    var fieldsSelect = [];
+
+    function addFilterRow(field, condition, value, value2, operator, parentid = 0, existing = false) {
+
+        var addChildBtn = '';
+        var subIcon = '';
+        var forsubselect = '';
+
+        if (parentid == 0) {
+            filterRowNum++;
+            addChildBtn = '<div class="add_child_btn" data-id="' + filterRowNum + '"><i class="glyphicon glyphicon-plus-sign green"></i></div>';
+        } else {
+            subIcon = '<div class="subitem-ico"><i class="glyphicon glyphicon-chevron-right"></i></div>';
+            forsubselect = 'forsubselect';
+        }
+
+        var html = '<tr class="row_' + filterRowNum + '">';
+        html += '<td>';
+        html += subIcon;
+
+        html += '<select class="fields form-control ' + forsubselect + '" data-id="' + filterRowNum + '" data-parent-id="' + parentid + '" style="width: 400px">';
+
+        var selected = '';
+        if (fieldsSelect.length == 0)
+        {
+            @foreach(var t in Model.CampaignTemplate)
+            {
+                @Html.Raw("selected = ''; if (field == " + t.Id.ToString() + ") selected = 'selected';");
+                @Html.Raw("html += '<option value=\"" + t.Id.ToString() + "\" ' + selected +'>" + t.TemplateField + "</option>';");
+            }
+        }
+        else
+        {
+            $.each(fieldsSelect, function (id, option) {
+                selected = '';
+                if (option.id == field) selected = 'selected';
+                html += '<option value="' + option.id + '" ' + selected +'>' + option.name + "</option>";
+            });
+        }
+
+        html += '</select>';
+        html += '</td>';
+        html += '<td>';
+        html += '<select class="form-control">';
+        html += '<option value="1" ' + (condition == '1' ? ' selected' : '') + '>CONTAINS</option>';
+        html += '<option value="2" ' + (condition == '2' ? ' selected' : '') + '>DOES NOT CONTAIN</option>';
+        html += '<option value="3" ' + (condition == '3' ? ' selected' : '') + '>STARTS WITH</option>';
+        html += '<option value="4" ' + (condition == '4' ? ' selected' : '') + '>ENDS WITH</option>';
+        html += '<option value="5" ' + (condition == '5' ? ' selected' : '') + '>EQUAL</option>';
+        html += '<option value="6" ' + (condition == '6' ? ' selected' : '') + '>NOT EQUAL</option>';
+        html += '<option value="7" ' + (condition == '7' ? ' selected' : '') + '>GREATER</option>';
+        html += '<option value="8" ' + (condition == '8' ? ' selected' : '') + '>GREATER EQUAL</option>';
+        html += '<option value="9" ' + (condition == '9' ? ' selected' : '') + '>LESS</option>';
+        html += '<option value="10" ' + (condition == '10' ? ' selected' : '') + '>LESS EQUAL</option>';
+        html += '<option value="11" ' + (condition == '11' ? ' selected' : '') + '>RANGE</option>';
+        html += '<option value="12" ' + (condition == '12' ? ' selected' : '') + '>NO SAME DIGITS</option>';
+        html += '</select>';
+        html += '</td>';
+
+        html += '<td>';
+        html += '<textarea class="first-value form-control" style="resize: none; height: 36px;">' + value + '</textarea>';
+        html += '</td>';
+
+        html += '<td><div class="filter_remove"><i class="glyphicon glyphicon-remove red"></i></div></td>';
+        html += '<td>' + addChildBtn + '</td>';
+        html += '</tr>';
+
+
+        if (parentid == 0) {
+            $('#conditions tbody').append(html);
+        } else
+        {
+            if (!existing)
+                $(html).insertAfter($(".row_" + parentid).last());
+            else
+                $(html).insertAfter($(".row_" + filterRowNum).last());
+        }
+
+        $('.filter_remove').off('click').on('click', function () {
+            $(this).parent().parent().remove();
+        });
+    }
+
+
+    $(document).ready(function () {
+
+        @foreach (var si in Model.FilterConditions)
+        {
+            @: addFilterRow(@si.CampaignTemplateId.ToString(), @si.Condition.ToString(), '@si.Value', '@si.Value', @si.ConditionOperator.ToString(), @Html.Raw(si.ParentId.HasValue ? si.ParentId.ToString() : "0"), true);
+        }
+
+        $('.filter_remove').click(function () {
+            $(this).parent().parent().remove();
+        });
+
+        @if (!Model.IsCampaignReadOnly)
+        {
+            @: $('.select').select2();
+        }
+        else
+        {
+            @: $('.select').select2();
+        }
+
+        $("#campaigns").change(function () {
+            var selectedItem = $(this).val();
+
+            var ddlStates = $(".fields");
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@(Url.RouteUrl("GetCampaignFields"))",
+                data: { "campaignid": selectedItem },
+                success: function (data) {
+                    ddlStates.html('');
+                    fieldsSelect = [];
+                    $.each(data, function (id, option) {
+                        fieldsSelect.push({ id: option.id, name: option.name });
+                        ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                    });
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+        });
+
+        $("#@Html.FieldIdFor(x => x.VerticalId)").change(function () {
+            var selectedItem = $(this).val();
+
+            var ddlStates = $("#campaigns");
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@(Url.RouteUrl("GetCampaignsByVerticalId"))",
+                data: { "verticalId": selectedItem },
+                success: function (data) {
+                    ddlStates.html('');
+                    $.each(data, function (id, option) {
+                        ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                    });
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+        });
+
+
+        $('#filter_add').click(function () {
+            addFilterRow(0, 0, '', '', 0, 0);
+        });
+
+        var inProcessing = false;
+
+        $('form').on('submit', function () {
+            if (inProcessing) return;
+            inProcessing = true;
+
+            var form = $(this);
+
+            var submitBtn = $('.btn-info');
+            submitBtn.attr('disabled', 'disabled');
+
+            var conditions = [];
+
+            $('#conditions tbody tr').each(function () {
+                var field = $(this).children('td').eq(0).children('select').val();
+                var condition = $(this).children('td').eq(1).children('select').val();
+                var value = $(this).children('td').eq(2).children('.first-value').val();
+                var parent = $(this).children('td').eq(0).children('select').data('parent-id');
+                var operator = 0;
+
+                conditions.push({ field: field, condition: condition, value: value, operator: operator, parent: parent });
+            });
+
+            var conditionsjson = JSON.stringify(conditions);
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: "POST",
+                async: false,
+                data: $(this).serialize() + '&json=' + conditionsjson,
+                success: function (data) {
+                    if ($('#CampaignId').val() != '0')
+                    {
+                        window.location = '/management/campaign/item/' + $('#CampaignId').val() + '#filters-tab';
+                    }
+                    else
+                    {
+                        window.location = '/management/filter/list';
+                    }
+                },
+                error: function (jXHR, textStatus, errorThrown) {
+                    inProcessing = false;
+                    submitBtn.removeAttr('disabled');
+                }
+            });
+
+            return false;
+        });
+    }).on("click", ".add_child_btn", function () {
+        addFilterRow(0, 0, '', '', 0, $(this).data('id'));
+    });
+</script>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-validation" }))
+{
+    @Html.AntiForgeryToken()
+<div class="panel-body">
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group has-feedback">
+                @Html.LabelFor(x => x.Name)
+                @Html.TextBoxFor(x => x.Name, new { @class = "form-control", tabindex = 1, placeholder = "Filter name", required = "required" })
+                <div class="form-control-feedback">
+                    <i class="icon-user-plus text-muted"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <button id="filter_add" type="button" class="btn btn-success">Add filter</button>
+        </div>
+    </div>
+    <div class="row margin-top">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="conditions" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th width="10%">Field</th>
+                            <th width="10%">Condition</th>
+                            <th width="88%">Value</th>
+                            <td width="2%"></td>
+                            <td width="2%"></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        </div>
+
+        <div style="color:red">
+            @Html.ValidationSummary()
+        </div>
+
+        <div>
+            @Html.HiddenFor(x => x.FilterId)
+            @Html.HiddenFor(x => x.CampaignId)
+            <input class="btn btn-info" id="validation-next" value="Submit" type="submit">
+        </div>
+    </div>
+}

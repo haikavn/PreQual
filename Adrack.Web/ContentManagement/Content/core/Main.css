@@ -1,0 +1,594 @@
+﻿.margin-top {
+    margin-top: 20px;
+}
+
+.statistic-panel {
+    height: 108px;
+    padding: 5px 8px;
+    text-align: right;
+}
+
+.statistic-panel-received {
+    background-color: #57a5c6;
+}
+
+.statistic-panel-posted {
+    background-color: #ec407a;
+}
+
+.statistic-panel-bought {
+    background-color: #71c371;
+}
+
+.statistic-panel-loaned {
+    background-color: #e1a171;
+}
+
+.statistic-panel-conversion {
+    background-color: #2e5171;
+}
+
+.statistic-panel-revenue {
+    background-color: #903ebf;
+}
+
+.statistic-panel-cost {
+    background-color: #fd8433;
+}
+
+.statistic-panel-profit {
+    background-color: #45A88A;
+}
+
+.statistic-panel {
+    color: #ffffff;
+}
+
+.stat-title {
+    text-align: left;
+}
+
+.active-btn {
+    background-color: #26A69A !important;
+    font-weight: bold !important;
+    color: #ffffff !important;
+}
+
+.active-btn i {
+    color: #ffffff !important;
+}
+
+.stat-item {
+    display: inline-block;
+    width: 14%;
+    margin: 0 3px;
+}
+
+.stat-row {
+    width: 100%;
+    display: inline-block;
+    margin: 0 auto;
+    text-align: center;
+    border-bottom: 1px solid #cccccc;
+    padding: 5px 0 15px 0;
+}
+
+.reportdate {
+    height:35px;
+    width:180px;
+    border: 1px solid #dddddd;
+    text-align: center;
+}
+
+.stat-box .donut-item {
+    width: 300px;
+    height: 200px;
+    display: inline-block;
+    margin: 5px 10px;
+    box-shadow: 0px 2px 4px 2px #cccccc;
+    padding: 15px 5px;
+}
+
+.table-top-states {
+    width: 100%;
+}
+
+.table-top-states td {
+    padding: 0px 10px;
+    text-align: center;
+}
+
+.stat-container {
+    width: 100%;
+    vertical-align: top;
+    margin: 20px auto 10px auto;
+    text-align: center;
+}
+
+.stat-box {
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 20px;
+}
+
+.top-states {
+    box-shadow: 0px 2px 4px 2px #cccccc;
+    width: 400px;
+    height: 200px;
+    margin-top: 5px;
+}
+
+.stat-row .active {
+    background-color: #c3fcf7 !important;
+}
+
+.progress-bg {
+    margin: 5px 0;
+    float: left;
+    width: 100%;
+    background-color: #cccccc;
+    height: 20px;
+}
+
+.progress-bar1 {
+    margin: 5px 0;
+    position: relative;
+    background-color: #03A9F4;
+    height: 20px;
+}
+
+.progress-percent {
+    width: 100%;
+    height: 0px;
+    position: relative;
+    top: -25px;
+    color: #ffffff;
+}
+
+.chart-column-selector {
+    width: 125px;
+    display: inline-block;
+    margin: 0 5px;
+}
+.chart-column-selector option {
+    padding: 8px 5px;
+}
+
+.dashboard-report-top-container {
+    float: left;
+    margin: 24px 0 24px 0;
+}
+
+.DayTypeSelector option {
+    padding: 8px 5px;
+}
+
+#DataTables_History tr td {
+    text-align: center;
+}
+
+#DataTables_Leads th, #DataTables_Leads td {
+    padding: 12px 2px !important;
+    text-align: center;
+}
+
+.idhref:hover {
+}
+
+.requestdatatable td {
+    padding: 4px 10px !important;
+}
+
+.nav-tabs {
+    margin-bottom: 0 !important;
+}
+
+#refresh-play {
+    display: none;
+}
+
+#GridViewLeads_paginate {
+    height: 52px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 80%;
+    text-align: left;
+    float: left;
+}
+
+.paginginner {
+    width: 5000px;
+}
+
+#DataTables_Leads input {
+    font-size: 10px;
+    height: 30px;
+    border: 1px solid #cccccc;
+    box-shadow: 0 0 3px #cccccc;
+    padding: 0 5px;
+}
+
+#DataTables_Leads select {
+    font-size: 10px;
+    width: 95%;
+    min-width: 62px;
+    height: 30px;
+    border: 1px solid #cccccc;
+    box-shadow: 0 0 3px #cccccc;
+}
+
+#DataTables_Leads input:hover, #DataTables_Leads input:focus {
+    border: 1px solid #2aa6db;
+    box-shadow: 1px 1px 7px #cccccc;
+}
+
+.text-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 128px;
+}
+
+#RefundNoteContainer {
+    display: none;
+    float: left;
+    margin-right: 15px;
+    width: 50%;
+    text-align: left;
+}
+
+#Btn_AddRefund {
+    float: left;
+}
+
+.status-label {
+    width: 70px;
+}
+
+.label-error {
+    background-color: #F09922;
+    border-color: #F09922;
+}
+
+#DataTables_Leads th {
+    text-align: center;
+}
+
+.table-options-container {
+    display: inline-block;
+}
+
+.table-options-list {
+    display: none;
+    position: absolute;
+    z-index: 1001;
+    right: 20px;
+    background-color: #ddd;
+    padding: 18px;
+    box-shadow: 1px 1px 12px #222;
+}
+
+.table-options-button {
+    cursor: pointer;
+}
+/*
+.select2-selection {
+    height: 30px;
+    font-size: 10px;
+    box-shadow: 0 0 3px #cccccc;
+}
+*/
+.select2-selection:hover, .select2-selection:active {
+    border: 1px solid #2aa6db;
+    box-shadow: 0 0 3px #cccccc;
+}
+
+#PageSizeSelect {
+    margin-right: 16px;
+}
+
+.status-filter .active{
+    background-color: #E8F5E9;
+}
+
+.status-filter .btn:hover{
+    background-color: #f0f7f0;
+}
+
+.status-filter {
+    margin-bottom: -25px;
+    position: relative;
+    z-index: 2;
+    width:740px;
+}
+
+.EditPaymentMethodBtn, .delete_pament {
+    cursor: pointer;
+}
+
+.RequestDetailsTable tr td, .RequestDetailsTable tr th {
+    text-align: left !important;
+}
+
+#DataTables_Leads th, #DataTables_Leads td {
+        padding: 12px 2px !important;
+        text-align: center;
+    }
+
+    .idhref:hover {
+    }
+
+    .requestdatatable td {
+        padding: 4px 10px !important;
+    }
+
+    .nav-tabs {
+        margin-bottom: 0 !important;
+    }
+
+    #refresh-play {
+        display: none;
+    }
+
+    #GridViewLeads_paginate {
+        height: 52px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        width: 100%;
+        text-align: left;
+    }
+
+    .paginginner {
+        width: 5000px;
+    }
+
+    #DataTables_Leads input, #DataTables_Leads select {
+        font-size: 10px;
+        height: 36px;
+        border: 1px solid #cccccc;
+        box-shadow: 0 0 3px #cccccc;
+        padding: 0 5px;
+    }
+
+        #DataTables_Leads input:hover, #DataTables_Leads input:focus {
+            font-size: 10px;
+            height: 36px;
+            border: 1px solid #2aa6db;
+            box-shadow: 1px 1px 7px #cccccc;
+        }
+
+    .text-ellipsis {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100px;
+    }
+
+    #RefundNote {
+        display: none;
+        float: left;
+        margin-right: 15px;
+    }
+
+    #Btn_AddRefund {
+        float: left;
+    }
+
+    .status-label {
+        width: 77px;
+    }
+
+    .label-error {
+        background-color: #F09922;
+        border-color: #F09922;
+    }
+
+    #DataTables_Leads th {
+        text-align: center;
+    }
+
+/*Invoices*/
+    #tbl_GridViewBuyersInvoices td {
+        padding: 8px 5px !important;
+    }
+    .statuslabel {
+        width: 62px;
+    }
+    .daterange {
+        border: 1px #CCCCCC solid;
+        height: 31px;
+        margin-top: 0px;
+        text-align: center;
+    }
+    .BtnDownload {
+        cursor: pointer;
+        color: #00BCD4;
+    }
+
+    .status-label {
+        width: 80px;
+    }
+
+    .action-btn {
+        width: 80px;
+    }
+/*Balance*/
+.daterange {
+        border: 1px #CCCCCC solid;
+        height: 35px;
+        margin-top: 0px;
+        text-align: center;
+        width: 220px;
+    }
+
+    #tbl_GridView_BuyersBalances td {
+        padding: 0 !important;
+    }
+    #tbl_GridView_BuyersBalances td div {
+        padding: 5px !important;
+    }
+    .toolbar-element {
+        display: inline-block;
+        margin: 0 5px;
+    }
+
+    .footer-totals {
+        width: 100%;
+        background-color: #EFEFEF ;
+    }
+
+    .footer-totals td {
+        width: 12.5%;
+    }
+
+    #tbl_GridView_BuyersBalances tr td {
+        width: 12.5% !important;
+    }
+    #tbl_GridView_BuyersBalances tr td p {
+        padding: 8px 8px 0 8px;
+    }
+
+    .cell-color1 {
+        background-color: #dcffea;
+    }
+    .cell-color2 {
+        background-color: #fdfbdb;
+    }
+    .cell-color3 {
+        background-color: #daeeff;
+    }
+
+    #tbl_GridView_AffiliatesBalances td {
+        padding: 0 !important;
+    }
+    #tbl_GridView_AffiliatesBalances td div {
+        padding: 5px !important;
+    }
+
+    #tbl_GridView_AffiliatesBalances tr td {
+        width: 14.2% !important;
+    }
+    #tbl_GridView_AffiliatesBalances tr td p {
+        padding: 8px 8px 0 8px;
+    }
+
+.buyer-submenu li a.active {
+    background-color: #E8F5E9;
+}
+
+.bulk-filter .btn-group, .bulk-filter .multiselect-container {
+    width: 100%;
+}
+
+.history-partial-table table th, .history-partial-table table td {
+    text-align: center;
+    background-color: #fff !important;
+}
+
+.history-partial-btns {
+    margin-bottom: 25px;
+}
+
+.custom-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.custom-dropdown.selectFullWidth select {
+    width: 100%;
+}
+
+.custom-dropdown select {
+    background-color: #ffffff;
+    color: #125575;
+    font-size: 12px;
+    position: relative;
+    padding: 0 25px 0 10px;
+    min-width: 62px;
+    height: 36px;
+    outline: none;
+    border: solid 1px #eeeeee;
+    margin: 0;
+    border-radius: 3px;
+    text-overflow: '';
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    right: 0;
+}
+
+    .custom-dropdown select::-ms-expand {
+        display: none;
+    }
+
+.custom-dropdown::before, .custom-dropdown::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+}
+
+.custom-dropdown::after {
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid #125575;
+    position: absolute;
+    right: 10px;
+    top: 16px;
+}
+
+.custom-dropdown::after {
+    color: rgba(0,0,0,.6);
+}
+
+.custom-dropdown select[disabled] {
+    color: rgba(0,0,0,.25);
+}
+
+.display-inline-block {
+    display: inline-block;
+}
+
+#schedule {
+    margin-top: 16px;
+}
+#schedule td {
+    text-align: center;
+}
+
+#schedule th {
+    background-color: #f0f0f0;
+}
+
+#schedule input[type=text]{
+    text-align: right;
+    max-width: 100px;
+}
+
+.width-100-percent {
+    width: 100%;
+}
+
+.matchings-window {
+    display: none;
+    padding: 20px;
+    position: absolute;
+    right: 15px;
+    background-color: #fff;
+    -webkit-box-shadow: 3px 3px 12px 0px rgba(50, 50, 50, 0.75);
+    -moz-box-shadow:    3px 3px 12px 0px rgba(50, 50, 50, 0.75);
+    box-shadow:         3px 3px 12px 0px rgba(50, 50, 50, 0.75);
+    z-index: 100;
+}
+.show-matchings {
+    cursor: pointer;
+    margin-left: 20px;
+}
+
+.table-padding th, .table-padding td {
+    padding: 5px;
+}
+
+.loader { width: 100%; height: 100%; position: fixed; top: 0px; left: 0px; background-color: rgba(0, 0, 0, 0.5); z-index: 8001; display: none; }
+.loader i { color: rgb(22, 72, 152); font-size: 78px; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+
+.min-width-1024 { min-width: 1024px; overflow: auto; }

@@ -1,0 +1,91 @@
+﻿@model Adrack.Web.ContentManagement.Models.Content.EmailTemplateModel
+
+@{
+    Html.AddPageTitle("E-Mail Template");
+    Html.AddPageMetaDescription("");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/selects/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switchery.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+}
+
+<script type="text/javascript" src="~/Scripts/plugins/forms/styling/uniform.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/editors/wysihtml5/wysihtml5.min.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/editors/wysihtml5/toolbar.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/editors/wysihtml5/parsers.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/editors/wysihtml5/locales/bootstrap-wysihtml5.ua-UA.js"></script>
+<script type="text/javascript" src="~/Scripts/plugins/notifications/jgrowl.min.js"></script>
+
+<!--<script type="text/javascript" src="~/Scripts/pages/editor_wysihtml5.js"></script>-->
+
+<form class="form-horizontal" action="#" method="post">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+            <h5 class="panel-title">Email Template - @Model.Name (ID: @Model.Id)</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-10">
+                    <fieldset>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">Name:</label>
+                            <div class="col-lg-10">
+                                <input type="text" class="form-control" placeholder="Name" name="Name" value="@Model.Name">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">Bcc:</label>
+                            <div class="col-lg-10">
+                                <input type="text" class="form-control" placeholder="Bcc" name="Bcc" value="@Model.Bcc">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">Subject:</label>
+                            <div class="col-lg-10">
+                                <input type="text" class="form-control" placeholder="Subject" name="Subject" value="@Model.Subject">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">Body:</label>
+                            <div class="col-lg-10">
+                                <textarea cols="18" rows="18" name="Body" id="TemplateBody" class="wysihtml5 wysihtml5-min form-control" placeholder="Enter text ...">
+                                    @Model.Body
+                                </textarea>
+                                <span class="help-block">
+                                    Available tokens: |
+                                    <span class="template-token">%User.FullName%</span> |
+                                    <span class="template-token">%Application.Name%</span> |
+                                    <span class="template-token">%EmailSubscription.DeactivationUrl%</span> |
+                                    <span class="template-token">%User.ActivationUrl%</span> |
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">SmtpAccountId:</label>
+                            <div class="col-lg-1">
+                                <input type="text" class="form-control" placeholder="SmtpAccountId" name="SmtpAccountId" value="@Model.SmtpAccountId">
+                            </div>
+
+                            <label class="col-lg-1 control-label">AttachmentId:</label>
+                            <div class="col-lg-1">
+                                <input type="text" class="form-control" placeholder="AttachmentId" name="AttachmentId" value="@Model.AttachmentId">
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+
+            <div class="text-right">
+                <button type="submit" id="BtnSave" class="btn btn-success">Save <i class="icon-arrow-right14 position-right"></i></button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!--<script src="~/Scripts/pages-js/EMailTemplateItem.js"></script>-->

@@ -1,0 +1,42 @@
+﻿@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+@using Adrack.Service.Helpers
+
+@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+
+    Html.AddPageTitle("Buyer Channel");
+    Html.AddPageMetaDescription("Shows Buyer Channels");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+
+    var appUser = this.AppContext.AppUser;
+}
+
+<script src="~/Scripts/pages-js/BuyerChannelList.js"></script>
+<script> BuyerChannelListParams.init('@Html.Raw(appUser.UserTypeId == SharedData.BuiltInUserTypeId || permissionService.Authorize(PermissionProvider.BuyerChannelsModify) ? ",Action" : "")'); </script>
+
+@if (permissionService.Authorize(PermissionProvider.BuyerChannelsModify) && (appUser.UserTypeId == SharedData.BuiltInUserTypeId || appUser.UserTypeId == SharedData.NetowrkUserTypeId))
+{
+<button id="add_new" type="button" class="btn btn-success btn-sm">
+    <i class="icon-add-to-list position-left"></i>Add buyer channel
+</button><br /><br />
+}
+
+@if (appUser.UserTypeId == SharedData.BuiltInUserTypeId || permissionService.Authorize(PermissionProvider.BuyerChannelsFilter))
+{
+    <div class="status-filter">
+        <div data-toggle="buttons" class="btn-group">
+            <label class="btn btn-default active">
+                <input type="radio" checked="checked" id="status1" name="statusradio"> Show Active
+            </label>
+            <label class="btn btn-default">
+                <input type="radio" id="status0" name="statusradio"> Show Inactvie
+            </label>
+        </div>
+    </div>
+}
+
+<div id="GridView1"></div>

@@ -1,0 +1,2 @@
+﻿DataProvider: SQLServer
+DataConnectionString: Data Source=DESKTOP-IRTK5F9\SQLEXPRESS; Initial Catalog=UnitTests-Database; Integrated Security=True; Persist Security Info=False; Connect Timeout=10

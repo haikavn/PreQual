@@ -1,0 +1,67 @@
+﻿@using Adrack.Core.Infrastructure
+@using Adrack.Core.Domain.Membership
+@using Adrack.Service.Membership
+@using Adrack.Service.Helpers
+
+@{
+    var currentUser = this.AppContext.AppUser;
+}
+
+@{
+    Layout = "~/ContentManagement/Views/Shared/_Master.Layout.cshtml";
+}
+
+@if (currentUser.MenuType != 2)
+{
+    Html.AppendPageCustom(PageLayoutPosition.BodyAttribute, "class=\"sidebar-xs navbar-top\"");
+}
+
+@Html.Partial("Header")
+
+@if (currentUser.MenuType == 1)
+{
+    @Html.Action("Navigation", "Common");
+}
+
+@if (currentUser.MenuType == 0)
+{
+    <style>
+        .content-wrapper {padding-top:36px !important}
+    </style>
+}
+
+
+<div class="page-container @Html.AppPageCustom(PageLayoutPosition.ContainerAttribute)">
+    <div class="page-content @Html.AppPageCustom(PageLayoutPosition.ContainerContentAttribute)">
+        @if (currentUser.MenuType != 2)
+        {
+            @Html.Action("Navigation", "Common")
+        }
+
+        <div class="content-wrapper @Html.AppPageCustom(PageLayoutPosition.ContainerContentWrapperAttribute)">
+            @if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+            {
+                <div class="panel page-header page-header-xs border-top-info0">
+                    <div class="page-header page-header-default" style="border-left: 0px solid #ddd; border-right: 0px solid #ddd;">
+                        <div class="breadcrumb-line">
+                            <ul class="breadcrumb">
+                                @*Html.Raw(NavigationBreadCrumb.Display())*@
+                                <span class="breadcrumb-page-title">@ViewBag.BuyerCompanyName @Html.AppPageTitle(false).ToString() </span> @*&nbsp;&nbsp;&nbsp;&nbsp; <span class="text-muted text-size-small"> @Html.AppPageMetaDescription() </span>*@
+                            </ul>
+                            <div id="clock" class="clock-container"> </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <div class="content fix-width-content @Html.AppPageCustom(PageLayoutPosition.ContentAttribute)">
+                @RenderBody()
+
+                @Html.Partial("Footer")
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="loader">
+    <i class="icon-spinner2 spinner position-left"></i>
+</div>

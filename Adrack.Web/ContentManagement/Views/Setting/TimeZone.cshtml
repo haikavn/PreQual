@@ -1,0 +1,49 @@
+﻿@model Adrack.Web.ContentManagement.Models.Content.SettingModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    Html.AddPageTitle("Time Zone");
+    Html.AddPageMetaDescription("Set Time Zone");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/selects/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switchery.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+
+    int timeZoneIndex = -1;
+}
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-validation" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+            <h5 class="panel-title">Time zone settings</h5>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <fieldset>
+                        <legend class="text-semibold"><i class="icon-reading position-left"></i> Time zone</legend>
+                        <div class="form-group">
+                            <div class="col-lg-9">
+                                @Html.DropDownList("SelectedTimeZone", Model.TimeZones, new { @class = "form-control", required = "required" })
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+
+            @if (permissionService.Authorize(PermissionProvider.SettingsTimeZoneModify))
+            {
+                <div class="text-right">
+                    <button type="submit" class="btn btn-success">Save <i class="icon-arrow-right14 position-right"></i></button>
+                </div>
+            }
+        </div>
+    </div>
+}

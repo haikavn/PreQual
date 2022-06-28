@@ -1,0 +1,20 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.AffiliateModel
+
+@using Adrack.Service.Helpers
+
+@{
+    var currentUser = this.AppContext.AppUser;
+}
+
+@if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+{
+    @RenderPage("../Shared/AffiliateSubMenu.cshtml")
+}
+
+@{
+    ViewBag.Title = "Reports";
+}
+
+@{
+    Html.RenderAction("ReportAffiliatesPartial", "Report", new { id = @Model.AffiliateId });
+}

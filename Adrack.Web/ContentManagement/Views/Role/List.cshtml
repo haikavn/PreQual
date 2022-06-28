@@ -1,0 +1,17 @@
+﻿@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+
+    Html.AddPageTitle("Users Roles");
+    Html.AddPageMetaDescription("Displays Users all Roles");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+}
+@Html.AntiForgeryToken()
+
+<br>
+<button id="add_new" type="button" class="btn btn-success btn-sm">
+    <i class="icon-add-to-list position-left"></i>Add role
+</button>
+
+<div id="GridView1"></div>
+<script src="~/Scripts/pages-js/RoleList.js"></script>

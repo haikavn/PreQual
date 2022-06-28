@@ -1,0 +1,32 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.AffiliateModel
+
+@using Adrack.Service.Helpers
+
+@{
+    ViewBag.Title = "Users";
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+
+    var currentUser = this.AppContext.AppUser;
+}
+
+@if (currentUser.UserTypeId == SharedData.BuiltInUserTypeId || currentUser.UserTypeId == SharedData.NetowrkUserTypeId)
+{
+    @RenderPage("../Shared/AffiliateSubMenu.cshtml")
+}
+
+<div>
+    <button id="add_user" type="button" class="btn btn-success btn-sm">
+        <i class="icon-add-to-list position-left"></i>Add user
+    </button>
+</div>
+
+<div id="users"></div>
+<script>
+    $(document).ready(function () {
+        $('#add_user').click(function () {
+            window.location = '/Management/User/Affiliate/@Model.AffiliateId';
+        });
+        GenerateGridTable("users", "/getusersbyaffiliate/@Model.AffiliateId", "ID, Username, Role, Status");
+    });
+</script>

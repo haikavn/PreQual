@@ -1,0 +1,190 @@
+<html>
+<head>
+
+    <style>
+
+        .supstile {
+            font-size: 1.2em;
+        }
+
+        .tablerows {
+            color: #555555;
+        }
+
+        .tablerows2 {
+            background-color: #EEEEEE;
+        }
+
+
+        .tablecell {
+            height: 30px;
+            padding-left: 30px;
+            padding-top: 7px;
+            padding-bottom: 7px;
+            font-size: 1.3em;
+            text-align: left;
+        }
+
+        .tablecell2 {
+            height: 30px;
+            padding-left: 30px;
+            padding-top: 3px;
+            padding-bottom: 14px;
+            text-align: left;
+        }
+
+        .tablecell3 {
+            font-size: 1.8em;
+            height: 50px;
+            padding-left: 20px;
+            padding-top: 10px;
+            padding-bottom: 14px;
+            text-align: left;
+        }
+    </style>
+
+</head>
+<body style="margin:0px;">
+    <!-- pagemarker -->
+
+    <div style="left:0px; top:0px;">
+        <img src="@path/header.png">
+    </div>
+    <br>
+    <table width=100%>
+        <tr class="tablerows">
+            <td class="tablecell" width=50% style="vertical-align:top;" rowspan=4>
+                @buyername<br>
+                <br>@address1<br>@address2<br>@country
+            </td>
+            <td class="tablecell">Customer ID</td>
+            <td class="tablecell">@customerid</td>
+        </tr>
+
+        <tr class="tablerows">
+            <td class="tablecell">Invoice Number:</td>
+            <td class="tablecell">@invoicenum</td>
+        </tr>
+
+        <tr class="tablerows">
+            <td class="tablecell">Invoice Date</td>
+            <td class="tablecell">@invoicedate</td>
+        </tr>
+        <tr class="tablerows">
+            <td class="tablecell">Invoice Period</td>
+            <td class="tablecell">@invoiceperiodstart - @invoiceperiodend</td>
+        </tr>
+
+    </table>
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <div style="padding-top:15px; padding-bottom:15px; font-weight:bold; font-size:1.5em; text-align:center; width:100%; background-color:#EEEEEE">
+        EDS Invoice
+    </div>
+
+    <br>
+    <br>
+    <br>
+    <table width=100%>
+        <tr class="tablerows" style="vertical-align:top">
+            <td class="tablecell">Current Plan Type</td>
+            <td class="tablecell">Plan Rate</td>
+            <td class="tablecell">Ping Limitation</td>
+            <td class="tablecell">
+                Average Price Per Ping
+                <div style="font-size:0.8em">(in case if you exceed the limit)</div>
+            </td>
+        </tr>
+
+        <tr class="tablerows" style="font-weight:bold; font-size:1.3em;">
+            <td class="tablecell2">@CurrentPlanType</td>
+            <td class="tablecell2">$@PlanRate</td>
+            <td class="tablecell2">@PingLimitation</td>
+            <td class="tablecell2">$@AveragePricePerPing</td>
+        </tr>
+
+    </table>
+
+    <br>
+    <br>
+    <div style="padding-left:30px">
+        <table width=95% border=1 cellspacing=0>
+            <tr>
+                <td class="tablecell3" style="background-color:#eeeeee; color:#555555;">Item</td>
+                <td class="tablecell3" style="background-color:#eeeeee; color:#555555;">Subscription Fees</td>
+            </tr>
+
+            <tr class="tablerows" style="font-size:0.8em;">
+                <td class="tablecell3">
+                    <b>EDS Lead Distribution Network</b>
+                    <br> @PingsIncluded Pings Included
+                    <br> @PingsProcessed Pings Processed
+                </td>
+                <td class="tablecell3">$@SubscriptionFees</td>
+            </tr>
+
+            <tr class="tablerows" style="font-size:0.8em;">
+                <td class="tablecell3">
+                    <b>Additional Pings</b>
+                    <br> @AdditionalPings Pings
+                </td>
+                <td class="tablecell3">$@SubscriptionFeesAdditionalPings</td>
+            </tr>
+
+
+        </table>
+    </div>
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <table width=100%>
+        <tr class="tablerows">
+            <td class="tablecell" width=50% style="vertical-align:top;" rowspan=4>
+                <b>Payment Method</b><br>
+                <br>Last 4 Digits - <b>@last4digits</b>
+            </td>
+            <td class="tablecell">Subtotal</td>
+            <td class="tablecell">$@Subtotal</td>
+        </tr>
+
+        <tr class="tablerows">
+            <td class="tablecell">Sales Tax</td>
+            <td class="tablecell">$@SalesTax</td>
+        </tr>
+
+        <tr class="tablerows">
+            <td class="tablecell">Amount Paid</td>
+            <td class="tablecell">$@AmountPaid</td>
+        </tr>
+        <tr class="tablerows">
+            <td class="tablecell"><b>Total Due</b></td>
+            <td class="tablecell"><b>$@TotalDue</b></td>
+        </tr>
+
+    </table>
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <hr>
+
+
+
+    <div style="padding-left:10px; top:0px;">
+
+        <img src="@path/footer.png">
+    </div>
+    <!-- pagemarker -->
+</body>
+
+</html>
+

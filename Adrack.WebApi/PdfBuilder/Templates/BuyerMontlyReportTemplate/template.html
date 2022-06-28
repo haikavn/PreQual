@@ -1,0 +1,153 @@
+<html>
+<head>
+
+    <style>
+
+        .supstile {
+            font-size:1.2em;
+        }
+
+        .tablerows {
+            color: red;
+            text-align: center;
+        }
+
+        .tablecell {
+            height: 40px;
+            padding-top: 7px;
+            padding-bottom: 7px;
+            font-size: 1.2em;
+            color: black;
+            text-align: center;
+            border: 1px solid lightgray;
+        }
+
+        .tablecellsub {
+            font-size: 0.7em;
+            color: gray;
+            line-height: 5px;
+            text-align: center;
+        }
+    </style>
+
+</head>
+<body style="margin:0px;">
+<!-- pagemarker -->
+    <div style="background-repeat: no-repeat;
+		background-image:url('@path/header.png'); width:842px;
+		height:595px;">
+        <p style="color:#013951; padding-left:230px; padding-top:160px; font-size:3.2em; font-weight:bold;">
+            MONTHLY STATEMENT<br>
+            @curmonth, @curyear<br>
+            <span style="font-size:25px; font-weight:bold;">
+                For @companyname
+            </span>
+
+        </p>
+
+    </div>
+<!-- pagemarker -->
+
+    <div style="background-repeat: no-repeat;
+left:0px; background-image:url('@path/second.jpg'); width:842px;
+		height:595px;">
+        <p style="color:#013951; padding-left:30px; padding-top:10px; font-size:2.1em; font-weight:normal;">
+            <b>Agenda</b><br>
+            &#8226;Summary<br>
+            &#8226;Sale statistics by lead price<br>
+            &#8226;Sale statistics by day of the week<br>
+            &#8226;Sale statistics by hour<br>
+            &#8226;Sale statistics by top 10 states<br>
+            &#8226;Contact Information<br>
+        </p>
+
+    </div>
+
+<!-- pagemarker -->
+    <p align=center style="margin-top:10px; margin-bottom:0px; font-size:2.5em; color:#0280B7;">
+        Summary<br>
+               <span style="font-size:0.8em; color:#000000; margin:0px;">
+                   Purchased Leads - @purchasedleads<br />
+                   <span style="font-size:0.8em !important; color:#000000;">( Change from previous month:  <b>@graphchange1</b> )</span>
+               </span><br />
+        
+        <img src="@graph1" width=800>
+        <br />
+    </p>
+
+<!-- pagemarker -->
+    <p align=center style="margin-top:10px; margin-bottom:0px; font-size:2.5em; color:#0280B7;">
+        Sale Statistics by Lead Price<br>
+        <span style="font-size:0.7em; color:#000000;">( Change from previous month:  <b>@graphchange2</b> )</span><br />
+        <img src="@graph2" width=800>
+        
+
+    </p>
+<!-- pagemarker -->
+    <p align=center style="margin-top:10px; margin-bottom:0px; font-size:2.5em; color:#0280B7;">
+        Sale Statistics by Day of the Week<br>
+        <span style="font-size:0.7em; color:#000000;">( Change from previous month: <b>@graphchange3</b> )</span><br />
+        <img src="@graph3" width=800>
+        
+
+    </p>
+<!-- pagemarker -->
+    <p align=center style="margin-top:10px; margin-bottom:0px; font-size:2.5em; color:#0280B7;">
+        Sale Statistics by Hour<br>
+        <span style="font-size:0.7em; color:#000000;">( Change from previous month:  <b>@graphchange4</b> )</span><br />
+        <img src="@graph4" width=800>       
+    </p>
+
+<!-- pagemarker -->
+    <p align=center style="margin-top:10px; margin-bottom:0px; font-size:2.5em; color:#0280B7;">
+        Sale Statistics by Top 10 States<br>
+        <span style="font-size:0.7em; color:#000000;">( Change from previous month:  <b>@graphchange5</b> )</span><br />
+        <img src="@graph5" width=800>       
+    </p>
+
+<!-- pagemarker -->
+    <p align=center style="margin-top:10px; margin-bottom:20px; font-size:2.5em; color:#0280B7;">
+        Sale Statistics by Top States Table<br>
+        <span style="font-size:0.7em; color:#000000;">Statistics is for current month (January) compared to the previous (December)<br>
+ 	<span style="font-size:0.9em; color:#000000;">( Change from previous month:  <b>@tablechange</b> )</span>
+     </span>
+        
+    </p>
+    <table width="800px" border=0 cellspacing=0 align="center" style="margin-left:20px;">
+        <thead >
+            <tr style="font-size:1.5em !important;">
+                @pricecategories
+            </tr>
+        </thead>
+        <tbody>
+		@tablerows
+        </tbody>
+    </table>
+<!-- pagemarker -->
+
+    <div style="background-repeat: no-repeat; left:0px; background-image:url('@path/footer.png'); width:842px;
+		height:595px;">
+
+        <p style="color:#013951; padding-left:220px; padding-top:40px; font-size:1.5em; font-weight:normal;">
+            <b>Contact Information</b> : @contactname<br>
+            <b>E-mail</b>: @contactmail<br>
+            <b>Phone</b>: @contactphone<br>
+                    If you have any questions concerning this monthly statement,<br>
+                    please contact your account manager.
+        </p>
+
+
+<div style="position:fixed; left:30px; top:40px;" >
+	<img src="@contactlogo" width=150>
+</div>
+
+	
+
+
+
+    </div>
+<!-- pagemarker -->
+
+</body>
+
+</html>

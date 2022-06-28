@@ -1,0 +1,96 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.LeadModel
+
+<div class="text-center" style="height:92px">
+    <div class="col-md-2">
+        <div class="content-group">
+            <span class="text-muted text-size-small">Lead ID</span>
+            <h6 class="text-semibold no-margin">@ViewBag.Lead.Id</h6>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="content-group">
+            <span class="text-muted text-size-small">Affiliate ID / Name</span>
+            <h6 class="text-semibold no-margin">@ViewBag.Lead.AffiliateId / @ViewBag.AffiliateName</h6>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="content-group">
+            <span class="text-muted text-size-small">Affiliate Channel ID / Name</span>
+            <h6 class="text-semibold no-margin">@ViewBag.Lead.AffiliateChannelId / @ViewBag.AffiliateChannelName</h6>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="content-group">
+            <span class="text-muted text-size-small">Campaign ID / Name</span>
+            <h6 class="text-semibold no-margin">@ViewBag.Lead.CampaignId / @ViewBag.CampaignName</h6>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="content-group">
+            <span class="text-muted text-size-small">Status</span>
+            <h6 class="text-semibold no-margin">@ViewBag.Status</h6>
+        </div>
+    </div>
+</div>
+
+<div id="tab1content">
+@{
+    foreach (System.Xml.XmlNode node in ViewBag.nodes)
+    {
+        <div class="lead-info001">
+            <div class="table-responsive">
+                <table class="table requestdatatable">
+                    <tbody>
+                        <tr><th class="active" colspan="3">@node.Name</th></tr>
+                        @foreach (System.Xml.XmlNode node2 in node.ChildNodes)
+                        {
+                            <tr><td style="width: 20%;">@node2.Name:</td><td>@node2.InnerText</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+}
+</div>
+
+<div id="tab2content">
+    <table class="table datatable-basic table-bordered">
+        <thead>
+            <tr>
+                <th>Buyer ID</th>
+                <th>Buyer Name</th>
+                <th>Buyer Channel ID</th>
+                <th>Buyer Channel Name</th>
+                <th>Response</th>
+                <th>Response Time</th>
+                <th class="text-center">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                foreach (Adrack.Core.Domain.Lead.LeadResponse lr in ViewBag.leadResponseList)
+                {
+                    <tr>
+                        <td>@lr.BuyerId</td>
+                        <td>@lr.BuyerName</td>
+                        <td>@lr.BuyerChannelId</td>
+                        <td>@lr.BuyerChanelName</td>
+                        <td>@lr.Response</td>
+                        <td>@lr.ResponseTime</td>
+                        <td class="text-center">
+                            @if (lr.Status == 1) { <span>Sold</span> }
+                            @if (lr.Status == 2) { <span>Error</span> }
+                            @if (lr.Status == 3) { <span>Reject</span> }
+                            @if (lr.Status == 4) { <span>Processing</span> }
+                            @if (lr.Status == 5) { <span>Filter</span> }
+                            @if (lr.Status == 6) { <span>Min Price</span> }
+                            @if (lr.Status == 0) { <span>Test</span> }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,14 @@
+﻿@model Adrack.Web.ContentManagement.Models.Content.EmailTemplateModel
+@{
+    Layout = "~/Views/Shared/_Master.Page.Layout.cshtml";
+    Html.AddPageTitle("E-Mail Templates");
+    Html.AddPageMetaDescription("Edit E-Mail Templates");
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/tables/datatables/datatables.min.js").ToLowerInvariant());
+}
+
+<br>
+<div id="GridViewEMailTemplates"></div>
+<script>
+    GenerateGridTable("GridViewEMailTemplates", "/Management/Setting/GetEMailTemplates", "ID, Name, Subject, Body, Status, Action");
+</script>

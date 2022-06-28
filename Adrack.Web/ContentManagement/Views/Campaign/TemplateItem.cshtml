@@ -1,0 +1,371 @@
+﻿@model Adrack.Web.ContentManagement.Models.Lead.CampaignModel
+
+@using Adrack.Service.Security
+@using Adrack.Core.Infrastructure
+
+@{
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/ContentManagement/Scripts/common.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/ContentManagement/Scripts/campaign.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/core.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/effects.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/core/library/jquery_ui/interactions.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/uniform.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/select2.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switchery.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/forms/styling/switch.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_all.min.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/trees/fancytree_childcounter.js").ToLowerInvariant());
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/plugins/loaders/blockui.min.js").ToLowerInvariant());
+
+    Html.AppendPageScript(PageLayoutPosition.Body, string.Format("~/Scripts/json2.js").ToLowerInvariant());
+
+    var permissionService = AppEngineContext.Current.Resolve<IPermissionService>();
+}
+
+<script>
+    var selectedNode = null;
+    var editMode = false;
+    var xmlTpl = '';
+
+    var SOURCE = [
+        {
+            title: "node 1", folder: true, expanded: true, children: [
+             { title: "node 1.1" },
+             { title: "node 1.2" }
+            ]
+        },
+        {
+            title: "node 2", folder: true, expanded: false, children: [
+             { title: "node 2.1" },
+             { title: "node 2.2" }
+            ]
+        }
+    ];
+
+    function editRow()
+    {
+        if (selectedNode == null)
+        {
+            alert('Please select the node');
+            return;
+        }
+
+        editMode = true;
+
+        $('#node_name').val(selectedNode.title);
+
+        $('#modal_add_node').modal('show');
+    }
+
+    function deleteRow()
+    {
+        if (selectedNode == null)
+        {
+            alert('Please select the node');
+            return;
+        }
+
+        selectedNode.remove();
+    }
+
+    function addNodeDialog()
+    {
+        editMode = false;
+        $('#modal_add_node').modal('show');
+    }
+
+    $(document).ready(function () {
+
+        $('.select').select2();
+
+        $('form').on('submit', function (e) {
+            e.preventDefault();
+
+            var tpl = [];
+
+            tpl = [];
+
+            var tree = $(".tree-table").fancytree("getTree");
+            tpl = AdrackCampaign.getNodes(tree, tree.rootNode, "root", tpl);
+
+            var tpljson = JSON.stringify(tpl);
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: "POST",
+                async: false,
+                data: $(this).serialize() + '&json=' + tpljson + '&xml=' + xmlTpl,
+                success: function (data) {
+                    window.location = '/management/campaign/templatelist';
+                },
+                error: function (jXHR, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+
+            return false;
+        });
+
+
+        $('#add_node_dialog').click(function () {
+            addNodeDialog();
+        });
+
+        $('#add_node_btn').click(function () {
+            var node = selectedNode;
+            var folder = false;
+
+            if (editMode)
+            {
+                if (node != null)
+                {
+                    node.setTitle($('#node_name').val());
+                }
+
+                $('#modal_add_node').modal('hide');
+
+                return;
+            }
+
+            if (node == null)
+            {
+                var tree = $(".tree-table").fancytree("getTree");
+
+                if (tree.count() > 0)
+                {
+                    alert('Please select the parent node');
+                    return;
+                }
+
+                node = $(".tree-table").fancytree("getRootNode");
+                folder = true;
+            }
+
+            var childNode = node.addChildren({
+                title: $('#node_name').val(),
+                tooltip: "",
+                folder: folder,
+                data : {
+
+                }
+            });
+
+            console.log(childNode);
+
+            $tdList = $(childNode.tr).find(">td");
+
+            $(childNode.tr).data('folder', childNode.folder);
+
+            $tdList.eq(0).data('name', "n");
+            $tdList.eq(1).data('name', "template field");
+            $tdList.eq(2).data('name', "system field");
+            $tdList.eq(3).data('name', "validator");
+            $tdList.eq(4).data('name', "comments");
+            $tdList.eq(5).data('name', "required");
+            $tdList.eq(6).data('name', "blacklist");
+
+            console.log(node.tr);
+
+            $(node.tr).data('folder', true);
+
+            console.log($(node.tr).data('folder'));
+
+            selectedNode = null;
+            $('#node_name').val('');
+            $('#modal_add_node').modal('hide');
+        });
+
+        $('#load_template_btn').click(function () {
+
+            $('.modal-body').block({
+                message: '<i class="icon-spinner2 spinner"></i>',
+                overlayCSS: {
+                    backgroundColor: '#1B2024',
+                    opacity: 0.85,
+                    cursor: 'wait'
+                },
+                css: {
+                    border: 0,
+                    padding: 0,
+                    backgroundColor: 'none',
+                    color: '#fff'
+                }
+            });
+
+            xmlTpl = $('#xml_template').val();
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@(Url.RouteUrl("loadfromxml"))",
+                data: { xml: $('#xml_template').val() },
+                success: function (data) {
+                    //loadTree(data);
+                    $('.modal-body').unblock();
+                    $('#modal_default').modal('hide');
+                    //setTimeout(function () { $('#modal_default').hide(); }, 500);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+        });
+
+        @foreach (var item in Model.ListSystemField)
+        {
+            @: AdrackCampaign.addSystemField('@item.Text', '@item.Text');
+        }
+
+        @foreach(var item in Model.ListDataType)
+        {
+            @: AdrackCampaign.addDataType('@item.Text', '@item.Value');
+        }
+
+        @foreach (var item in Model.ListBlackListType)
+        {
+            @: AdrackCampaign.addDataType('@item.Text', '@item.Value');
+        }
+
+        AdrackCampaign.init(@Model.CampaignId, "@(Url.RouteUrl("getcampaigninfo"))", "@(Url.RouteUrl("GetCampaignsByVerticalId"))", "@(Url.RouteUrl("GetCampaignTemplatesByVerticalId"))", "@(Url.RouteUrl("loadfromxml"))", false);
+
+    });
+</script>
+
+<form action="#">
+    <div class="panel panel-flat">
+        <div class="panel-heading">
+            <h5 class="panel-title">Campaign template</h5>
+        </div>
+
+        <div class="panel-body">
+            <fieldset>
+                <div class="collapse in" id="demo1">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(x => x.Name)
+                                @Html.TextBoxFor(x => x.Name, new { @class = "form-control", tabindex = 1, placeholder = "Campaign template name", required = "required" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.Label("Vertical")<br />
+                                @Html.DropDownList("VerticalId", Model.ListVertical, new { @class = "select", required = "required", style = "width: 170px" })
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.Label("Campaign type")<br />
+                                @Html.DropDownList("CampaignType", Model.ListCampaignType, new { @class = "select", required = "required", style = "width: 170px" })
+                            </div>
+                        </div>
+                    </div>
+               </div>
+            </fieldset>
+
+            <fieldset>
+                <legend class="text-semibold">
+                    <i class="icon-reading position-left"></i>
+                    XML template
+                    <a class="control-arrow" data-toggle="collapse" data-target="#template">
+                        <i class="icon-circle-down2"></i>
+                    </a>
+                </legend>
+
+                <div class="collapse in" id="template">
+                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#modal_default">Load xml <i class="icon-play3 position-right"></i></button>
+                    <!--<button type="button" id="add_node_dialog" class="btn btn-default btn-sm">Add node<i class="icon-play3 position-right"></i></button>-->
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered tree-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 46px;">#</th>
+                                        <th style="width: 80px;">Campaign field</th>
+                                        <th style="width: 80px;">System field</th>
+                                        <th style="width: 80px;">Data type</th>
+                                        <th style="width: 80px;">Description</th>
+                                        <th style="width: 80px;">Possible value</th>
+                                        <th style="width: 46px;">Required</th>
+                                        <th style="width: 46px;">Hash</th>
+                                        <th style="width: 46px;">Hidden</th>
+                                        <th style="width: 46px;">Filterable</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+            </fieldset>
+
+            @if (permissionService.Authorize(PermissionProvider.SettingsCampaignTemplatesModify))
+            {
+            <div class="text-right">
+                <input type="hidden" value="@Model.CampaignId" name="CampaignId" />
+                <button type="submit" class="btn btn-primary">Submit<i class="icon-arrow-right14 position-right"></i></button>
+            </div>
+            }
+        </div>
+    </div>
+</form>
+
+ <!-- Basic modal -->
+<div id="modal_default" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Template</h5>
+            </div>
+
+            <div class="modal-body">
+                <textarea id="xml_template" rows="15" style="width: 100%"></textarea>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <button id="load_template_btn" type="button" class="btn btn-primary">Apply</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal_add_node" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Field name</h5>
+            </div>
+
+            <div class="modal-body">
+                <input id="node_name" type="text" class="form-control" />
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <button id="add_node_btn" type="button" class="btn btn-primary">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /basic modal -->

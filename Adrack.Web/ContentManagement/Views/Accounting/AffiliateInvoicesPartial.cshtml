@@ -1,0 +1,30 @@
+﻿@model Adrack.Web.ContentManagement.Models.Accounting.AffiliateInvoiceModel
+
+<div id="GridView1"></div>
+<script>
+    GenerateGridTable("GridView1", "/Accounting/GetAffiliateInvoices/?affiliateid="+@ViewBag.AffiliateId, "V, ID, Invoice Number, Date From, Date To, Date Created, Affiliate Name, Total, Paid, Bill Within, Status");
+</script>
+
+<script>
+    $(function () {
+        $('.datatable-html tbody').on('click', 'tr', function () {
+            $("#InvoiceApprove").removeClass("disabled");
+            $("#InvoiceDisable").removeClass("disabled");
+            $("#InvoicePay").removeClass("disabled");
+            $("#InvoiceDownload").removeClass("disabled");
+
+            var checkedCount = 0;
+            $(".row_checkbox").each(function () {
+                if ($(this).is(':checked')) {
+                    checkedCount++;
+                }
+            });
+            if (checkedCount > 1) {
+                $("#InvoiceDisable").addClass("disabled");
+                $("#InvoicePay").addClass("disabled");
+                $("#InvoiceDownload").addClass("disabled");
+            }
+        });
+
+    });
+</script>

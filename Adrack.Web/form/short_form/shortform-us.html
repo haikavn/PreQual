@@ -1,0 +1,77 @@
+﻿<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<title>Demo</title>
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,700&display=swap" rel="stylesheet">
+	<link href='https://formz.azurewebsites.net/form/short_form/css/style.css?v20' rel='stylesheet' />
+</head>
+
+
+<body>
+
+	<div class="sf-shortform">
+		<form id="SF-Shortform">
+			<div class="sf-page-title">Find loans that fit your needs</div>
+
+			<div class="sf-clearfix sf-row">
+				<div class="sf-col sf-clearfix">
+					<div class="sf-input-label">Loan amount:</div>
+					<div class="sf-input">
+						<label class="custom-dropdown">
+							<select id="SF-LoanAmount" dir="rtl">
+								<option value="100">$100</option>
+								<option value="200">$200</option>
+								<option value="300">$300</option>
+								<option value="400">$400</option>
+								<option value="500">$500</option>
+								<option value="1000">$1000</option>
+								<option value="2000" selected="selected">$2000</option>
+								<option value="3000">$3000</option>
+								<option value="4000">$4000</option>
+								<option value="5000">$5000</option>
+							</select>
+						</label>
+					</div>
+				</div>
+			</div>
+			<div class="sf-clearfix sf-row">
+				<div class="sf-col sf-clearfix">
+					<div class="sf-input-label">First Name:</div>
+					<div class="sf-input">
+						<input type="text" id="SF-Firstname"
+							oninput="this.value=this.value.replace(/[^a-zA-Z \ ]/g,'');" data-valid="name" required>
+					</div>
+				</div>
+			</div>
+			<div class="sf-clearfix sf-row">
+				<div class="sf-col-half sf-clearfix">
+					<div class="sf-input-label">ZIP: </div>
+					<div class="sf-input">
+						<input type="text" id="SF-ZIP" maxlength="5"
+							oninput="this.value=this.value.replace(/[^0-9\ ]/g,'');" data-valid="zip" required>
+					</div>
+				</div>
+				<div class="sf-col-half sf-clearfix">
+					<div class="sf-input-label">E-mail:</div>
+					<div class="sf-input">
+						<input type="email" id="SF-Email" data-valid="email" required>
+					</div>
+
+				</div>
+			</div>
+
+			<div class="sf-tip">By clicking “Get Started”, I consent and agree to the <a href="/privacy-policy">Privacy
+					Policy</a> and <a href="/legal">Terms of Site Use</a>.</div>
+
+
+			<div class="sf-clearfix sf-row sf-sbumit-row">
+				<input type="submit" value="Get Started">
+			</div>
+		</form>
+	</div>
+	<script src='https://formz.azurewebsites.net/form/short_form/js/main.js?v20' type="text/javascript"></script>
+</body>
+
+</html>
